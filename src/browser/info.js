@@ -144,6 +144,14 @@ BetaJS.Browser.Info = {
 		    	return parseFloat(RegExp.$1);
 		}
 		return null;
+	},
+	
+	inIframe: function () {
+	    try {
+	        return window.self !== window.top;
+	    } catch (e) {
+	        return true;
+	    }
 	}
 	
 };

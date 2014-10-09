@@ -1,7 +1,7 @@
 /*!
-  betajs-browser - v0.0.1 - 2014-10-01
-  Copyright (c) Oliver Friedmann & Victor Lingenthal
-  MIT Software License.
+betajs-browser - v1.0.0 - 2014-10-08
+Copyright (c) Oliver Friedmann
+MIT Software License.
 */
 BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 	
@@ -568,6 +568,14 @@ BetaJS.Browser.Info = {
 		    	return parseFloat(RegExp.$1);
 		}
 		return null;
+	},
+	
+	inIframe: function () {
+	    try {
+	        return window.self !== window.top;
+	    } catch (e) {
+	        return true;
+	    }
 	}
 	
 };

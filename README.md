@@ -11,3 +11,9 @@ BetaJS-Browser is a client-side JavaScript framework for Browser-specific method
 ## License
 
 MIT
+
+
+## Credits
+This software uses modified portions of
+- FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau
+- Keyboard Shortcuts, BSD Software License, (c) Binny V A
