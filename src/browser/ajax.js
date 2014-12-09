@@ -34,7 +34,10 @@ BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 			dataType: options.decodeType ? options.decodeType : null, 
 			data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
 			success: function (response) {
-				BetaJS.SyncAsync.callback(callbacks, "success", response);
+				if (callbacks && callbacks.success)
+					callbacks.success.call(callbacks.context || this, response);
+				if (callbacks && callbacks.complete)
+					callbacks.complete.call(callbacks.context || this);
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				var err = "";
@@ -44,7 +47,10 @@ BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 					err = JSON.parse('"' + jqXHR.responseText + '"');
 				}
 				var exc = new BetaJS.Net.AjaxException(jqXHR.status, errorThrown, err);
-				BetaJS.SyncAsync.callback(callbacks, "exception", exc);
+				if (callbacks && callbacks.exception)
+					callbacks.exception.call(callbacks.context || this, exc);
+				if (callbacks && callbacks.complete)
+					callbacks.complete.call(callbacks.context || this);
 			}
 		});
 	}

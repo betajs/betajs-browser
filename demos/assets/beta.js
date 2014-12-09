@@ -1,5 +1,5 @@
 /*!
-betajs - v1.0.0 - 2014-10-02
+betajs - v1.0.0 - 2014-12-09
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
@@ -163,7 +163,21 @@ BetaJS.Types = {
 		if (this.is_array(x))
 			return "array";
 		return typeof x;
+	},
+	
+	parseType: function (x, type) {
+		if (!BetaJS.Types.is_string(x))
+			return x;
+		type = type.toLowerCase();
+		if (type == "bool" || type == "boolean")
+			return this.parseBool(x);
+		if (type == "int" || type == "integer")
+			return parseInt(x, 10);
+		if (type == "date" || type == "time" || type == "datetime")
+			return parseInt(x, 10);
+		return x;
 	}
+
 
 };
 
@@ -419,12 +433,27 @@ BetaJS.Functions = {
 			}
 		}
 		return result;
+	},
+	
+	newClassFunc: function (cls) {
+		return function () {
+			var args = arguments;
+			function F() {
+				return cls.apply(this, args);
+			}
+			F.prototype = cls.prototype;
+			return new F();
+		};
+	},
+	
+	newClass: function (cls) {
+		return this.newClassFunc(cls).apply(this, BetaJS.Functions.getArguments(arguments, 1));
 	}
 	
 };
 
 /** @class */
-BetaJS.SyncAsync = {
+BetaJS.Async = {
 	
 	eventually: function (func, params, context) {
 		var timer = setTimeout(function () {
@@ -437,438 +466,29 @@ BetaJS.SyncAsync = {
 		}, 0);
 	},
 	
-    /** Converts a synchronous function to an asynchronous one and calls it
-     * 
-     * @param callbacks callbacks object with success and exception
-     * @param syncCall the synchronous function
-     * @param params optional syncCall params
-     * @param context optional object context
-     */	
-	syncToAsync: function (callbacks, syncCall) {
-		var args = BetaJS.Functions.matchArgs(BetaJS.Functions.getArguments(arguments, 2), {
-			params: "array",
-			context: "object"
-		});
-		try {
-			if (callbacks && callbacks.success)
-				callbacks.success.call(callbacks.context || this, syncCall.apply(args.context || this, args.params || []));
-		} catch (e) {
-			if (callbacks && callbacks.exception)
-				callbacks.exception.call(callbacks.context || this, e);
-		}
-	},
-	
-    /** Either calls a synchronous or asynchronous function depending on whether preferSync is given
-     * 
-     * @param callbacks callbacks object with success and exception (or null)
-     * @param preferSync prefer synchronous call?
-     * @param syncCall the synchronous function
-     * @param asyncCall the asynchronous function
-     * @param params optional syncCall params
-     * @param context optional object context
-     * @return the function return data
-     */	
-	either: function (callbacks, preferSync, syncCall, asyncCall) {
-		var args = BetaJS.Functions.matchArgs(BetaJS.Functions.getArguments(arguments, 4), {
-			params: "array",
-			context: "object"
-		});
-		if (callbacks && !preferSync && !callbacks.sync) {
-			var params = args.params || [];
-			params.push(callbacks); 
-			asyncCall.apply(args.context || this, params);
-			return null;
-		} else
-			return this.eitherSync(callbacks, syncCall, args.params, args.context);
-	},
-	
-	eitherSync: function (callbacks, syncCall) {
-		var args = BetaJS.Functions.matchArgs(BetaJS.Functions.getArguments(arguments, 2), {
-			params: "array",
-			context: "object"
-		});
-		var context = args.context || this;
-		var params = args.params || [];
-		if (callbacks)
-			this.syncToAsync(callbacks, syncCall, params, context);
-		else
-			return syncCall.apply(context, params);
-		return null;
-	},
-	
-	SYNC: 1,
-	ASYNC: 2,
-	ASYNCSINGLE: 3,
-	
-	toCallbackType: function (callbacks, type) {
-		if (type == this.ASYNCSINGLE)
-			return function (err, result) {
-                var caller = err ? "exception" : "success";
-                if (caller in callbacks)
-                    callbacks[caller].call(callbacks.context || this, err ? err : result);
-			};
-		return callbacks;
-	},
-	
-	then: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number",
-			callbacks: true,
-			success_ctx: "object",
-			success: "function",
-			exception: "function"
-		});
-		var func_ctx = args.func_ctx || this;
-		var func = args.func;
-		var params = args.params || [];
-		var callbacks = args.callbacks;
-		var type = args.type || (!callbacks || callbacks.sync ? this.SYNC : this.ASYNC);
-		var success_ctx = args.success_ctx || func_ctx;
-		var success = args.success;
-		var exception = args.exception;
-		if (type != this.SYNC) {			
-			params.push(this.toCallbackType({
-				context: callbacks.context,
-				success: success ? function (ret) {
-					success.call(success_ctx, ret, callbacks);
-				} : callbacks.success,
-				exception: exception ? function (error) {
-					exception.call(success_ctx, error, callbacks);
-				} : callbacks.exception
-			}, type));
-			func.apply(func_ctx, params);
-		} else if (callbacks) {
-			try {
-				if (success)
-					success.call(success_ctx, func.apply(func_ctx, params), callbacks);
-				else
-					callbacks.success.call(callbacks.context || this, func.apply(func_ctx, params));
-			} catch (e) {
-				if (exception)
-					exception.call(success_ctx, e, callbacks);
-				else if (callbacks.exception)
-					callbacks.exception.call(callbacks.context || this, e);
-				else
-					throw e;
-			}
-		} else {
-			try {
-				var ret = func.apply(func_ctx, params);
-				if (success)
-					success.call(success_ctx, ret, {
-						sync: true,
-						success: function (retv) {
-							ret = retv;
-						},
-						exception: function (err) {
-							throw err;
-						}
-					});
-				return ret;
-			} catch (e) {
-				if (exception) {
-					exception.call(success_ctx, e, {
-						sync: true,
-						success: function (retv) {
-							ret = retv;
-						},
-						exception: function (err) {
-							throw err;
-						}
-					});
-					return ret;
-				} else
-					throw e;
-			}
-		}
-		return null;
-	},
-	
-	PROMISE_LAZY: 1,
-	PROMISE_ACTIVE: 2,
-	PROMISE_SUCCESS: 3,
-	PROMISE_EXCEPTION: 4,
-
-	lazy: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number"
-		});
-		return {
-			state: this.PROMISE_LAZY,
-			func_ctx: args.func_ctx || this,
-			func: args.func,
-			params: args.params || [],
-			type: args.type || this.ASYNC
+	eventuallyOnce: function (func, params, context) {
+		var data = {
+			func: func,
+			params: params,
+			context: context
 		};
-	},
-	
-	promise: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number"
-		});
-		var func_ctx = args.func_ctx || this;
-		var func = args.func;
-		var params = args.params || [];
-		var type = args.type || this.ASYNC;
-		if (type == this.SYNC) {
-			try {
-				return {
-					state: this.PROMISE_SUCCESS,
-					result: func.apply(func_ctx, params)
-				};
-			} catch (e) {
-				return {
-					state: this.PROMISE_EXCEPTION,
-					exception: e
-				};
-			}
-		} else {
-			var promise = {
-				state: this.PROMISE_ACTIVE,
-				listeners: []
-			};
-			params.push({
-				context: promise,
-				success: function (result) {
-					this.state = BetaJS.SyncAsync.PROMISE_SUCCESS;
-					this.result = result;
-					for (var i = 0; i < this.listeners.length; ++i)
-						this.listeners[i].success.call(this.listeners[i].context || this, result);
-				},
-				exception: function (error) {
-					this.state = BetaJS.SyncAsync.PROMISE_EXCEPTION;
-					this.exception = error;
-					for (var i = 0; i < this.listeners.length; ++i)
-						this.listeners[i].exception.call(this.listeners[i].context || this, error);
-				}
-			});
-			func.apply(func_ctx, params);
-			return promise;
+		for (var key in this.__eventuallyOnce) {
+			if (BetaJS.Comparators.listEqual(this.__eventuallyOnce[key], data))
+				return;
 		}
-	},
-	
-	reveal: function (promise, callbacks) {
-		if (promise.state == this.PROMISE_LAZY) {
-			var promise_temp = this.promise(promise.func_ctx, promise.func, promise.params, promise.type);
-			for (var key in promise_temp)
-				promise[key] = promise_temp[key];
-		}
-		if (promise.state == this.PROMISE_ACTIVE)
-			promise.listeners.push(callbacks);
-		else if (promise.state == this.PROMISE_SUCCESS)
-			callbacks.success.call(callbacks.context || this, promise.result);
-		else if (promise.state == this.PROMISE_EXCEPTION)
-			callbacks.exception.call(callbacks.context || this, promise.exception);
-	},
-	
-	join: function (promises, callbacks) {
-		var monitor = {
-			count: promises.length,
-			exception: false,
-			results: []
-		};
-		for (var i = 0; i < promises.length; ++i) {
-			monitor.results.push(null);
-			this.reveal(promises[i], {
-				context: {
-					monitor: monitor,
-					index: i
-				},
-				sync: callbacks && callbacks.sync,
-				success: function (result) {
-					this.monitor.count = this.monitor.count - 1;
-					if (this.monitor.exception)
-						return;
-					this.monitor.results[this.index] = result;
-					if (this.monitor.count <= 0) {
-						if (callbacks)
-							callbacks.success.apply(callbacks.context || this, this.monitor.results);
-					}
-				},
-				exception: function (error) {
-					this.monitor.count = this.monitor.count - 1;
-					if (this.monitor.exception)
-						return;
-					this.monitor.exception = true;
-					if (callbacks)
-						callbacks.exception.apply(callbacks.context || this, error);
-					else
-						throw error;
-				}
-			});
-		}
-		return monitor.results;
-	},
-	
-	mapSuccess: function (callbacks, success) {
-		var obj = BetaJS.Objs.clone(callbacks, 1);
-		obj.success = success;
-		return obj;
-	},
-	
-	mapException: function (callbacks, exception) {
-		var obj = BetaJS.Objs.clone(callbacks, 1);
-		obj.exception = exception;
-		return obj;
-	},
-
-	callback: function (callbacks, type) {
-		if (!callbacks || (type != "success" && type != "exception"))
-			return;
-		var context = callbacks.context || this;
-		var params = BetaJS.Functions.getArguments(arguments, 2);
-		if (type in callbacks)
-			callbacks[type].apply(context, params);
-		if ("complete" in callbacks)
-			callbacks.complete.apply(context);
-	}
-	
-};
-
-
-
-BetaJS.SyncAsync.SyncAsyncMixin = {
-	
-	supportsSync: function () {
-		return this._supportsSync;
-	},
-	
-	supportsAsync: function () {
-		return this._supportsAsync;
-	},
-	
-	eitherSync: function (callbacks, syncFunc, params) {
-		return BetaJS.SyncAsync.eitherSync(callbacks, syncFunc, params || [], this);
-	},
-		
-	either: function (callbacks, syncFunc, asyncFunc, preferSync, params) {
-		if (BetaJS.Types.is_undefined(preferSync))
-			preferSync = !this.supportsAsync();
-		return BetaJS.SyncAsync.either(callbacks, preferSync, syncFunc, asyncFunc, params || [], this);
-	},
-	
-	eitherSyncFactory: function (property, callbacks, syncFunc, params) {
-		return BetaJS.SyncAsync.eitherSync(callbacks, function () {
-			if (!this[property])
-				this[property] = syncFunc.apply(this, params);
-			return this[property];				
+		this.__eventuallyOnceIdx++;
+		var index = this.__eventuallyOnceIdx;
+		this.__eventuallyOnce[index] = data;
+		this.eventually(function () {
+			delete this.__eventuallyOnce[index];
+			func.apply(context || this, params || []);
 		}, this);
 	},
-
-	eitherAsyncFactory: function (property, callbacks, asyncFunc, params) {
-		var ctx = this;
-		return this.either(callbacks, function () {
-			return ctx[property];				
-		}, function () {
-			asyncFunc.call(this, BetaJS.SyncAsync.mapSuccess(callbacks, function (result) {
-				ctx[property] = result;
-				ctx.callback(callbacks, "success", result);
-			}));
-		}, property in this, this);
-	},
-
-	eitherFactory: function (property, callbacks, syncFunc, asyncFunc, params) {
-		var ctx = this;
-		return this.either(callbacks, function () {
-			if (!this[property])
-				this[property] = syncFunc.apply(this, params);
-			return this[property];				
-		}, function () {
-			asyncFunc.call(this, BetaJS.SyncAsync.mapSuccess(callbacks, function (result) {
-				ctx[property] = result;
-				callbacks.success.call(this, result);
-			}));
-		}, this[property] || !this.supportsAsync());
-	},
 	
-	then: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number",
-			callbacks: true,
-			success_ctx: "object",
-			success: true,
-			exception: "function"
-		});
-		var func_ctx = args.func_ctx || this;
-		var func = args.func;
-		var params = args.params || [];
-		var callbacks = args.callbacks;
-		var type = args.type || (!callbacks || !this.supportsAsync() ? BetaJS.SyncAsync.SYNC : BetaJS.SyncAsync.ASYNC);
-		var success_ctx = args.success_ctx || this;
-		return BetaJS.SyncAsync.then(func_ctx, func, params, type, callbacks, success_ctx, args.success, args.exception);
-	},
-	
-	thenSingle: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number",
-			callbacks: true,
-			success_ctx: "object",
-			success: true
-		});
-		var func_ctx = args.func_ctx || this;
-		var func = args.func;
-		var params = args.params || [];
-		var callbacks = args.callbacks;
-		var type = args.type || (!callbacks || !this.supportsAsync() ? BetaJS.SyncAsync.SYNC : BetaJS.SyncAsync.ASYNCSINGLE);
-		var success_ctx = args.success_ctx || this;
-		var success = args.success;
-		return BetaJS.SyncAsync.then(func_ctx, func, params, type, callbacks, success_ctx, success);
-	},
-	
-	promise: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			type: "number"
-		});
-		return BetaJS.SyncAsync.promise(args.func_ctx || this, args.func, args.params || [], args.type);
-	},
-	
-	join: function (promises, callbacks) {
-		return BetaJS.SyncAsync.join(promises, callbacks);
-	},
-	
-	delegate: function () {
-		var args = BetaJS.Functions.matchArgs(arguments, {
-			func_ctx: "object",
-			func: true,
-			params: "array",
-			callbacks: "object"
-		});
-		var ctx = args.func_ctx || this;
-		var params = args.params || [];
-		if (args.callbacks) {
-			if (this.supportsAsync() && !args.callbacks.sync) {
-				params.push(args.callbacks);
-				return args.func.apply(ctx, params);
-			} else
-				return BetaJS.SyncAsync.syncToAsync(args.callbacks, args.func, params, ctx);
-		} else
-			return args.func.apply(ctx, params);
-	},
-	
-	callback: function () {
-		return BetaJS.SyncAsync.callback.apply(this, arguments);
-	}
+	__eventuallyOnce: {},
+	__eventuallyOnceIdx: 1
 	
 };
-
 
 /** @class */
 BetaJS.Scopes = {
@@ -1040,7 +660,7 @@ BetaJS.Objs = {
 	},
 	
 	clone: function (item, depth) {
-		if (!depth || depth <= 0)
+		if (!depth || depth === 0)
 			return item;
 		if (BetaJS.Types.is_array(item))
 			return item.slice(0);
@@ -1328,6 +948,20 @@ BetaJS.Objs = {
 			idx--;
 		}
 		return null;
+	},
+	
+	pairArrayToObject: function (arr) {
+		var result = {};
+		for (var i = 0; i < arr.length / 2; i += 2)
+			result[arr[i]] = arr[i+1];
+		return result;
+	},
+	
+	pairsToObject: function () {
+		var result = {};
+		for (var i = 0; i < arguments.length; ++i)
+			result[arguments[i][0]] = arguments[i][1];
+		return result;
 	}
 
 };
@@ -1784,6 +1418,8 @@ BetaJS.Lists.AbstractList.extend("BetaJS.Lists.ArrayList", {
 		options = options || {};
 		if ("compare" in options)
 			this._compare = options["compare"];
+		if ("get_ident" in options)
+			this._get_ident = options["get_ident"];
 		this._inherited(BetaJS.Lists.ArrayList, "constructor", objects);
 	},
 	
@@ -1838,11 +1474,15 @@ BetaJS.Lists.AbstractList.extend("BetaJS.Lists.ArrayList", {
 	
 	_re_indexed: function (object) {},
 	
+	__objectId: function(object) {
+		return this._get_ident ? this._get_ident(object) : BetaJS.Ids.objectId(object);
+	},
+	
 	_add: function (object) {
 		var last = this.__items.length;
 		this.__items.push(object);
 		var i = this.re_index(last);
-		this.__idToIndex[BetaJS.Ids.objectId(object)] = i;
+		this.__idToIndex[this.__objectId(object)] = i;
 		return i;
 	},
 	
@@ -1853,7 +1493,7 @@ BetaJS.Lists.AbstractList.extend("BetaJS.Lists.ArrayList", {
 			this.__ident_changed(this.__items[i-1], i-1);
 		}
 		this.__items.pop();
-		delete this.__idToIndex[BetaJS.Ids.objectId(obj)];
+		delete this.__idToIndex[this.__objectId(obj)];
 		return obj;
 	},
 	
@@ -1868,12 +1508,12 @@ BetaJS.Lists.AbstractList.extend("BetaJS.Lists.ArrayList", {
 	},
 
 	__ident_changed: function (object, index) {
-		this.__idToIndex[BetaJS.Ids.objectId(object)] = index;
+		this.__idToIndex[this.__objectId(object)] = index;
 		this._ident_changed(object, index);
 	},
 
 	get_ident: function (object) {
-		var id = BetaJS.Ids.objectId(object);
+		var id = this.__objectId(object);
 		return id in this.__idToIndex ? this.__idToIndex[id] : null;
 	},
 	
@@ -2143,7 +1783,7 @@ BetaJS.Events.EventsMixin = {
 			object.max_delay.start();
 		if (!object.min_delay && !object.max_delay) {
 			if (object.eventually)
-				BetaJS.SyncAsync.eventually(object.callback, params, object.context || this);
+				BetaJS.Async.eventually(object.callback, params, object.context || this);
 			else
 				object.callback.apply(object.context || this, params);
 		} else
@@ -2605,9 +2245,11 @@ BetaJS.Classes.HelperClassMixin = {
 		var helper = new helper_class(this, options);
 		this.__helpers = this.__helpers || [];
 		this.__helpers.push(this._auto_destroy(helper));
+		return helper;
 	},
 	
 	_helper: function (options) {
+		this.__helpers = this.__helpers || [];
 		if (BetaJS.Types.is_string(options)) {
 			options = {
 				method: options
@@ -2620,51 +2262,153 @@ BetaJS.Classes.HelperClassMixin = {
 			}
 		}, options);
 		var args = BetaJS.Functions.getArguments(arguments, 1);
-		var acc = options.fold_start;
-		if (options.callbacks) {
-			var self = this;
-			var callback_index = -1;
-			for (j = 0; j < args.length; ++j) {
-				if (args[j] == options.callback)
-					callback_index = j;
-			}
-			function helper_fold(idx) {
-				if (idx >= self.__helpers.length) {
-					BetaJS.SyncAsync.callback(options.callbacks, "success", acc);
-					return;
-				} else if (options.method in self.__helpers[idx]) {
-					var helper = this.__helpers[idx];
-					if (callback_index == -1) {
-						helper[options.method].apply(helper, args);
-						helper_fold(idx + 1);
-					} else {
-						args[callback_index] = {
-							context: options.callbacks.context,
-							success: function (result) {
-								acc = options.fold(acc, result);
-								helper_fold(idx + 1);
-							},
-							failure: options.callbacks.failure
-						};
-						helper[options.method].apply(helper, args);
-					}
-				} else
-					helper_fold(idx + 1);
-			}
-			helper_fold(0);
-		} else {
-			for (var i = 0; i < this.__helpers.length; ++i) {
-				var helper = this.__helpers[i];
-				if (options.method in helper) {
-					var result = helper[options.method].apply(helper, args);
-					acc = options.fold(acc, result);
-				}
+		var acc = options.async ? BetaJS.Promise.create(options.fold_start) : options.fold_start;
+		for (var i = 0; i < this.__helpers.length; ++i) {
+			var helper = this.__helpers[i];
+			if (options.method in helper) {
+				if (options.async)
+					acc = BetaJS.Promise.func(options.fold, acc, BetaJS.Promise.methodArgs(helper, helper[options.method], args));
+				else
+					acc = options.fold(acc, helper[options.method].apply(helper, args));
 			}
 		}
 		return acc;
 	}
 	
 };
+
+
+BetaJS.Class.extend("BetaJS.Classes.IdGenerator", {
+	
+	generate: function () {}
+	
+});
+
+BetaJS.Classes.IdGenerator.extend("BetaJS.Classes.PrefixedIdGenerator", {
+
+	constructor: function (prefix, generator) {
+		this._inherited(BetaJS.Classes.PrefixedIdGenerator, "constructor");
+		this.__prefix = prefix;
+		this.__generator = generator;
+	},
+	
+	generate: function () {
+		return this.__prefix + this.__generator.generate();
+	}
+	
+});
+
+BetaJS.Classes.IdGenerator.extend("BetaJS.Classes.RandomIdGenerator", {
+
+	constructor: function (length) {
+		this._inherited(BetaJS.Classes.PrefixedIdGenerator, "constructor");
+		this.__length = length || 16;
+	},
+	
+	generate: function () {
+		return BetaJS.Tokens.generate_token(this.__length);
+	}
+
+});
+
+BetaJS.Classes.IdGenerator.extend("BetaJS.Classes.ConsecutiveIdGenerator", {
+
+	constructor: function (initial) {
+		this._inherited(BetaJS.Classes.ConsecutiveIdGenerator, "constructor");
+		this.__current = initial || 0;
+	},
+	
+	generate: function () {
+		this.__current++;
+		return this.__current;
+	}
+
+});
+
+BetaJS.Classes.IdGenerator.extend("BetaJS.Classes.TimedIdGenerator", {
+
+	constructor: function () {
+		this._inherited(BetaJS.Classes.TimedIdGenerator, "constructor");
+		this.__current = BetaJS.Time.now() - 1;
+	},
+	
+	generate: function () {
+		var now = BetaJS.Time.now();
+		this.__current = now > this.__current ? now : (this.__current + 1); 
+		return this.__current;
+	}
+
+});
+
+
+BetaJS.Class.extend("BetaJS.Classes.PathResolver", {
+	
+	constructor: function (bindings) {
+		this._inherited(BetaJS.Classes.PathResolver, "constructor");
+		this._bindings = bindings || {};
+	},
+	
+	extend: function (bindings, namespace) {
+		if (namespace) {
+			for (var key in bindings) {
+				var value = bindings[key];
+				var regExp = /\{([^}]+)\}/;
+				while (true) {
+					var matches = regExp.exec(value);
+					if (!matches)
+						break;
+					value = value.replace(regExp, namespace + "." + matches[1]);
+				}
+				this._bindings[namespace + "." + key] = value;
+			}
+		} else
+			this._bindings = BetaJS.Objs.extend(this._bindings, bindings);
+	},
+	
+	map: function (arr) {
+		var result = [];
+		for (var i = 0; i < arr.length; ++i) {
+			if (arr[i])
+				result.push(this.resolve(arr[i]));
+		}
+		return result;
+	},
+	
+	resolve : function(path) {
+		var regExp = /\{([^}]+)\}/;
+		while (true) {
+			var matches = regExp.exec(path);
+			if (!matches)
+				return this.simplify(path);
+			path = path.replace(regExp, this._bindings[matches[1]]);
+		}
+		return path;
+	},
+	
+	simplify: function (path) {
+		return path.replace(/[^\/]+\/\.\.\//, "").replace(/\/[^\/]+\/\.\./, "");
+	}
+	
+});
+
+
+BetaJS.Class.extend("BetaJS.Classes.MultiDelegatable", {
+
+	constructor: function (objects, methods) {
+		this._inherited(BetaJS.Classes.MultiDelegatable, "constructor");
+		BetaJS.Objs.iter(methods, function (method) {
+			this[method] = function () {
+				var args = arguments;
+				BetaJS.Objs.iter(objects, function (object) {
+					object[method].apply(object, args);
+				}, this);
+				return this;
+			};
+		}, this);
+	}
+	
+});
+
 BetaJS.Properties = {};
 
 
@@ -2904,32 +2648,6 @@ BetaJS.Class.extend("BetaJS.Properties.Properties", [
 	}
 	
 }]);
-
-
-
-BetaJS.Class.extend("BetaJS.Properties.PropertiesData", {
-	
-	constructor: function (properties) {
-		this._inherited(BetaJS.Properties.PropertiesData, "constructor");
-		this.__properties = properties;
-		this.data = this.__properties.getAll();
-		this.__properties.on("change", function (key, value) {
-			this.data[key] = value;
-		}, this);
-		this.__properties.on("unset", function (key) {
-			delete this.data[key];
-		}, this);
-		this.__properties.on("destroy", function () {
-			this.destroy();
-		}, this);
-	},
-	
-	properties: function () {
-		return this.__properties;
-	}
-	
-});
-
 BetaJS.Class.extend("BetaJS.Collections.Collection", [
 	BetaJS.Events.EventsMixin, {
 		
@@ -2939,6 +2657,7 @@ BetaJS.Class.extend("BetaJS.Collections.Collection", [
 		var list_options = {};
 		if ("compare" in options)
 			list_options["compare"] = options["compare"];
+		list_options.get_ident = BetaJS.Functions.as_method(this.get_ident, this);
 		this.__data = new BetaJS.Lists.ArrayList([], list_options);
 		var self = this;
 		this.__data._ident_changed = function (object, index) {
@@ -2952,6 +2671,10 @@ BetaJS.Class.extend("BetaJS.Collections.Collection", [
 		};
 		if ("objects" in options)
 			this.add_objects(options["objects"]);
+	},
+	
+	get_ident: function (obj) {
+		return BetaJS.Ids.objectId(obj);
 	},
 	
 	set_compare: function (compare) {
@@ -3065,40 +2788,6 @@ BetaJS.Class.extend("BetaJS.Collections.Collection", [
 }]);
 
 
-BetaJS.Class.extend("BetaJS.Collections.CollectionData", {
-	
-	constructor: function (collection) {
-		this._inherited(BetaJS.Collections.CollectionData, "constructor");
-		this.__collection = collection;
-		this.__properties_data = {};
-		this.data = {};
-		this.__collection.iterate(this.__insert, this);
-		this.__collection.on("add", this.__insert, this);
-		this.__collection.on("remove", this.__remove, this);
-		this.__collection.on("destroy", function () {
-			this.destroy();
-		}, this);
-	},
-	
-	collection: function () {
-		return this.__collection;
-	},
-	
-	__insert: function (property) {
-		var id = BetaJS.Ids.objectId(property);
-		this.__properties_data[id] = new BetaJS.Properties.PropertiesData(property);
-		this.data[id] = this.__properties_data[id].data;
-	},
-	
-	__remove: function (property) {
-		var id = BetaJS.Ids.objectId(property);
-		this.__properties_data[id].destroy();
-		delete this.__properties_data[id];
-		delete this.data[id];
-	}
-	
-});
-
 
 
 BetaJS.Collections.Collection.extend("BetaJS.Collections.FilteredCollection", {
@@ -3186,6 +2875,29 @@ BetaJS.Comparators = {
 		if (a > b)
 			return 1;
 		return 0;
+	},
+	
+	listEqual: function (a, b) {
+		if (BetaJS.Types.is_array(a) && BetaJS.Types.is_array(b)) {
+			if (a.length != b.length)
+				return false;
+			for (var i = 0; i < a.length; ++i) {
+				if (a[i] !== b[i])
+					return false;
+			}
+			return true;
+		} else if (BetaJS.Types.is_object(a) && BetaJS.Types.is_object(b)) {
+			for (var key in a) {
+				if (b[key] !== a[key])
+					return false;
+			}
+			for (key in b) {
+				if (!(key in a))
+					return false;
+			}
+			return true;
+		} else
+			return false;
 	}
 		
 };
@@ -3195,10 +2907,10 @@ BetaJS.Sort = {
 	sort_object : function(object, f) {
 		var a = [];
 		for (var key in object)
-		a.push({
-			key : key,
-			value : object[key]
-		});
+			a.push({
+				key : key,
+				value : object[key]
+			});
 		a.sort(function (x, y) {
 			return f(x.key, y.key, x.value, y.value);
 		});
@@ -3219,7 +2931,7 @@ BetaJS.Sort = {
 				object[key] = this.deep_sort(object[key], f);
 			return this.sort_object(object, f);
 		} else
-			return f;
+			return object;
 	},
 
 	dependency_sort : function(items, identifier, before, after) {
@@ -3310,114 +3022,172 @@ BetaJS.Locales = {
 	
 };
 BetaJS.Time = {
+		
+	/*
+	 * All time routines are based on UTC time.
+	 * The optional timezone parameter should be used as follows:
+	 *    - undefined or false: UTC
+	 *    - true: user's local time zone
+	 *    - int value: actual time zone bias in minutes
+	 */
+		
 	
-	format_time: function(t, s) {
-		var seconds = this.seconds(t);
-		var minutes = this.minutes(t);
-		var hours = this.hours(t);
-		var replacers = {
-			"hh": hours < 10 ? "0" + hours : hours, 
-			"h": hours, 
-			"mm": minutes < 10 ? "0" + minutes : minutes, 
-			"m": minutes, 
-			"ss": seconds < 10 ? "0" + seconds : seconds, 
-			"s": seconds
-		};
+	timezoneBias: function (timezone) {
+		if (timezone === true)
+			timezone = (new Date()).getTimezoneOffset();
+		if (typeof timezone == "undefined" || timezone === null || timezone === false)
+			timezone = 0;
+		return timezone * 60 * 1000;
+	},
+		
+	timeToDate: function (t, timezone) {
+		return new Date(t + this.timezoneBias(timezone));
+	},
+	
+	dateToTime: function (d, timezone) {
+		return d.getTime() - this.timezoneBias(timezone);
+	},
+	
+	timeToTimezoneBasedDate: function (t, timezone) {
+		return new Date(t - this.timezoneBias(timezone));
+	},
+	
+	timezoneBasedDateToTime: function (d, timezone) {
+		return d.getTime() + this.timezoneBias(timezone);
+	},
+
+	__components: {
+		"year": {
+			"set": function (date, value) { date.setUTCFullYear(value); },
+			"get": function (date) { return date.getUTCFullYear(); }
+		},
+		"month": {
+			"set": function (date, value) { date.setUTCMonth(value); },
+			"get": function (date) { return date.getUTCMonth(); }
+		},
+		"day": {
+			"dependencies": {"weekday": true},
+			"set": function (date, value) { date.setUTCDate(value + 1); },
+			"get": function (date) { return date.getUTCDate() - 1; },
+			"milliseconds": 24 * 60 * 60 * 1000
+		},
+		"weekday": {
+			"dependencies": {"day": true, "month": true, "year": true},
+			"set": function (date, value) { date.setUTCDate(date.getUTCDate() + value - date.getUTCDay()); },
+			"get": function (date) { return date.getUTCDay(); }
+		},
+		"hour": {
+			"set": function (date, value) { date.setUTCHours(value); },
+			"get": function (date) { return date.getUTCHours(); },
+			"max": 23,
+			"milliseconds": 60 * 60 * 1000
+		},
+		"minute": {
+			"set": function (date, value) { date.setUTCMinutes(value); },
+			"get": function (date) { return date.getUTCMinutes(); },
+			"max": 59,
+			"milliseconds": 60 * 1000
+		},
+		"second": {
+			"set": function (date, value) { date.setUTCSeconds(value); },
+			"get": function (date) { return date.getUTCSeconds(); },
+			"max": 59,
+			"milliseconds": 1000
+		},
+		"millisecond": {
+			"set": function (date, value) { date.setUTCMilliseconds(value); },
+			"get": function (date) { return date.getUTCMilliseconds(); },
+			"max": 999,
+			"milliseconds": 1
+		}
+	},
+	
+	decodeTime: function (t, timezone) {
+		var d = this.timeToTimezoneBasedDate(t, timezone);
+		var result = {};
+		for (var key in this.__components)
+			result[key] = this.__components[key].get(d);
+		return result;
+	},
+
+	encodeTime: function (data, timezone) {
+		return this.updateTime(this.now(), data, timezone);
+	},
+	
+	encodePeriod: function (data) {
+		return this.incrementTime(0, data);
+	},
+	
+	updateTime: function (t, data, timezone) {
+		var d = this.timeToTimezoneBasedDate(t, timezone);
+		for (var key in data)
+			this.__components[key].set(d, data[key]);
+		return this.timezoneBasedDateToTime(d, timezone);
+	},
+	
+	now: function (timezone) {
+		return this.dateToTime(new Date(), timezone);
+	},
+	
+	incrementTime: function (t, data) {
+		var d = this.timeToDate(t);
+		for (var key in data) 
+			this.__components[key].set(d, this.__components[key].get(d) + data[key]);
+		return this.dateToTime(d);
+	},
+	
+	floorTime: function (t, key, timezone) {
+		var d = this.timeToTimezoneBasedDate(t, timezone);
+		var found = false;
+		for (var comp in this.__components) {
+			var c = this.__components[comp];
+			found = found || comp == key;
+			if (found && (!c.dependencies || !c.dependencies[key]))
+				c.set(d, 0);
+		}
+		return this.timezoneBasedDateToTime(d, timezone);
+	},
+	
+	ago: function (t, timezone) {
+		return this.now(timezone) - t;
+	},
+	
+	timeComponent: function (t, key, round) {
+		return Math[round || "floor"](t / this.__components[key].milliseconds);
+	},
+	
+	timeModulo: function (t, key, round) {
+		return this.timeComponent(t, key, round) % (this.__components[key].max + 1);
+	},
+	
+	formatTimePeriod: function (t, options) {
+		options = options || {};
+		var components = options.components || ["day", "hour", "minute", "second"];
+		var component = "";
+		var timeComponent = 0;
+		for (var i = 0; i < components.length; ++i) {
+			component = components[i];
+			timeComponent = this.timeComponent(t, component, options.round || "round");
+			if (timeComponent)
+				break;
+		}
+		return timeComponent + " " + BetaJS.Locales.get(component + (timeComponent == 1 ? "" : "s"));
+	},
+	
+	formatTime: function(t, s) {
+		var components = ["hour", "minute", "second"];
+		s = s || "hhh:mm:ss";
+		var replacers = {};
+		for (var i = 0; i < components.length; ++i) {
+			var c = components[i].charAt(0);
+			replacers[c + c + c] = this.timeComponent(t, components[i], "floor");
+			var temp = this.timeModulo(t, components[i], "floor");
+			replacers[c + c] = temp < 10 ? "0" + temp : temp; 
+			replacers[c] = temp;
+		}
 		for (var key in replacers)
 			s = s.replace(key, replacers[key]);
 		return s;
-	},
-	
-	make: function (data) {
-		var t = 0;
-		var multipliers = {
-			hours: 60,
-			minutes: 60,
-			seconds: 60,
-			milliseconds: 1000
-		};
-		for (var key in multipliers) {
-			t *= multipliers[key];
-			if (key in data)
-				t += data[key];
-		}
-		return t;
-	},
-	
-	seconds: function (t) {
-		return Math.floor(t / 1000) % 60;
-	},
-	
-	minutes: function (t) {
-		return Math.floor(t / 60 / 1000) % 60;
-	},
-
-	hours: function (t) {
-		return Math.floor(t / 60 / 60 / 1000) % 24;
-	},
-
-	days: function (t) {
-		return Math.floor(t / 24 / 60 / 60 / 1000);
-	},
-
-	now: function () {
-		var d = new Date();
-		return d.getTime();
-	},
-	
-	ago: function (t) {
-		return this.now() - t;
-	},
-	
-	days_ago: function (t) {
-		return this.days(this.ago(t));
-	},
-	
-	format_ago: function (t) {
-		if (this.days_ago(t) > 1)
-			return this.format(t, {time: false});
-		else
-			return this.format_period(Math.max(this.ago(t), 0)) + " ago";
-	},
-	
-	format_period: function (t) {
-		t = Math.round(t / 1000);
-		if (t < 60)
-			return t + " " + BetaJS.Locales.get(t == 1 ? "second" : "seconds");
-		t = Math.round(t / 60);
-		if (t < 60)
-			return t + " " + BetaJS.Locales.get(t == 1 ? "minute" : "minutes");
-		t = Math.round(t / 60);
-		if (t < 24)
-			return t + " " + BetaJS.Locales.get(t == 1 ? "hour" : "hours");
-		t = Math.round(t / 24);
-		return t + " " + BetaJS.Locales.get(t == 1 ? "day" : "days");
-	},
-	
-	format: function (t, options) {
-		options = BetaJS.Objs.extend({
-			time: true,
-			date: true,
-			locale: true
-		}, options || {});
-		var d = new Date(t);
-		if (options.locale) {
-			if (options.date) {
-				if (options.time)
-					return d.toLocaleString();
-				else
-					return d.toLocaleDateString();
-			} else
-				return d.toLocaleTimeString();
-		} else {
-			if (options.date) {
-				if (options.time) 
-					return d.toString();
-				else
-					return d.toDateString();
-			} else
-				return d.toTimeString();
-		}
 	}
 	
 };
@@ -3696,6 +3466,7 @@ BetaJS.Class.extend("BetaJS.States.State", {
         this._starting = false;
         this._started = false;
         this._stopped = false;
+        this._transitioning = false;
         this.__next_state = null;
         this.__suspended = 0;
         args = args || {};
@@ -3737,6 +3508,12 @@ BetaJS.Class.extend("BetaJS.States.State", {
         this.destroy();
     },
     
+    eventualNext: function (state_name, args, transitionals) {
+    	this.suspend();
+		this.next(state_name, args, transitionals);
+		this.eventualResume();
+    },
+    
     next: function (state_name, args, transitionals) {
     	if (!this._starting || this._stopped || this.__next_state)
     		return;
@@ -3758,6 +3535,8 @@ BetaJS.Class.extend("BetaJS.States.State", {
             this._started = true;
         }
         this.__next_state = obj;
+        this._transitioning = true;
+        this._transition();
         if (this.__suspended <= 0)
         	this.__next();
     },
@@ -3771,8 +3550,15 @@ BetaJS.Class.extend("BetaJS.States.State", {
         host._afterNext(obj);
     },
     
+    _transition: function () {
+    },
+    
     suspend: function () {
     	this.__suspended++;
+    },
+    
+    eventualResume: function () {
+    	BetaJS.Async.eventually(this.resume, this);
     },
     
     resume: function () {
@@ -3969,9 +3755,11 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 		}));
 	},
 	
-	_reply: function (message, data, callbacks) {},
+	// Returns Promise
+	_reply: function (message, data) {},
 	
-	send: function (message, data, callbacks, options) {
+	send: function (message, data, options) {
+		var promise = BetaJS.Promise.create();
 		options = options || {};
 		if (options.stateless) {
 			this.__sender.send("send", {
@@ -3979,6 +3767,7 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 				data: data,
 				stateless: true
 			});
+			promise.asyncSuccess(true);
 		} else {
 			this.__sent_id++;
 			this.__sent[this.__sent_id] = {
@@ -3987,7 +3776,7 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 				tries: 1,
 				time: BetaJS.Time.now(),
 				id: this.__sent_id,
-				callbacks: callbacks
+				promise: promise
 			};
 			this.__sender.send("send", {
 				message: message,
@@ -3995,6 +3784,7 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 				id: this.__sent_id
 			});
 		}
+		return promise;
 	},
 	
 	__reply: function (data) {
@@ -4007,21 +3797,17 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 			this.__received[data.id].time = BetaJS.Time.now();
 			this.__received[data.id].returned = false;
 			this.__received[data.id].success = false;
-			this._reply(data.message, data.data, {
-				context: this,
-				success: function (result) {
-					this.__received[data.id].reply = result;
-					this.__received[data.id].success = true;
-				}, complete: function () {
-					this.__received[data.id].returned = true;
-					this.__sender.send("reply", {
-						id: data.id,
-						reply: data.reply,
-						success: data.success
-					});
-				}
-			});
-			  
+			this._reply(data.message, data.data).success(function (result) {
+				this.__received[data.id].reply = result;
+				this.__received[data.id].success = true;
+			}, this).callback(function () {
+				this.__received[data.id].returned = true;
+				this.__sender.send("reply", {
+					id: data.id,
+					reply: data.reply,
+					success: data.success
+				});
+			}, this);			  
 		} else if (this.__received[data.id].returned) {
 			this.__sender.send("reply", {
 				id: data.id,
@@ -4033,7 +3819,7 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 	
 	__complete: function (data) {
 		if (this.__sent[data.id]) {
-			BetaJS.SyncAsync.callback(this.__sent[data.id].callbacks, "success", data.reply);
+			this.__sent[data.id].promise.asyncSuccess(data.reply);
 			delete this.__sent[data.id];
 		}
 	},
@@ -4056,7 +3842,7 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 						id: sent.id
 					});
 				} else {
-					BetaJS.SyncAsync.callback(sent.callbacks, "failure", {
+					sent.promise.asyncError({
 						message: sent.message,
 						data: sent.data
 					});
@@ -4070,7 +3856,6 @@ BetaJS.Class.extend("BetaJS.Channels.TransportChannel", {
 
 BetaJS.Class.extend("BetaJS.RMI.Stub", [
 	BetaJS.Classes.InvokerMixin,
-	BetaJS.Events.EventsMixin,
 	{
 		
 	intf: [],
@@ -4082,66 +3867,11 @@ BetaJS.Class.extend("BetaJS.RMI.Stub", [
 	
 	destroy: function () {
 		this.invoke("_destroy");
-		this.trigger("destroy");
 		this._inherited(BetaJS.RMI.Stub, "destroy");
 	},
 	
-	_new_promise: function () {
-		return {
-			context: this,
-			success: function (f) {
-				this.__success = f;
-				if (this.is_complete && this.is_success)
-					this.__success.call(this.context, this.result);
-				return this;
-			},
-			failure: function (f) {
-				this.__failure = f;
-				if (this.is_complete && this.is_failure)
-					this.__failure.call(this.context);
-				return this;
-			},
-			callbacks: function (c) {
-			    c = c.callbacks ? c.callbacks : c;
-			    this.context = c.context || this;
-			    if (c.success)
-			        this.success(c.success);
-                if (c.failure)
-                    this.failure(c.failure);
-                if (c.exception)
-                    this.failure(c.exception);
-                return this;
-			}
-		};
-	},
-	
-	_promise_success: function (promise, result) {
-		promise.result = result;
-		promise.is_complete = true;
-		promise.is_success = true;
-		if (promise.__success)
-			promise.__success.call(promise.context, result);
-	},
-	
-	_promise_failure: function (promise) {
-		promise.is_complete = true;
-		promise.is_failure = true;		
-		if (promise.__failure)
-			promise.__failure.call(promise.context);
-	},
-	
 	invoke: function (message) {
-		var promise = this._new_promise();
-		this.trigger("send", message, BetaJS.Functions.getArguments(arguments, 1), {
-			context: this,
-			success: function (result) {
-				return this._promise_success(promise, result);
-			},
-			failure: function () {
-				return this._promise_failure(promise);
-			}
-		});
-		return promise;
+		return this.__send(message, BetaJS.Functions.getArguments(arguments, 1));
 	}
 	
 }]);
@@ -4161,7 +3891,7 @@ BetaJS.Class.extend("BetaJS.RMI.StubSyncer", [
 	invoke: function () {
 		var object = {
 			args: BetaJS.Functions.getArguments(arguments),
-			promise: this.__stub._new_promise()
+			promise: BetaJS.Promise.create()
 		};
 		this.__queue.push(object);
 		if (!this.__current)
@@ -4173,33 +3903,18 @@ BetaJS.Class.extend("BetaJS.RMI.StubSyncer", [
 		if (this.__queue.length === 0)
 			return;
 		this.__current = this.__queue.shift();
-		this.__stub.invoke.apply(this.__stub, this.__current.args).callbacks({
-			context: this,
-			success: function (result) {
-				this.__stub._promise_success(this.__current.promise, result);
-				this.__next();
-			},
-			failure: function () {
-				this.__stub._promise_failure(this.__current.promise);
-				this.__next();
-			}
-		});
+		this.__stub.invoke.apply(this.__stub, this.__current.args).forwardCallback(this.__current.promise).callback(this.__next, this);
 	}
 	
 }]);
 
 
-BetaJS.Class.extend("BetaJS.RMI.Skeleton", [
-	BetaJS.Events.EventsMixin,
-	{
+BetaJS.Class.extend("BetaJS.RMI.Skeleton", {
 	
 	_stub: null,
 	intf: [],
-	intfSync: [],
 	_intf: {},
-	_intfSync: {},
-	__superIntf: [],
-	__superIntfSync: ["_destroy"],
+	__superIntf: ["_destroy"],
 	
 	constructor: function (options) {
 		this._options = BetaJS.Objs.extend({
@@ -4207,11 +3922,8 @@ BetaJS.Class.extend("BetaJS.RMI.Skeleton", [
 		}, options);
 		this._inherited(BetaJS.RMI.Skeleton, "constructor");
 		this.intf = this.intf.concat(this.__superIntf);
-		this.intfSync = this.intfSync.concat(this.__superIntfSync);
 		for (var i = 0; i < this.intf.length; ++i)
 			this._intf[this.intf[i]] = true;
-		for (i = 0; i < this.intfSync.length; ++i)
-			this._intfSync[this.intfSync[i]] = true;
 	},
 	
 	_destroy: function () {
@@ -4219,40 +3931,23 @@ BetaJS.Class.extend("BetaJS.RMI.Skeleton", [
 			this.destroy();
 	},
 	
-	destroy: function () {
-		this.trigger("destroy");
-		this._inherited(BetaJS.RMI.Skeleton, "destroy");
-	},
-	
-	invoke: function (message, data, callbacks, caller) {
-		if (!(this._intf[message] || this._intfSync[message])) {
-			this._failure(callbacks);
-			return;
-		}
-		var ctx = {
-			callbacks: callbacks,
-			caller: caller
-		};
-		if (this._intf[message]) {
-			data.unshift(ctx);
-			this[message].apply(this, data);
-		} else {
-			try {
-				this._success(ctx, this[message].apply(this, data));
-			} catch (e) {
-				this._failure(ctx, e);
-			}
+	invoke: function (message, data) {
+		if (!(this._intf[message] || this._intfSync[message]))
+			return BetaJS.Promise.error(message);
+		try {
+			var result = this[message].apply(this, data);
+			return BetaJS.Promise.is(result) ? result : BetaJS.Promise.value(result);
+		} catch (e) {
+			return BetaJS.Promise.error(e);
 		}
 	},
 	
-	_success: function (callbacks, result) {
-		callbacks = callbacks.callbacks ? callbacks.callbacks : callbacks;
-		BetaJS.SyncAsync.callback(callbacks, "success", result);
+	_success: function (result) {
+		return BetaJS.Promise.value(result);
 	},
 	
-	_failure: function (callbacks) {
-		callbacks = callbacks.callbacks ? callbacks.callbacks : callbacks;
-		BetaJS.SyncAsync.callback(callbacks, "failure");
+	_error: function (callbacks) {
+		return BetaJS.Promise.error(result);
 	},
 	
 	stub: function () {
@@ -4262,7 +3957,7 @@ BetaJS.Class.extend("BetaJS.RMI.Skeleton", [
 		return stub.indexOf("Skeleton") >= 0 ? stub.replace("Skeleton", "Stub") : stub;
 	}
 	
-}]);
+});
 
 BetaJS.Class.extend("BetaJS.RMI.Server", [
 	BetaJS.Events.EventsMixin,
@@ -4306,12 +4001,12 @@ BetaJS.Class.extend("BetaJS.RMI.Server", [
 	registerClient: function (channel) {
 		var self = this;
 		this.__channels.add(channel);
-		channel._reply = function (message, data, callbacks) {
+		channel._reply = function (message, data) {
 			var components = message.split(":");
 			if (components.length == 2)
-				self._invoke(channel, components[0], components[1], data, callbacks);
+				return self._invoke(channel, components[0], components[1], data);
 			else
-				BetaJS.SyncAsync.callback(callbacks, "failure");
+				return BetaJS.Promise.error(true);
 		};
 	},
 	
@@ -4320,29 +4015,26 @@ BetaJS.Class.extend("BetaJS.RMI.Server", [
 		channel._reply = null;
 	},
 	
-	_invoke: function (channel, instance_id, method, data, callbacks) {
+	_invoke: function (channel, instance_id, method, data) {
 		var instance = this.__instances[instance_id];
 		if (!instance) {
 			this.trigger("loadInstance", channel, instance_id);
 			instance = this.__instances[instance_id];
 		}
-		if (!instance) {
-			BetaJS.SyncAsync.callback(callbacks, "failure");
-			return;
-		}
+		if (!instance)
+			return BetaJS.Promise.error(instance_id);
 		instance = instance.instance;
-		var self = this;
-		instance.invoke(method, data, BetaJS.SyncAsync.mapSuccess(callbacks, function (result) {
+		return instance.invoke(method, data, channel).mapSuccess(function (result) {
 			if (BetaJS.RMI.Skeleton.is_class_instance(result) && result.instance_of(BetaJS.RMI.Skeleton)) {
-				self.registerInstance(result);
-				BetaJS.SyncAsync.callback(callbacks, "success", {
+				this.registerInstance(result);
+				return {
 					__rmi_meta: true,
 					__rmi_stub: result.stub(),
 					__rmi_stub_id: BetaJS.Ids.objectId(result)
-				});
+				};
 			} else
-				BetaJS.SyncAsync.callback(callbacks, "success", result);
-		}), channel);
+				return result;
+		}, this);
 	}
 		
 }]);
@@ -4393,14 +4085,11 @@ BetaJS.Class.extend("BetaJS.RMI.Client", {
 		var instance = new class_type();
 		this.__instances[BetaJS.Ids.objectId(instance, instance_name)] = instance;
 		var self = this;
-		instance.on("send", function (message, data, callbacks) {
-			this.__channel.send(instance_name + ":" + message, data, BetaJS.SyncAsync.mapSuccess(callbacks, function (result) {
-				if (BetaJS.Types.is_object(result) && result.__rmi_meta)
-					BetaJS.SyncAsync.callback(callbacks, "success", self.acquire(result.__rmi_stub, result.__rmi_stub_id));
-				else
-					BetaJS.SyncAsync.callback(callbacks, "success", result);
-			}));
-		}, this);
+		instance.__send = function (message, data) {
+			return self.__channel.send(instance_name + ":" + message, data).mapSuccess(function (result) {
+				return BetaJS.Types.is_object(result) && result.__rmi_meta ? this.acquire(result.__rmi_stub, result.__rmi_stub_id) : result;
+			}, self);
+		};
 		return instance;		
 	},
 	
@@ -4448,6 +4137,318 @@ BetaJS.Class.extend("BetaJS.RMI.Peer", {
 
 });
 
+BetaJS.Promise = {
+		
+	Promise: function (value, error, finished) {
+		this.__value = error ? null : (value || null);
+		this.__error = error ? error : null;
+		this.__isFinished = finished;
+		this.__hasError = !!error;
+		this.__resultPromise = null;
+		this.__callbacks = [];
+	},
+	
+	create: function (value, error) {
+		return new this.Promise(value, error, arguments.length > 0);
+	},
+	
+	value: function (value) {
+		return this.is(value) ? value : new this.Promise(value, null, true);
+	},
+	
+	eventualValue: function (value) {
+		var promise = new this.Promise();
+		BetaJS.Async.eventually(function () {
+			promise.asyncSuccess(value);
+		});
+		return promise;
+	},
+
+	error: function (error) {
+		return this.is(error) ? error : new this.Promise(null, error, true);
+	},
+	
+	tryCatch: function (f, ctx) {
+		try {
+			return this.value(f.apply(ctx || this));
+		} catch (e) {
+			return this.error(e);
+		}
+	},
+	
+	funcCallback: function (ctx, func) {
+		var args  = BetaJS.Functions.getArguments(arguments, 1);
+		if (BetaJS.Types.is_function(ctx)) {
+			args = BetaJS.Functions.getArguments(arguments, 1);
+			func = ctx;
+			ctx = this;
+		} else
+			args = BetaJS.Functions.getArguments(arguments, 2);
+		var promise = this.create();
+		args.push(promise.asyncCallbackFunc());
+		func.apply(ctx, args);
+		return promise;
+	},
+	
+	and: function (promises) {
+		var promise = this.create();
+		promise.__promises = [];
+		promise.__successCount = 0;
+		promise.__values = [];
+		promise.__errorPromise = null;
+		promise.and = function (promises) {
+			promises = promises || [];
+			if (this.__ended)
+				return this;
+			if (!BetaJS.Types.is_array(promises))
+				promises = [promises];	
+			for (var i = 0; i < promises.length; ++i) {
+				var last = this.__promises.length;
+				this.__promises.push(promises[i]);
+				this.__values.push(null);
+				if (promises[i].isFinished()) {
+					if (promises[i].hasValue()) {
+						this.__successCount++;
+						this.__values[last] = promises[i].value();
+					} else
+						this.__errorPromise = promises[i];
+				} else {
+					promises[i].callback(function (error, value) {
+						if (error)
+							this.__errorPromise = promises[this.idx];
+						else {
+							this.promise.__successCount++;
+							this.promise.__values[this.idx] = value;
+						}
+						this.promise.results();
+					}, {promise: this, idx: last});					
+				}
+			}
+			return this;
+		};
+		promise.end = function () {
+			this.__ended = true;
+			this.results();
+			return this;
+		};
+		promise.results = function () {
+			if (this.__ended && this.__errorPromise)
+				this.asyncError(this.__errorPromise.err(), this.__errorPromise);
+			else if (this.__ended && this.__successCount == this.__promises.length)
+				this.asyncSuccess(this.__values);
+			return this;
+		};
+		promise.successUnfold = function (f, context, options) {
+			return this.success(function () {
+				return f.apply(context, arguments);
+			}, context, options);
+		};
+		promise.and(promises);
+		return promise;
+	},
+	
+	func: function (func) {
+		var args = BetaJS.Functions.getArguments(arguments, 1);
+		var promises = [];
+		for (var i = 0; i < args.length; ++i) {
+			if (this.is(args[i]))
+				promises.push(args[i]);
+		}
+		var promise = this.create();
+		this.and(promises).end().success(function (values) {
+			var params = [];
+			for (var i = 0; i < args.length; ++i)
+				params[i] = this.is(args[i]) ? args[i].value() : args[i];
+			var result = func.apply(this, params);
+			if (this.is(result))
+				result.forwardCallback(promise);
+			else
+				promise.asyncSuccess(result);
+		}, this).forwardError(promise);
+		return promise;
+	},
+	
+	methodArgs: function (ctx, func, params) {
+		params.unshift(function () {
+			return func.apply(ctx, arguments);
+		});
+		return this.func.apply(this, params);
+	},
+	
+	method: function (ctx, func) {
+		return this.methodArgs(ctx, func, BetaJS.Functions.getArguments(arguments, 2));
+	},
+
+	newClass: function (cls) {
+		var params = BetaJS.Functions.getArguments(arguments, 1);
+		params.unshift(BetaJS.Functions.newClassFunc(cls));
+		return this.func.apply(this, params);
+	},
+	
+	is: function (obj) {
+		return obj && BetaJS.Types.is_object(obj) && obj.classGuid == BetaJS.Promise.Promise.prototype.classGuid;
+	} 
+	
+};
+
+BetaJS.Promise.Promise.prototype.classGuid = "7e3ed52f-22da-4e9c-95a4-e9bb877a3935"; 
+
+BetaJS.Promise.Promise.prototype.success = function (f, context, options) {
+	return this.callback(f, context, options, "success");
+};
+
+BetaJS.Promise.Promise.prototype.error = function (f, context, options) {
+	return this.callback(f, context, options, "error");
+};
+
+BetaJS.Promise.Promise.prototype.callback = function (f, context, options, type) {
+	var record = {
+		type: type || "callback",
+		func: f,
+		options: options || {},
+		context: context
+	};
+	if (this.__isFinished)
+		this.triggerResult(record);
+	else
+		this.__callbacks.push(record);
+	return this;
+};
+
+BetaJS.Promise.Promise.prototype.triggerResult = function (record) {
+	if (!this.__isFinished)
+		return this;
+	if (record) {
+		if (record.type == "success" && !this.__hasError)
+			record.func.call(record.context || this, this.__value, this.__resultPromise || this);
+		else if (record.type == "error" && this.__hasError)
+			record.func.call(record.context || this, this.__error, this.__resultPromise || this);
+		else if (record.type == "callback")
+			record.func.call(record.context || this, this.__error, this.__value, this.__resultPromise || this);
+	} else {
+		var records = this.__callbacks;
+		this.__callbacks = [];
+		for (var i = 0; i < records.length; ++i)
+			this.triggerResult(records[i]);
+	}
+	return this;
+};
+
+BetaJS.Promise.Promise.prototype.value = function () {
+	return this.__value;
+};
+
+BetaJS.Promise.Promise.prototype.err = function () {
+	return this.__error;
+};
+
+BetaJS.Promise.Promise.prototype.isFinished = function () {
+	return this.__isFinished;
+};
+
+BetaJS.Promise.Promise.prototype.hasValue = function () {
+	return this.__isFinished && !this.__hasError;
+};
+
+BetaJS.Promise.Promise.prototype.hasError = function () {
+	return this.__isFinished && this.__hasError;
+};
+
+BetaJS.Promise.Promise.prototype.asyncSuccess = function (value, promise) {
+	if (this.__isFinished) 
+		return this;
+	this.__resultPromise = promise;
+	this.__error = null;
+	this.__isFinished = true;
+	this.__hasError = false;
+	this.__value = value;
+	return this.triggerResult();
+};
+
+BetaJS.Promise.Promise.prototype.forwardSuccess = function (promise) {
+	this.success(promise.asyncSuccess, promise);
+	return this;
+};
+
+BetaJS.Promise.Promise.prototype.asyncError = function (error, promise) {
+	if (this.__isFinished) 
+		return this;
+	this.__resultPromise = promise;
+	this.__isFinished = true;
+	this.__hasError = true;
+	this.__error = error;
+	this.__value = null;
+	return this.triggerResult();
+};
+
+BetaJS.Promise.Promise.prototype.forwardError = function (promise) {
+	this.error(promise.asyncError, promise);
+	return this;
+};
+
+BetaJS.Promise.Promise.prototype.asyncCallback = function (error, value, promise) {
+	if (error)
+		return this.asyncError(error, promise);
+	else
+		return this.asyncSuccess(value, promise);
+};
+
+BetaJS.Promise.Promise.prototype.asyncCallbackFunc = function () {
+	return BetaJS.Functions.as_method(BetaJS.Promise.Promise.prototype.asyncCallback, this);
+};
+
+BetaJS.Promise.Promise.prototype.forwardCallback = function (promise) {
+	this.callback(promise.asyncCallback, promise);
+	return this;
+};
+
+BetaJS.Promise.Promise.prototype.asCallback = function () {
+	return {
+		success: BetaJS.Functions.as_method(this.asyncSuccess, this),
+		exception: BetaJS.Functions.as_method(this.asyncError, this)
+	};
+};
+
+BetaJS.Promise.Promise.prototype.mapSuccess = function (func, ctx) {
+	var promise = BetaJS.Promise.create();
+	this.forwardError(promise).success(function (value, pr) {
+		var result = func.call(ctx || promise, value, pr);
+		if (BetaJS.Promise.is(result))
+			result.forwardCallback(promise);
+		else
+			promise.asyncSuccess(result);
+	});
+	return promise;
+};
+
+BetaJS.Promise.Promise.prototype.mapError = function (func, ctx) {
+	var promise = BetaJS.Promise.create();
+	this.forwardSuccess(promise).error(function (err, pr) {
+		var result = func.call(ctx || promise, err, pr);
+		if (BetaJS.Promise.is(result))
+			result.forwardCallback(promise);
+		else
+			promise.asyncError(result);
+	});
+	return promise;
+};
+
+BetaJS.Promise.Promise.prototype.mapCallback = function (func, ctx) {
+	var promise = BetaJS.Promise.create();
+	this.callback(function (err, value, pr) {
+		var result = func.call(ctx || promise, err, value, pr);
+		if (BetaJS.Promise.is(result))
+			result.forwardCallback(promise);
+		else
+			promise.asyncCallback(err ? result : err, err ? value : result, pr);
+	});
+	return promise;
+};
+
+BetaJS.Promise.Promise.prototype.and = function (promises) {
+	var result = BetaJS.Promise.and(this);
+	return result.and(promises);
+};
 BetaJS.Structures = {};
 
 BetaJS.Structures.AvlTree = {
@@ -4674,6 +4675,118 @@ BetaJS.Structures.TreeMap = {
 	}
 
 };
+
+BetaJS.Class.extend("BetaJS.KeyValue.KeyValueStore", [
+	BetaJS.Events.EventsMixin,
+	{
+	
+	mem: function (key) {
+		return this._mem(key);
+	},
+	
+	get: function (key) {
+		return this._get(key);
+	},
+	
+	set: function (key, value) {
+		this._set(key, value);
+		this.trigger("change:" + key, value);
+	},
+	
+	remove: function (key) {
+		this._remove(key);
+	}
+	
+}]);
+
+
+BetaJS.KeyValue.KeyValueStore.extend("BetaJS.KeyValue.PrefixKeyValueStore", {
+	
+	constructor: function (kv, prefix) {
+		this._inherited(BetaJS.KeyValue.PrefixKeyValueStore, "constructor");
+		this.__kv = kv;
+		this.__prefix = prefix;
+	},
+	
+	_mem: function (key) {
+		return this.__kv.mem(this.__prefix + key);
+	},
+	
+	_get: function (key) {
+		return this.__kv.get(this.__prefix + key);
+	},
+	
+	_set: function (key, value) {
+		this.__kv.set(this.__prefix + key, value);
+	},
+	
+	_remove: function (key) {
+		this.__kv.remove(this.__prefix + key);
+	}
+	
+});
+
+
+BetaJS.KeyValue.KeyValueStore.extend("BetaJS.KeyValue.MemoryKeyValueStore", {
+	
+	constructor: function (data, clone) {
+		this._inherited(BetaJS.KeyValue.MemoryKeyValueStore, "constructor");
+		this.__data = BetaJS.Objs.clone(data, clone ? 1 : 0);
+	},
+	
+	_mem: function (key) {
+		return key in this.__data;
+	},
+	
+	_get: function (key) {
+		return this.__data[key];
+	},
+	
+	_set: function (key, value) {
+		this.__data[key] = value;
+	},
+	
+	_remove: function (key) {
+		delete this.__data[key];
+	}
+
+});
+
+
+BetaJS.KeyValue.MemoryKeyValueStore.extend("BetaJS.KeyValue.LocalKeyValueStore", {
+	
+	constructor: function () {
+		this._inherited(BetaJS.KeyValue.LocalKeyValueStore, "constructor", localStorage, false);
+	}
+	
+});
+
+
+BetaJS.KeyValue.KeyValueStore.extend("BetaJS.KeyValue.DefaultKeyValueStore", {
+	
+	constructor: function (kv, def) {
+		this._inherited(BetaJS.KeyValue.DefaultKeyValueStore, "constructor");
+		this.__kv = kv;
+		this.__def = def;
+	},
+	
+	_mem: function (key) {
+		return this.__kv.mem(key) || this.__def.mem(key);
+	},
+	
+	_get: function (key) {
+		return this.__kv.mem(key) ? this.__kv.get(key) : this.__def.get(key);
+	},
+	
+	_set: function (key, value) {
+		this.__kv.set(key, value);
+	},
+	
+	_remove: function (key) {
+		this.__kv.remove(key);
+	}
+
+});
 
 /*
  * <ul>
