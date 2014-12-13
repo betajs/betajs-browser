@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2014-12-09
+betajs-browser - v1.0.0 - 2014-12-13
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -30,6 +30,7 @@ BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 	},
 	
 	_asyncCall: function (options, callbacks) {
+		var promise = BetaJS.Promise.create();
 		if (BetaJS.Browser.Info.isInternetExplorer() && BetaJS.Browser.Info.internetExplorerVersion() <= 9)
 			BetaJS.$.support.cors = true;
 		BetaJS.$.ajax({
@@ -39,10 +40,7 @@ BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 			dataType: options.decodeType ? options.decodeType : null, 
 			data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
 			success: function (response) {
-				if (callbacks && callbacks.success)
-					callbacks.success.call(callbacks.context || this, response);
-				if (callbacks && callbacks.complete)
-					callbacks.complete.call(callbacks.context || this);
+				promise.asyncSuccess(response);
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				var err = "";
@@ -51,13 +49,10 @@ BetaJS.Net.AbstractAjax.extend("BetaJS.Browser.JQueryAjax", {
 				} catch (e) {
 					err = JSON.parse('"' + jqXHR.responseText + '"');
 				}
-				var exc = new BetaJS.Net.AjaxException(jqXHR.status, errorThrown, err);
-				if (callbacks && callbacks.exception)
-					callbacks.exception.call(callbacks.context || this, exc);
-				if (callbacks && callbacks.complete)
-					callbacks.complete.call(callbacks.context || this);
+				promise.asyncError(new BetaJS.Net.AjaxException(jqXHR.status, errorThrown, err));
 			}
 		});
+		return promise;
 	}
 
 });
