@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2014-12-13
+betajs-browser - v1.0.0 - 2015-01-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -725,7 +725,7 @@ BetaJS.Browser.Loader = {
 				executed = true;
 				script.onload = script.onreadystatechange = null;
 				if (callback)
-					callback.apply(context || this, [url]);
+					callback.call(context || this, url);
 				// Does not work properly if we remove the script for some reason if it is used the second time !?
 				//head.removeChild(script);
 			}
@@ -744,7 +744,7 @@ BetaJS.Browser.Loader = {
 				executed = true;
 				style.onload = style.onreadystatechange = null;
 				if (callback)
-					callback.apply(context || this, [url]);
+					callback.call(context || this, url);
 			}
 		};
 		head.appendChild(style);
@@ -752,6 +752,15 @@ BetaJS.Browser.Loader = {
 
 	inlineStyles: function (styles) {
 		BetaJS.$('<style>' + styles + "</style>").appendTo("head");
+	},
+	
+	loadHtml: function (url, callback, context) {
+		BetaJS.$.ajax({
+			url: url,
+			dataType: "html"
+		}).done(function(content) {
+			callback.call(context || this, content, url);
+		});
 	}
 
 };
