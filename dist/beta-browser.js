@@ -1,5 +1,9 @@
 /*!
+<<<<<<< HEAD
 betajs-browser - v1.0.0 - 2015-01-17
+=======
+betajs-browser - v1.0.0 - 2015-01-13
+>>>>>>> a902b4346d112640d46cd54a8a14bd117a599388
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -542,7 +546,7 @@ BetaJS.Browser.Info = {
 	
 	isMacOS: function () {
 		return this.__cached("isMacOS", function () {
-			return navigator.appVersion.toLowerCase().indexOf("mac") != -1;
+			return !this.isiOS() && navigator.appVersion.toLowerCase().indexOf("mac") != -1;
 		});
 	},
 	
@@ -577,6 +581,66 @@ BetaJS.Browser.Info = {
 	    } catch (e) {
 	        return true;
 	    }
+	},
+	
+	formatDevice: function () {
+		return this.isMobile() ? "Mobile" : "Desktop";
+	},
+	
+	formatOS: function () {
+		return this.__cached("formatOS", function () {
+			if (this.isMacOS())
+				return "Mac OS-X";
+			if (this.isWindows())
+				return "Windows";
+			if (this.isUnix())
+				return "Unix";
+			if (this.isLinux())
+				return "Linux";
+			if (this.isiOS())
+				return "iOS " + this.iOSversion().major + "." + this.iOSversion().minor + "." + this.iOSversion().revision;
+			if (this.isAndroid())
+				return "Android";
+			if (this.isWebOS())
+				return "WebOS";
+			if (this.isWindowsPhone())
+				return "Windows Phone";
+			if (this.isBlackberry())
+				return "Blackberry";
+			return "Unknown Operating System";
+		});
+	},
+	
+	formatBrowser: function () {
+		return this.__cached("formatBrowser", function () {
+			if (this.isChrome())
+				return "Chrome";
+			if (this.isOpera())
+				return "Opera";
+			if (this.isInternetExplorer())
+				return "Internet Explorer " + this.internetExplorerVersion();
+			if (this.isFirefox())
+				return "Firefox";
+			if (this.isSafari())
+				return "Safari";
+			if (this.isAndroid())
+				return "Android";
+			if (this.isWebOS())
+				return "WebOS";
+			if (this.isWindowsPhone())
+				return "Windows Phone";
+			if (this.isBlackberry())
+				return "Blackberry";
+			return "Unknown Browser";
+		});
+	},
+	
+	formatFlash: function () {
+		return this.flash().installed() ?
+			("Flash " + this.flash().version().raw) :
+			(this.flash().supported() ?
+				"Flash not installed but supported" :
+				"Flash not supported");
 	}
 	
 };
