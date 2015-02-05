@@ -191,7 +191,7 @@ BetaJS.Browser.Router = BetaJS.Class.extend("BetaJS.Browser.Router", [
 		var f = object.action;
 		if (BetaJS.Types.is_string(f))
 			f = this[f];
-		return f.apply(this, params);
+		return f ? f.apply(this, params) : false;
 	},
 	
 	__leave: function () {
@@ -291,7 +291,7 @@ BetaJS.Class.extend("BetaJS.Browser.RouteBinder", {
 		this.__router = router;
 		this.__router.on("after_invoke", function (object, params, route) {
 			if (this._getExternalRoute() != route)
-				this._setExternalRoute(route);
+				this._setExternalRoute(route, params, object);
 		}, this);
 	},
 	
@@ -311,8 +311,11 @@ BetaJS.Class.extend("BetaJS.Browser.RouteBinder", {
 		this.__router.navigate(route);
 	},
 	
-	_getExternalRoute: function () { return ""; },
-	_setExternalRoute: function (route) { }
+	_getExternalRoute: function () {
+		return null;
+	},
+	
+	_setExternalRoute: function (route, params, object) { }
 	
 });
 
@@ -384,4 +387,49 @@ BetaJS.Browser.RouteBinder.extend("BetaJS.Browser.LocationRouteBinder", {
 	_setExternalRoute: function (route) {
 		window.location.pathname = route;
 	}
+});
+
+
+
+BetaJS.Browser.RouteBinder.extend("BetaJS.Browser.StateRouteBinder", {
+
+	constructor: function (router, host) {
+		this._inherited(BetaJS.Browser.StateRouteBinder, "constructor", router);
+		this._host = host;
+		this._states = {};
+		BetaJS.Objs.iter(router.routes, function (route) {
+			if (route.state)
+				this._states[route.state] = route;
+		}, this);
+		host.on("start", function () {
+			this._setRoute(this._getExternalRoute);
+		}, this);
+	},
+	
+	destroy: function () {
+		this._host.off(null, null, this);
+		this._inherited(BetaJS.Browser.StateRouteBinder, "destroy");
+	},
+	
+	_getExternalRoute: function () {
+		var state = this._host.state();
+		var data = this._states[state.state_name()];
+		if (!data)
+			return null;
+		var regex = /\(.*?\)/;
+		var route = data.key;
+		BetaJS.Objs.iter(data.mapping, function (arg) {
+			route = route.replace(regex, state["_" + arg]);
+		}, this);
+		return route;
+	},
+	
+	_setExternalRoute: function (route, params, object) {
+		var args = {};
+		BetaJS.Objs.iter(object.mapping, function (key, i) {
+			args[key] = params[i];
+		});
+		this._host.next(object.state, args);
+	}
+	
 });
