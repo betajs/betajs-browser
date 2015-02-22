@@ -4,23 +4,52 @@ module.exports = function(grunt) {
 
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
+		'revision-count': {
+		    options: {
+		      property: 'revisioncount',
+		      ref: 'HEAD'
+		    }
+		},
 		concat : {
 			options : {
 				banner : module.banner
 			},
-			dist_beta_browser : {
-				dest : 'dist/beta-browser.js',
+			dist_raw : {
+				dest : 'dist/beta-browser-raw.js',
 				src : [
-					'src/browser/*.js',
+					'src/fragments/begin.js-fragment',
+				    'src/browser/*.js',
+					'src/fragments/end.js-fragment'
 				]
 			},
+			dist_scoped: {
+				dest : 'dist/beta-browser.js',
+				src : [
+				    'vendors/scoped.js',
+				    'dist/beta-browser-noscoped.js'
+				]
+			}
 		},
+		preprocess : {
+			options: {
+			    context : {
+			    	MAJOR_VERSION: '<%= revisioncount %>',
+			    	MINOR_VERSION: (new Date()).getTime()
+			    }
+			},
+			dist : {
+			    src : 'dist/beta-browser-raw.js',
+			    dest : 'dist/beta-browser-noscoped.js'
+			}
+		},	
+		clean: ["dist/beta-browser-raw.js"],
 		uglify : {
 			options : {
 				banner : module.banner
 			},
 			dist : {
 				files : {
+					'dist/beta-browser-noscoped.min.js' : [ 'dist/beta-browser-noscoped.js' ],					
 					'dist/beta-browser.min.js' : [ 'dist/beta-browser.js' ],					
 				}
 			}
@@ -28,16 +57,6 @@ module.exports = function(grunt) {
 		shell: {
 			lint: {
 		    	command: "jsl +recurse --process ./src/*.js",
-		    	options: {
-                	stdout: true,
-                	stderr: true,
-            	},
-            	src: [
-            		"src/*/*.js"
-            	]
-			},
-			docs: {
-				command: "java -Djsdoc.dir=$JSDOCDIR -Djsdoc.template.dir=$JSDOCTEMPLATEDIR -jar $JSDOCDIR/jsrun.jar $JSDOCDIR/app/run.js ./src -d=./docs -r -p $@",
 		    	options: {
                 	stdout: true,
                 	stderr: true,
@@ -53,10 +72,13 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-shell');	
+	grunt.loadNpmTasks('grunt-git-revision-count');
+	grunt.loadNpmTasks('grunt-preprocess');
+	grunt.loadNpmTasks('grunt-contrib-clean');	
+	
 
-	grunt.registerTask('default', ['newer:concat', 'newer:uglify']);
+	grunt.registerTask('default', ['revision-count', 'concat:dist_raw', 'preprocess', 'clean', 'concat:dist_scoped', 'uglify']);
 	grunt.registerTask('lint', ['shell:lint']);	
-	grunt.registerTask('docs', ['shell:docs']);
 	grunt.registerTask('check', ['lint']);
 
 };

@@ -1,0 +1,19 @@
+(function () {
+
+var Scoped = this.subScope();
+
+Scoped.binding("module", "global:BetaJS.Browser");
+Scoped.binding("base", "global:BetaJS");
+
+Scoped.binding("jquery", "global:jQuery");
+
+Scoped.define("module:$", ["jquery:"], function (jquery) {
+	return jquery;
+});
+
+Scoped.define("module:", function () {
+	return {
+		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
+		version: '/* @echo MAJOR_VERSION */./* @echo MINOR_VERSION */'
+	};
+});

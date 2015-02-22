@@ -5,7 +5,18 @@
 		<title>Router Demo</title>
 		<script src="assets/jquery-1.9.1.min.js"></script>
 		<script src="assets/jquery.ba-hashchange.js"></script>
+		<script src="../vendors/scoped.js"></script>
+		<script>
+			//Scoped.nextScope().binding("module", "global:Test", {readonly: true});
+		</script>
 		<script src="assets/beta.js"></script>
+		
+		<script src="assets/jquery-1.11.1.min.js"></script>
+		<script>Scoped.binding("jquery", jQuery.noConflict(), {readonly: true});</script>
+		<script>
+			//Scoped.nextScope().binding("base", "global:Test", {readonly: true});
+			//Scoped.nextScope().binding("module", "global:Foobar", {readonly: true});
+		</script>
 		<script src="../dist/beta-browser.js"></script>
 		<script>
 			$(document).ready(function () {
