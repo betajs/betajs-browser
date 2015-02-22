@@ -7,7 +7,7 @@ Scoped.binding("base", "global:BetaJS");
 
 Scoped.binding("jquery", "global:jQuery");
 
-Scoped.define("module:$", ["jquery:"], function (jquery) {
+Scoped.define("base:$", ["jquery:"], function (jquery) {
 	return jquery;
 });
 

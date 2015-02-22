@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-02-21
+betajs-browser - v1.0.0 - 2015-02-22
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -12,14 +12,14 @@ Scoped.binding("base", "global:BetaJS");
 
 Scoped.binding("jquery", "global:jQuery");
 
-Scoped.define("module:$", ["jquery:"], function (jquery) {
+Scoped.define("base:$", ["jquery:"], function (jquery) {
 	return jquery;
 });
 
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '8.1424568143784'
+		version: '9.1424627156093'
 	};
 });
 
