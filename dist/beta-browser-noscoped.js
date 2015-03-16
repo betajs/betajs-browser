@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-02-22
+betajs-browser - v1.0.0 - 2015-03-15
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -19,7 +19,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '9.1424627156093'
+		version: '10.1426473969269'
 	};
 });
 
@@ -101,7 +101,17 @@ Scoped.define("module:Cookies", ["base:Strings"], function (Strings) {
 	};
 });
 Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
-	return {				
+	return {	
+		
+		changeTag: function (node, name) {
+			var replacement = document.createElement(name);
+			for (var i = 0; i < node.attributes.length; ++i)
+				replacement.setAttribute(node.attributes[i].nodeName, node.attributes[i].nodeValue);
+		    while (node.firstChild)
+		        replacement.appendChild(node.firstChild);
+		    node.parentNode.replaceChild(replacement, node);
+			return replacement;
+		},		
 		
 		traverseNext: function (node, skip_children) {
 			if ("get" in node)

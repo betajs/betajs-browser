@@ -1,5 +1,15 @@
 Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
-	return {				
+	return {	
+		
+		changeTag: function (node, name) {
+			var replacement = document.createElement(name);
+			for (var i = 0; i < node.attributes.length; ++i)
+				replacement.setAttribute(node.attributes[i].nodeName, node.attributes[i].nodeValue);
+		    while (node.firstChild)
+		        replacement.appendChild(node.firstChild);
+		    node.parentNode.replaceChild(replacement, node);
+			return replacement;
+		},		
 		
 		traverseNext: function (node, skip_children) {
 			if ("get" in node)
