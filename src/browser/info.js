@@ -305,7 +305,7 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 		    		return false;
 		        var properties = [this.version().major, this.version().minor, this.version().revision];
 		        var len = Math.min(properties.length, arguments.length);
-		        for (i = 0; i < len; i++) {
+		        for (var i = 0; i < len; i++) {
 		            if (properties[i] != arguments[i]) 
 		            	return properties[i] > arguments[i];
 		        }

@@ -7,6 +7,10 @@ Scoped.define("module:Router", [
 	    "base:Objs"
 	], function (Class, EventsMixin, Events, Functions, Types, Objs, scoped) {
 	return Class.extend({scoped: scoped}, [EventsMixin, function (inherited) {
+		/**
+		 * A routing class
+		 * @module BetaJS.Browser.Router
+		 */
 		return {
 		
 			/** Specifies all routes. Can either be an associative array, an array of associative arrays or a function returning one of those.
@@ -136,11 +140,11 @@ Scoped.define("module:Router", [
 			},
 			
 			/** Returns the route of a path description
-			 * @param path the path descriptor
+			 * @param pth the path descriptor
 			 * @param parameters parameters that should be attached to the route (capturing groups)
 			 */
-			path: function (path) {
-				var key = this.object(path).key;
+			path: function (pth) {
+				var key = this.object(pth).key;
 				var args = Array.prototype.slice.apply(arguments, [1]);
 				var regex = /\(.*?\)/;
 				while (true) {

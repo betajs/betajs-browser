@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-03-15
+betajs-browser - v1.0.0 - 2015-03-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -19,7 +19,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '10.1426473969269'
+		version: '11.1426642740112'
 	};
 });
 
@@ -51,7 +51,7 @@ Scoped.define("module:JQueryAjax", [
 						} catch (e) {
 							err = JSON.parse('"' + jqXHR.responseText + '"');
 						}
-						throw new AjaxException(jqXHR.status, errorThrown, ee);
+						throw new AjaxException(jqXHR.status, errorThrown, err);
 					}
 				});
 				return result;
@@ -306,7 +306,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 				
 	};
 });
-/**
+/*
  * Uses modified portions of:
  * 
  * http://www.openjs.com/scripts/events/keyboard_shortcuts/
@@ -774,7 +774,7 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 		    		return false;
 		        var properties = [this.version().major, this.version().minor, this.version().revision];
 		        var len = Math.min(properties.length, arguments.length);
-		        for (i = 0; i < len; i++) {
+		        for (var i = 0; i < len; i++) {
 		            if (properties[i] != arguments[i]) 
 		            	return properties[i] > arguments[i];
 		        }
@@ -880,6 +880,10 @@ Scoped.define("module:Router", [
 	    "base:Objs"
 	], function (Class, EventsMixin, Events, Functions, Types, Objs, scoped) {
 	return Class.extend({scoped: scoped}, [EventsMixin, function (inherited) {
+		/**
+		 * A routing class
+		 * @module BetaJS.Browser.Router
+		 */
 		return {
 		
 			/** Specifies all routes. Can either be an associative array, an array of associative arrays or a function returning one of those.
@@ -1009,11 +1013,11 @@ Scoped.define("module:Router", [
 			},
 			
 			/** Returns the route of a path description
-			 * @param path the path descriptor
+			 * @param pth the path descriptor
 			 * @param parameters parameters that should be attached to the route (capturing groups)
 			 */
-			path: function (path) {
-				var key = this.object(path).key;
+			path: function (pth) {
+				var key = this.object(pth).key;
 				var args = Array.prototype.slice.apply(arguments, [1]);
 				var regex = /\(.*?\)/;
 				while (true) {

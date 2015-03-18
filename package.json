@@ -1,22 +1,26 @@
 {
-  "name": "betajs-browser",
-  "version": "1.0.0",
-  "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
-  "homepage": "http://betajs.com",
-  "contributors": [
-  	"Oliver Friedmann"
-  ],
-  "license": "MIT",
-  "devDependencies": {
-    "grunt": "",
-    "grunt-contrib-jshint": "",
-    "grunt-contrib-nodeunit": "",
-    "grunt-contrib-concat": "",
-    "grunt-contrib-uglify": "",
-    "grunt-shell": "",
-    "grunt-newer": "",
-    "grunt-contrib-clean": "",
-    "grunt-preprocess": "",
-    "grunt-git-revision-count": ""
-  }
+	"name": "betajs-browser",
+	"version": "1.0.0",
+	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
+	"homepage": "http://betajs.com",
+	"contributors": ["Oliver Friedmann"],
+	"license": "MIT",
+	"devDependencies": {
+		"grunt": "",
+		"grunt-contrib-jshint": "",
+		"grunt-contrib-nodeunit": "",
+		"grunt-contrib-concat": "",
+		"grunt-contrib-uglify": "",
+		"grunt-shell": "",
+		"grunt-newer": "",
+		"grunt-contrib-clean": "",
+		"grunt-preprocess": "",
+		"grunt-git-revision-count": "",
+		"grunt-closure-tools": "",
+		"grunt-wget": ""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/betajs/betajs-browser.git"
+	}
 }

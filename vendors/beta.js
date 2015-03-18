@@ -1,10 +1,10 @@
 /*!
-betajs - v1.0.0 - 2015-02-21
+betajs - v1.0.0 - 2015-03-17
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
 /*!
-betajs-scoped - v0.0.1 - 2015-02-21
+betajs-scoped - v0.0.1 - 2015-03-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -12,30 +12,18 @@ var Scoped = (function () {
 var Globals = {
 
 	get : function(key) {
-		try {
-			if (window)
-				return window[key];
-		} catch (e) {
-		}
-		try {
-			if (global)
-				return global[key];
-		} catch (e) {
-		}
+		if (typeof window !== "undefined")
+			return window[key];
+		if (typeof global !== "undefined")
+			return global[key];
 		return null;
 	},
 
 	set : function(key, value) {
-		try {
-			if (window)
-				window[key] = value;
-		} catch (e) {
-		}
-		try {
-			if (global)
-				global[key] = value;
-		} catch (e) {
-		}
+		if (typeof window !== "undefined")
+			window[key] = value;
+		if (typeof global !== "undefined")
+			global[key] = value;
 		return value;
 	},
 	
@@ -288,10 +276,11 @@ function newNamespace (options) {
 				context: context
 			});
 			if (node.lazy.length > 0) {
-				var f = function () {
+				var f = function (node) {
 					if (node.lazy.length > 0) {
 						var lazy = node.lazy.shift();
 						lazy.callback.call(lazy.context || this, node.data);
+						f(node);
 					}
 				};
 				f(node);
@@ -451,6 +440,8 @@ function newScope (parent, parentNamespace, rootNamespace, globalNamespace) {
 				};
 			} else {
 				var binding = bindings[parts[0]];
+				if (!binding)
+					throw ("The namespace '" + parts[0] + "' has not been defined (yet).");
 				return {
 					namespace: binding.namespace,
 					path : binding.path && parts[1] ? binding.path + "." + parts[1] : (binding.path || parts[1])
@@ -531,7 +522,7 @@ var rootScope = newScope(null, rootNamespace, rootNamespace, globalNamespace);
 var Public = Helper.extend(rootScope, {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '5.1424568052349',
+	version: '8.1426613087189',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -545,7 +536,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs - v1.0.0 - 2015-02-21
+betajs - v1.0.0 - 2015-03-17
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
@@ -558,7 +549,7 @@ Scoped.binding("module", "global:BetaJS");
 Scoped.define("module:", function () {
 	return {
 		guid: "71366f7a-7da3-4e55-9a0b-ea0e4e2a9e79",
-		version: '334.1424568089807',
+		version: '342.1426628076248'
 	};
 });
 
@@ -567,6 +558,9 @@ Scoped.require(["module:"], function (mod) {
 }, this);
 
 Scoped.define("module:Types", function () {
+	/** Type-Testing and Type-Parsing
+	 * @module BetaJS.Types
+	 */
 	return {
 		/**
 		 * Returns whether argument is an object
@@ -766,6 +760,9 @@ Scoped.define("module:Types", function () {
 });
 
 Scoped.define("module:Functions", ["module:Types"], function (Types) {
+	/** Function and Function Argument Support
+	 * @module BetaJS.Functions
+	 */
 	return {
 	
 	    /** Takes a function and an instance and returns the method call as a function
@@ -800,7 +797,7 @@ Scoped.define("module:Functions", ["module:Types"], function (Types) {
 		
 	    /** Converts some other function's arguments to an array
 	     * 
-	     * @param func function arguments
+	     * @param args function arguments
 	     * @param slice number of arguments to be omitted (default: 0)
 	     * @return arguments as array 
 	     */	
@@ -837,6 +834,7 @@ Scoped.define("module:Functions", ["module:Types"], function (Types) {
 			return result;
 		},
 		
+		/** @suppress {checkTypes} */
 		newClassFunc: function (cls) {
 			return function () {
 				var args = arguments;
@@ -856,6 +854,9 @@ Scoped.define("module:Functions", ["module:Types"], function (Types) {
 });
 
 Scoped.define("module:Ids", function () {
+	/** Id Generation
+	 * @module BetaJS.Ids
+	 */
 	return {
 	
 		__uniqueId: 0,
@@ -886,6 +887,9 @@ Scoped.define("module:Ids", function () {
 	};
 });
 Scoped.define("module:Tokens", function () {
+	/** Unique Token Generation
+	 * @module BetaJS.Tokens
+	 */
 	return {
 		
 	    /** Returns a new token
@@ -1300,6 +1304,9 @@ Scoped.define("module:Objs.Scopes", ["module:Types"], function (Types) {
 });
 
 Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
+	/** String Utilities
+	 * @module BetaJS.Strings
+	 */
 	return {
 		
 		/** Converts a string new lines to html <br /> tags
@@ -1385,7 +1392,7 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 		 * @return remaining part of the string in question after the last occurrence of the sub string
 		 */
 		last_after : function(s, needle) {
-			return s.substring(s.lastIndexOf(needle) + needle.length, s.length);
+			return this.splitLast(s, needle).tail;
 		},
 		
 		first_after: function (s, needle) {
@@ -1414,7 +1421,7 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 		 */
 		strip_html : function(html) {
 			var result = html;
-			for ( i = 0; i < this.STRIP_HTML_TAGS.length; ++i)
+			for (var i = 0; i < this.STRIP_HTML_TAGS.length; ++i)
 				result = result.replace(new RegExp("<" + this.STRIP_HTML_TAGS[i] + ".*</" + this.STRIP_HTML_TAGS[i] + ">", "i"), '');
 			result = result.replace(this.STRIP_HTML_REGEX, '').replace(this.STRIP_HTML_COMMENT_REGEX, '');
 			return result;
@@ -1535,12 +1542,15 @@ Scoped.define("module:Locales", function () {
 		view: function (base) {
 			return {
 				context: this,
-				base: base,
+				prefix: base,
 				get: function (key) {
-					return this.context.get(this.base + "." + key);
+					return this.context.get(this.prefix + "." + key);
 				},
-				base: function (base) {
-					return this.context.base(this.base + "." + base);
+				view: function (key) {
+					return this.context.view(this.prefix + "." + key);
+				},
+				register: function (strings, prefix) {
+					this.context.register(strings, this.prefix + (prefix ? "." + prefix : ""));
 				}
 			};
 		}
@@ -1744,35 +1754,38 @@ Scoped.define("module:Structures.TreeMap", ["module:Structures.AvlTree"], functi
 			return this.__find(key, t, t.root);
 		},
 	
-		__iterate : function(t, node, callback, context) {
+		__iterate : function(t, node, callback, context, reverse) {
 			if (!node)
 				return true;
-			return this.__iterate(t, node.left, callback, context) && (callback.call(context, node.data.key, node.data.value) !== false) && this.__iterate(t, node.right, callback, context);
+			return (
+				this.__iterate(t, reverse ? node.right : node.left, callback, context, reverse) &&
+				(callback.call(context, node.data.key, node.data.value) !== false) &&
+				this.__iterate(t, reverse ? node.left : node.right, callback, context, reverse));
 		},
 	
-		iterate : function(t, callback, context) {
-			this.__iterate(t, t.root, callback, context);
+		iterate : function(t, callback, context, reverse) {
+			this.__iterate(t, t.root, callback, context, reverse);
 		},
 	
-		__iterate_from : function(key, t, node, callback, context) {
+		__iterate_from : function(key, t, node, callback, context, reverse) {
 			if (!node)
 				return true;
-			var c = t.compare(key, node.data.key);
-			if (c < 0 && !this.__iterate_from(key, t, node.left, callback, context))
+			var c = t.compare(key, node.data.key) * (reverse ? -1 : 1);
+			if (c < 0 && !this.__iterate_from(key, t, reverse ? node.right : node.left, callback, context, reverse))
 				return false;
 			if (c <= 0 && callback.call(context, node.data.key, node.data.value) === false)
 				return false;
-			return this.__iterate_from(key, t, node.right, callback, context);
+			return this.__iterate_from(key, t, reverse ? node.left : node.right, callback, context, reverse);
 		},
 	
-		iterate_from : function(key, t, callback, context) {
-			this.__iterate_from(key, t, t.root, callback, context);
+		iterate_from : function(key, t, callback, context, reverse) {
+			this.__iterate_from(key, t, t.root, callback, context, reverse);
 		},
 	
-		iterate_range : function(from_key, to_key, t, callback, context) {
+		iterate_range : function(from_key, to_key, t, callback, context, reverse) {
 			this.iterate_from(from_key, t, function(key, value) {
-				return t.compare(key, to_key) <= 0 && callback.call(context, key, value) !== false;
-			}, this);
+				return t.compare(key, to_key) * (reverse ? -1 : 1) <= 0 && callback.call(context, key, value) !== false;
+			}, this, reverse);
 		}
 	
 	};
@@ -1951,8 +1964,36 @@ Scoped.define("module:Time", ["module:Locales"], function (Locales) {
 	};
 
 });
-Scoped.define("module:Async", ["module:Types"], function (Types) {
+Scoped.define("module:Async", ["module:Types", "module:Functions"], function (Types, Functions) {
 	return {		
+		
+		waitFor: function () {
+			var args = Functions.matchArgs(arguments, {
+				condition: true,
+				conditionCtx: "object",
+				callback: true,
+				callbackCtx: "object",
+				interval: "int"
+			});
+			var h = function () {
+				try {
+					return !!args.condition.apply(args.conditionCtx || args.callbackCtx || this);
+				} catch (e) {
+					
+					return false;
+				}
+			};
+			if (h())
+				args.callback.apply(args.callbackCtx || this);
+			else {
+				var timer = setInterval(function () {
+					if (h()) {
+						clearInterval(timer);
+						args.callback.apply(args.callbackCtx || this);
+					}
+				}, args.interval || 1);
+			}
+		},
 		
 		eventually: function (func, params, context) {
 			var timer = setTimeout(function () {
@@ -2353,6 +2394,7 @@ Scoped.define("module:JavaScript", ["module:Objs"], function (Objs) {
 Scoped.define("module:Class", ["module:Types", "module:Objs", "module:Functions", "module:Ids"], function (Types, Objs, Functions, Ids) {
 	var Class = function () {};
 
+	/** @suppress {checkTypes} */
 	Class.extend = function (options, objects, statics, class_statics) {
 		objects = objects || [];
 		if (!Types.is_array(objects))
@@ -2604,20 +2646,6 @@ Scoped.define("module:Exceptions.Exception", ["module:Class"], function (Class, 
 				return this;
 			},
 			
-			callstack: function () {
-				var callstack = [];
-				var current = arguments.callee.caller;
-				while (current) {
-					callstack.push(current.toString());
-					current = current.caller;
-				}
-				return callstack;
-			},
-			
-			callstack_to_string: function () {
-				return this.callstack().join("\n");
-			},
-			
 			message: function () {
 				return this.__message;
 			},
@@ -2627,7 +2655,7 @@ Scoped.define("module:Exceptions.Exception", ["module:Class"], function (Class, 
 			},
 			
 			format: function () {
-				return this.cls.classname + ": " + this.toString() + "\n\nCall Stack:\n" + this.callstack_to_string();
+				return this.cls.classname + ": " + this.toString();
 			},
 			
 			json: function () {
@@ -3353,17 +3381,16 @@ Scoped.define("module:Lists.ObjectIdList", ["module:Lists.AbstractList", "module
 			},
 		
 			_add: function (object) {
-			    while (true) {
-			        var id = object.__cid;
-			        if (!id) {
+		        var id = object.__cid;
+		        if (!id) {
+		        	while (true) {
 		                id = this.__id_generator ? Ids.objectId(object, this.__id_generator()) : Ids.objectId(object);
-		        		if (this.__map[id] && this.__id_generator)
-		        		  continue;
-		            }
-		    		this.__map[id] = object;
-		    		return id;
-		    	}
-		    	return null;
+		        		if (!this.__map[id] || !this.__id_generator)
+		        			break;
+		        	}
+	            }
+	    		this.__map[id] = object;
+	    		return id;
 			},
 			
 			_remove: function (ident) {
@@ -3674,7 +3701,7 @@ Scoped.define("module:Events.EventsMixin", [
 	          callback.apply(this, arguments);
 	        });
 	        once._callback = callback;
-	        return this.on(name, once, context, options);
+	        return this.on(events, once, context, options);
 	    },
 	    
 	    delegateEvents: function (events, source, prefix, params) {
@@ -3922,7 +3949,7 @@ Scoped.define("module:Properties.PropertiesMixin", [
 		
 		unbind: function (key, props) {
 			if (key in this.__properties.bindings) {
-				for (i = this.__properties.bindings[key].length - 1; i >= 0; --i) {
+				for (var i = this.__properties.bindings[key].length - 1; i >= 0; --i) {
 					var binding = this.__properties.bindings[key][i];
 					if (!props || props == binding) {
 						if (binding.left) 
@@ -4066,7 +4093,7 @@ Scoped.define("module:Properties.PropertiesMixin", [
 					this.trigger("change:" + key, value, oldValue);
 				}
 				Objs.iter(current.children, function (child, subkey) {
-					process_set.call(this, child, key ? (key + "." + subkey) : subkey, value[subkey], oldValue[subkey]);
+					process_set.call(this, child, key ? (key + "." + subkey) : subkey, Types.is_object(value) && value ? value[subkey] : null, Types.is_object(oldValue) && oldValue ? oldValue[subkey] : null);
 				}, this);
 			}
 			process_set.call(this, current, key, value, oldValue);
@@ -4083,7 +4110,7 @@ Scoped.define("module:Properties.PropertiesMixin", [
 		
 		__properties_guid: "ec816b66-7284-43b1-a945-0600c6abfde3",
 		
-		set: function (key, value) {
+		set: function (key, value, force) {
 			if (Types.is_object(value) && value && value.guid == this.__properties_guid) {
 				if (value.properties)
 					this.bind(key, value.properties, {secondKey: value.key});
@@ -4096,6 +4123,9 @@ Scoped.define("module:Properties.PropertiesMixin", [
 			if (oldValue !== value) {
 				Scopes.set(key, value, this.__properties.data);
 				this.__setChanged(key, value, oldValue);
+			} else if (force) {
+				this.trigger("change", key, value, oldValue);
+				this.trigger("change:" + key, value, oldValue);
 			}
 			return this;
 		},
@@ -4141,7 +4171,7 @@ Scoped.define("module:Comparators", ["module:Types", "module:Properties.Properti
 		byObject: function (object) {
 			var self = this;
 			return function (left, right) {
-				for (key in object) {
+				for (var key in object) {
 					var c = 0;
 					if (Properties.is_class_instance(left) && Properties.is_class_instance(right))
 						c = self.byValue(left.get(key) || null, right.get(key) || null);
@@ -4272,8 +4302,8 @@ Scoped.define("module:Sort", [
 					if (Types.is_empty(data[i].after)) {
 						delete todo[i];
 						result.push(items[i]);
-						for (bef in data[i].before)
-						delete data[bef].after[i];
+						for (var bef in data[i].before)
+							delete data[bef].after[i];
 					}
 				}
 			}
@@ -4786,10 +4816,10 @@ Scoped.define("module:Classes.PathResolver", ["module:Class", "module:Objs"], fu
 				while (true) {
 					var matches = regExp.exec(path);
 					if (!matches)
-						return this.simplify(path);
+						break;
 					path = path.replace(regExp, this._bindings[matches[1]]);
 				}
-				return path;
+				return this.simplify(path);
 			},
 			
 			simplify: function (path) {
@@ -4843,7 +4873,11 @@ Scoped.define("module:Classes.ClassRegistry", ["module:Class", "module:Types", "
 			create: function (key) {
 				var cons = Functions.newClassFunc(this.get(key));
 				return cons.apply(this, Functions.getArguments(arguments, 1));
-			}	
+			},
+			
+			classes: function () {
+				return this._classes;
+			}
 			
 		};
 	});
@@ -4905,11 +4939,11 @@ Scoped.define("module:Collections.Collection", [
 	    "module:Events.EventsMixin",
 	    "module:Objs",
 	    "module:Functions",
-	    "module:Lists",
+	    "module:Lists.ArrayList",
 	    "module:Ids",
 	    "module:Properties.Properties",
 	    "module:Iterators.ArrayIterator"
-	], function (Class, EventsMixin, Objs, Functions, Lists, Ids, Properties, ArrayIterator, scoped) {
+	], function (Class, EventsMixin, Objs, Functions, ArrayList, Ids, Properties, ArrayIterator, scoped) {
 	return Class.extend({scoped: scoped}, [EventsMixin, function (inherited) {
 		return {
 
@@ -4923,7 +4957,7 @@ Scoped.define("module:Collections.Collection", [
 				if ("compare" in options)
 					list_options["compare"] = options["compare"];
 				list_options.get_ident = Functions.as_method(this.get_ident, this);
-				this.__data = new Lists.ArrayList([], list_options);
+				this.__data = new ArrayList([], list_options);
 				var self = this;
 				this.__data._ident_changed = function (object, index) {
 					self._index_changed(object, index);
@@ -5441,19 +5475,6 @@ Scoped.define("module:KeyValue.MemoryKeyValueStore", ["module:KeyValue.KeyValueS
 				delete this.__data[key];
 			}
 
-		};
-	});
-});
-
-
-Scoped.define("module:KeyValue.LocalKeyValueStore", ["module:KeyValue.MemoryKeyValueStore"], function (MemoryKeyValueStore, scoped) {
-	return MemoryKeyValueStore.extend({scoped: scoped}, function (inherited) {
-		return {
-	
-			constructor: function () {
-				inherited.constructor.call(this, localStorage, false);
-			}
-	
 		};
 	});
 });
@@ -6007,7 +6028,7 @@ Scoped.define("module:RMI.Skeleton", [
 				return Promise.value(result);
 			},
 			
-			_error: function (callbacks) {
+			_error: function (result) {
 				return Promise.error(result);
 			},
 			
@@ -6362,6 +6383,7 @@ Scoped.define("module:Net.SocketSenderChannel", ["module:Channels.Sender", "modu
 				this.__cache = [];
 			},
 			
+			/** @suppress {missingProperties} */
 			_send: function (message, data) {
 				if (this.__ready) {
 					this.__socket.emit(this.__message, {

@@ -42,7 +42,7 @@ module.exports = function(grunt) {
 			    dest : 'dist/beta-browser-noscoped.js'
 			}
 		},	
-		clean: ["dist/beta-browser-raw.js"],
+		clean: ["dist/beta-browser-raw.js", "dist/beta-browser-closure.js"],
 		uglify : {
 			options : {
 				banner : module.banner
@@ -64,8 +64,52 @@ module.exports = function(grunt) {
             	src: [
             		"src/*/*.js"
             	]
+			},
+			lintfinal : {
+				command : "jsl --process ./dist/beta-browser.js",
+				options : {
+					stdout : true,
+					stderr : true,
+				},
+				src : [ "src/*/*.js" ]
 			}
 		},
+		closureCompiler : {
+			options : {
+				compilerFile : process.env.CLOSURE_PATH
+						+ "/compiler.jar",
+				compilerOpts : {
+					compilation_level : 'ADVANCED_OPTIMIZATIONS',
+					warning_level : 'verbose',
+					externs : [ "./src/fragments/closure.js-fragment" ]
+				}
+			},
+			dist : {
+				src : ["./vendors/beta.js", "./dist/beta-browser-noscoped.js"],
+				dest : "./dist/beta-browser-closure.js"
+			}
+		},
+		wget : {
+			dependencies : {
+				options : {
+					overwrite : true
+				},
+				files : {
+					"./vendors/scoped.js" : "https://raw.githubusercontent.com/betajs/betajs-scoped/master/dist/scoped.js",
+					"./vendors/beta.js" : "https://raw.githubusercontent.com/betajs/betajs/master/dist/beta.js",
+				}
+			}
+		},
+		jsdoc : {
+	        dist : {
+	            src: ['./README.md', './src/**/*.js'],
+	            options: {
+	                destination: 'docs',
+	                template : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template",
+	                configure : "./jsdoc.conf.json"
+	            }
+	        }
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-newer');
@@ -75,10 +119,15 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-git-revision-count');
 	grunt.loadNpmTasks('grunt-preprocess');
 	grunt.loadNpmTasks('grunt-contrib-clean');	
+	grunt.loadNpmTasks('grunt-wget');
+	grunt.loadNpmTasks('grunt-closure-tools');
+    grunt.loadNpmTasks('grunt-jsdoc');
 	
 
 	grunt.registerTask('default', ['revision-count', 'concat:dist_raw', 'preprocess', 'clean', 'concat:dist_scoped', 'uglify']);
-	grunt.registerTask('lint', ['shell:lint']);	
+	grunt.registerTask('lint', ['shell:lint', 'shell:lintfinal']);	
 	grunt.registerTask('check', ['lint']);
+	grunt.registerTask('dependencies', [ 'wget:dependencies' ]);
+	grunt.registerTask('closure', [ 'closureCompiler', 'clean' ]);
 
 };

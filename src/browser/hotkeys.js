@@ -1,4 +1,4 @@
-/**
+/*
  * Uses modified portions of:
  * 
  * http://www.openjs.com/scripts/events/keyboard_shortcuts/
