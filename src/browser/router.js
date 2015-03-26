@@ -44,6 +44,7 @@ Scoped.define("module:Router", [
 			 *  }
 			 * }
 			 */	
+			/** @suppress {checkTypes} */
 			routes: [],
 			
 			/** Creates a new router with options
@@ -59,10 +60,10 @@ Scoped.define("module:Router", [
 				if (!Types.is_array(routes))
 					routes = [routes];
 				if ("routes" in options) {
-					if (Types.is_array(options["routes"]))
-						routes = routes.concat(options["routes"]);
+					if (Types.is_array(options.routes))
+						routes = routes.concat(options.routes);
 					else
-						routes.push(options["routes"]);
+						routes.push(options.routes);
 				}
 				this.__routes = [];
 				this.__paths = {};
@@ -87,7 +88,7 @@ Scoped.define("module:Router", [
 						this.__paths[obj.path] = obj;
 					}, this);
 				}, this);
-				if ("actions" in options)
+				if (options.actions)
 					Objs.iter(options.actions, function (action, key) {
 						this[key] = action;
 					}, this);
@@ -109,17 +110,19 @@ Scoped.define("module:Router", [
 					if (result !== null) {
 						result.shift(1);
 						var applicable = true;
-						Objs.iter(obj.applicable, function (s) {
+						for (var j = 0; j < obj.applicable.length; ++j) {
+							var s = obj.applicable[j];
 							var f = Types.is_string(s) ? this[s] : s;
 							applicable = applicable && f.apply(this, result);
-						}, this);
+						}
 						if (!applicable)
 							continue;
 						var valid = true;
-						Objs.iter(obj.valid, function (s) {
-							var f = Types.is_string(s) ? this[s] : s;
-							valid = valid && f.apply(this, result);
-						}, this);
+						for (var k = 0; k < obj.valid.length; ++k) {
+							var t = obj.valid[k];
+							var g = Types.is_string(t) ? this[t] : t;
+							valid = valid && g.apply(this, result);
+						}
 						if (!valid)
 							return null;
 						return {
@@ -141,7 +144,7 @@ Scoped.define("module:Router", [
 			
 			/** Returns the route of a path description
 			 * @param pth the path descriptor
-			 * @param parameters parameters that should be attached to the route (capturing groups)
+			 * param parameters parameters that should be attached to the route (capturing groups)
 			 */
 			path: function (pth) {
 				var key = this.object(pth).key;

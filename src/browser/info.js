@@ -135,12 +135,14 @@ Scoped.define("module:Info", ["module:FlashDetect"], function (FlashDetect) {
 		internetExplorerVersion: function () {
 			if (navigator.appName == 'Microsoft Internet Explorer') {
 			    var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-			    if (re.exec(navigator.userAgent))
-			    	return parseFloat(RegExp.$1);
+			    var ma = re.exec(navigator.userAgent);
+			    if (ma)
+			    	return ma[1];
 			} else if (navigator.appName == 'Netscape') {
 			    var re2 = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-			    if (re2.exec(navigator.userAgent))
-			    	return parseFloat(RegExp.$1);
+			    var ma2 = re2.exec(navigator.userAgent); 
+			    if (ma2)
+			    	return parseFloat(ma2[1]);
 			}
 			return null;
 		},

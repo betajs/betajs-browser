@@ -23,6 +23,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return this.traverseNext(node.parentNode, true);
 		},
 		
+		/** @suppress {checkTypes} */
 		selectNode : function(node, offset) {
 			node = $(node).get(0);
 			var selection = null;
@@ -45,6 +46,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			}
 		},
 	
+		/** @suppress {checkTypes} */
 		selectionStartNode : function() {
 			if (window.getSelection)
 				return $(window.getSelection().getRangeAt(0).startContainer);
@@ -53,6 +55,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 		
+		/** @suppress {checkTypes} */
 		selectedHtml : function() {
 			if (window.getSelection)
 				return window.getSelection().toString();
@@ -61,6 +64,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return "";
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionAncestor : function() {
 			if (window.getSelection)
 				return $(window.getSelection().getRangeAt(0).commonAncestorContainer);
@@ -69,6 +73,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionStartOffset: function () {
 			if (window.getSelection)
 				return window.getSelection().getRangeAt(0).startOffset;
@@ -77,6 +82,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionEndOffset: function () {
 			if (window.getSelection)
 				return window.getSelection().getRangeAt(0).endOffset;
@@ -85,6 +91,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 	
+		/** @suppress {checkTypes} */
 		selectionStart : function() {
 			if (window.getSelection)
 				return $(window.getSelection().getRangeAt(0).startContainer);
@@ -93,6 +100,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 	
+		/** @suppress {checkTypes} */
 		selectionEnd : function() {
 			if (window.getSelection)
 				return $(window.getSelection().getRangeAt(0).endContainer);
@@ -101,16 +109,19 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return null;
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionNonEmpty: function () {
 			var start = this.selectionStart();
 			var end = this.selectionEnd();
 			return start && end && start.get(0) && end.get(0) && (start.get(0) != end.get(0) || this.selectionStartOffset() != this.selectionEndOffset());
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionContained: function (node) {
 			return node.has(this.selectionStart()).length > 0 && node.has(this.selectionEnd()).length > 0;
 		},
 	
+		/** @suppress {checkTypes} */
 		selectionNodes: function () {
 			var result = [];
 			var start = this.selectionStart();
@@ -124,6 +135,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			return result;
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionLeaves: function () {
 			return Objs.filter(this.selectionNodes(), function (node) { return node.children().length === 0; });
 		},
@@ -149,6 +161,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			}
 		},
 		
+		/** @suppress {checkTypes} */
 		selectionSplitOffsets: function () {
 			var startOffset = this.selectionStartOffset();
 			var endOffset = this.selectionEndOffset();
@@ -170,6 +183,7 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			this.selectRange(start, end);
 		},
 		
+		/** @suppress {checkTypes} */
 		selectRange: function (start_node, end_node, start_offset, end_offset) {
 			start_node = $(start_node);
 			end_node = $(end_node);

@@ -143,7 +143,7 @@ Scoped.define("module:FlashHelper", [
 				embed = $(container).find("object").get(0);
 			if (!embed) {
 				var objs = $("object");
-				for (i = 0; i < objs.length; ++i) {
+				for (var i = 0; i < objs.length; ++i) {
 					if ($(objs[i]).closest(container).length > 0)
 						embed = $(objs[i]);
 				}
