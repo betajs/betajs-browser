@@ -39,8 +39,11 @@ module.exports = function(grunt) {
 						dest : 'dist/beta-browser-noscoped.js'
 					}
 				},
-				clean : [ "dist/beta-browser-raw.js",
-						"dist/beta-browser-closure.js" ],
+				clean : {
+					raw: "dist/beta-browser-raw.js",
+					closure: "dist/beta-browser-closure.js",
+					browserstack : [ "./browserstack.json", "BrowserStackLocal" ]
+				},
 				uglify : {
 					options : {
 						banner : module.banner
@@ -60,7 +63,8 @@ module.exports = function(grunt) {
 					source : [ "./src/browser/*.js" ],
 					dist : [ "./dist/beta-browser-noscoped.js",
 							"./dist/beta-browser.js" ],
-					gruntfile : [ "./Gruntfile.js" ]
+					gruntfile : [ "./Gruntfile.js" ],
+					tests : [ "./tests/browser/*.js" ]
 				},
 				closureCompiler : {
 					options : {
@@ -99,9 +103,56 @@ module.exports = function(grunt) {
 							configure : "./jsdoc.conf.json"
 						}
 					}
+				},
+				shell : {
+					tests: {
+						command: "open tests/tests.html"
+					},
+					browserstack : {
+						command : 'browserstack-runner',
+						options : {
+							stdout : true,
+							stderr : true
+						}
+					}
+				},
+				template : {
+					browserstack : {
+						options : {
+							data: {
+								data: {
+									"test_path" : "tests/tests.html",
+									"test_framework" : "qunit",
+									"timeout": 10 * 60,
+									"browsers": [
+						              	'firefox_latest',
+									    'firefox_4',
+						                'chrome_latest',
+							            'chrome_14',
+						                'safari_latest',
+							            'safari_4',
+						                'opera_latest', 
+									    'opera_12_15', 
+						                'ie_11',
+						                'ie_10',
+						                'ie_9',
+						                'ie_8',
+						                'ie_7',
+						                'ie_6',
+									    {"os": "ios", "os_version": "8.0"},  
+									    //{"os": "ios", "os_version": "6.1"},
+									    //{"os": "android", "os_version": "5.0"},
+									    {"os": "android", "os_version": "4.0"}
+						            ]
+								}
+							}
+						},
+						files : {
+							"browserstack.json" : ["json.tpl"]
+						}
+					}
 				}
 			});
-
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-git-revision-count');
@@ -111,13 +162,18 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-closure-tools');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-node-qunit');
+	grunt.loadNpmTasks('grunt-jsdoc');
+	grunt.loadNpmTasks('grunt-shell');
+	grunt.loadNpmTasks('grunt-template');
 
 	grunt.registerTask('default', [ 'revision-count', 'concat:dist_raw',
-			'preprocess', 'clean', 'concat:dist_scoped', 'uglify' ]);
+			'preprocess', 'clean:raw', 'concat:dist_scoped', 'uglify' ]);
+	grunt.registerTask('qunit', [ 'shell:tests' ]);
 	grunt.registerTask('lint', [ 'jshint:source', 'jshint:dist',
-			'jshint:gruntfile' ]);
-	grunt.registerTask('check', [ 'lint' ]);
+			'jshint:gruntfile', 'jshint:tests' ]);
+	grunt.registerTask('check', [ 'lint', 'qunit' ]);
 	grunt.registerTask('dependencies', [ 'wget:dependencies' ]);
-	grunt.registerTask('closure', [ 'closureCompiler', 'clean' ]);
+	grunt.registerTask('closure', [ 'closureCompiler', 'clean:raw' ]);
+	grunt.registerTask('browserstack', [ 'template:browserstack', 'shell:browserstack', 'clean:browserstack' ]);
 
 };
