@@ -29,6 +29,8 @@ Scoped.define("module:Info", ["module:FlashDetect"], function (FlashDetect) {
 		
 		isiOS: function () {
 			return this.__cached("isiOS", function () {
+				if (this.isInternetExplorer())
+					return false;
 				var ua = navigator.userAgent;
 				return ua.indexOf('iPhone') != -1 || ua.indexOf('iPod') != -1 || ua.indexOf('iPad') != -1;
 			});
