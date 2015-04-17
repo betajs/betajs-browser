@@ -190,7 +190,7 @@ module.exports = function(grunt) {
 			'jshint:gruntfile', 'jshint:tests' ]);
 	grunt.registerTask('check', [ 'lint', 'qunit' ]);
 	grunt.registerTask('dependencies', [ 'wget:dependencies' ]);
-	grunt.registerTask('closure', [ 'closureCompiler', 'clean:raw' ]);
+	grunt.registerTask('closure', [ 'closureCompiler', 'clean:closure' ]);
 	grunt.registerTask('browserstack-desktop', [ 'template:browserstack-desktop', 'shell:browserstack', 'clean:browserstack' ]);
 	grunt.registerTask('browserstack-mobile', [ 'template:browserstack-mobile', 'shell:browserstack', 'clean:browserstack' ]);
 
