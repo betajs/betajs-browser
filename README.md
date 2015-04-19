@@ -25,7 +25,6 @@ Active, Production ready
 | Internet Explorer | 6 - Latest |
 | iOS | 7.0 - Latest |
 | Android | 4.0 - Latest |
-| NodeJS | 0.10 - Latest |
 
 
 ## CDN
