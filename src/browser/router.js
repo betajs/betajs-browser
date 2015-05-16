@@ -434,7 +434,7 @@ Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], fu
 						this._states[route.state] = route;
 				}, this);
 				host.on("start", function () {
-					this._setRoute(this._getExternalRoute);
+					this._setRoute(this._getExternalRoute());
 				}, this);
 			},
 			
