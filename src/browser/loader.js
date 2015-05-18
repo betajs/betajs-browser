@@ -47,6 +47,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 			}).done(function(content) {
 				callback.call(context || this, content, url);
 			});
+		},
+		
+		findScript: function (substr) {
+			for (var i = 0; i < document.scripts.length; ++i)
+				if (document.scripts[i].src.toLowerCase().indexOf(substr.toLowerCase()) >= 0)
+					return document.scripts[i];
+			return null;
 		}
 
 	};

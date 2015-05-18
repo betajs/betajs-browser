@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-05-16
+betajs-browser - v1.0.0 - 2015-05-18
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -537,7 +537,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.0 - 2015-05-16
+betajs-browser - v1.0.0 - 2015-05-18
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -557,7 +557,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '21.1431799113847'
+		version: '22.1431976356675'
 	};
 });
 
@@ -1656,6 +1656,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 			}).done(function(content) {
 				callback.call(context || this, content, url);
 			});
+		},
+		
+		findScript: function (substr) {
+			for (var i = 0; i < document.scripts.length; ++i)
+				if (document.scripts[i].src.toLowerCase().indexOf(substr.toLowerCase()) >= 0)
+					return document.scripts[i];
+			return null;
 		}
 
 	};
