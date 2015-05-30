@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-05-18
+betajs-browser - v1.0.0 - 2015-05-30
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -19,7 +19,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '22.1431976356675'
+		version: '23.1433025041482'
 	};
 });
 
@@ -1552,7 +1552,11 @@ Scoped.define("module:LocationRouteBinder", ["module:RouteBinder"], function (Ro
 
 
 
-Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], function (RouteBinder, Objs, scoped) {
+Scoped.define("module:StateRouteBinder", [
+    "module:RouteBinder",
+    "base:Objs",
+    "base:Types"
+], function (RouteBinder, Objs, Types, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
@@ -1561,8 +1565,13 @@ Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], fu
 				this._host = host;
 				this._states = {};
 				Objs.iter(router.routes, function (route) {
-					if (route.state)
+					if (route.state && Types.is_string(route.state))
 						this._states[route.state] = route;
+					if (route.states) {
+						Objs.iter(route.states, function (state) {
+							this._states[state] = route;
+						}, this);
+					}
 				}, this);
 				host.on("start", function () {
 					this._setRoute(this._getExternalRoute());
@@ -1592,7 +1601,8 @@ Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], fu
 				Objs.iter(object.mapping, function (key, i) {
 					args[key] = params[i];
 				});
-				this._host.next(object.state, args);
+				var state = Types.is_function(object.state) ? object.state(params) : object.state;
+				this._host.next(state, args);
 			}
 			
 		};

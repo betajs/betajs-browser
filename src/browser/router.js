@@ -421,7 +421,11 @@ Scoped.define("module:LocationRouteBinder", ["module:RouteBinder"], function (Ro
 
 
 
-Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], function (RouteBinder, Objs, scoped) {
+Scoped.define("module:StateRouteBinder", [
+    "module:RouteBinder",
+    "base:Objs",
+    "base:Types"
+], function (RouteBinder, Objs, Types, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
@@ -430,8 +434,13 @@ Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], fu
 				this._host = host;
 				this._states = {};
 				Objs.iter(router.routes, function (route) {
-					if (route.state)
+					if (route.state && Types.is_string(route.state))
 						this._states[route.state] = route;
+					if (route.states) {
+						Objs.iter(route.states, function (state) {
+							this._states[state] = route;
+						}, this);
+					}
 				}, this);
 				host.on("start", function () {
 					this._setRoute(this._getExternalRoute());
@@ -461,7 +470,8 @@ Scoped.define("module:StateRouteBinder", ["module:RouteBinder", "base:Objs"], fu
 				Objs.iter(object.mapping, function (key, i) {
 					args[key] = params[i];
 				});
-				this._host.next(object.state, args);
+				var state = Types.is_function(object.state) ? object.state(params) : object.state;
+				this._host.next(state, args);
 			}
 			
 		};
