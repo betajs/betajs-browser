@@ -20,9 +20,9 @@ test("test different browsers", function () {
 			appVersion: userAgent.substr(userAgent.indexOf("/") + 1)
 		}));
 		var ident = [device, os, browser].join(" ");
-		QUnit.equal(BetaJS.Browser.Info.getDevice().key, device, ident);
-		QUnit.equal(BetaJS.Browser.Info.getOS().key, os, ident);
-		QUnit.equal(BetaJS.Browser.Info.getBrowser().key, browser, ident);
+		QUnit.equal(BetaJS.Browser.Info.getDevice().key, device, "Device: " + ident);
+		QUnit.equal(BetaJS.Browser.Info.getOS().key, os, "OS: " + ident);
+		QUnit.equal(BetaJS.Browser.Info.getBrowser().key, browser, "Browser: " + ident);
 	};
 	
 	check("desktop", "macosx", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/600.5.17 (KHTML, like Gecko) Version/8.0.5 Safari/600.5.17");
@@ -38,4 +38,6 @@ test("test different browsers", function () {
 	check("mobile", "ios", "chrome", "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/42.0.2311.47 Mobile/12F70 Safari/600.1.4 (000607)");
 	
 	check("mobile", "ios", "opera", "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) OPiOS/10.0.1.90729 Mobile/12F70 Safari/9537.53");
+	
+	check("mobile", "android", "chrome", "Mozilla/5.0 (Linux; Android 5.0.2; SM-G920W8 Build/LRX22G) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.92 Mobile Safari/537.36", {window_chrome: true});
 });

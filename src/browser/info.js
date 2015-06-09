@@ -151,7 +151,7 @@ Scoped.define("module:Info", [
 		
 		isLinux: function () {
 			return this.__cached("isLinux", function (nav) {
-				return nav.appVersion.toLowerCase().indexOf("linux") != -1;
+				return !this.isAndroid() && nav.appVersion.toLowerCase().indexOf("linux") != -1;
 			});
 		},
 		
@@ -291,7 +291,7 @@ Scoped.define("module:Info", [
 		    	check: function () { return this.isSafari(); }
 		    }, android: {
 		    	format: "Android",
-		    	check: function () { return this.isAndroid(); }
+		    	check: function () { return this.isAndroid() && !this.isChrome(); }
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }
