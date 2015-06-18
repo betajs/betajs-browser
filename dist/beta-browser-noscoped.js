@@ -19,7 +19,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '25.1434651368913'
+		version: '26.1434667901335'
 	};
 });
 
@@ -1137,7 +1137,7 @@ Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], 
 				inherited.constructor.call(this, router);
 				var self = this;
 				$(window).on("hashchange.events" + this.cid(), function () {
-					self._setRoute(self._getExternalRoute());
+					self._localRouteChanged();
 				});
 			},
 			
@@ -1146,13 +1146,13 @@ Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], 
 				inherited.destroy.call(this);
 			},
 			
-			_getExternalRoute: function () {
+			_getLocalRoute: function () {
 				var hash = window.location.hash;
 				return (hash.length && hash[0] == '#') ? hash.slice(1) : hash;
 			},
 			
-			_setExternalRoute: function (route) {
-				window.location.hash = "#" + route;
+			_setLocalRoute: function (currentRoute) {
+				window.location.hash = "#" + currentRoute.route;
 			}
 			
 		};
@@ -1170,7 +1170,7 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 				this.__used = false;
 				$(window).on("popstate.events" + this.cid(), function () {
 					if (self.__used)
-						self._setRoute(self._getExternalRoute());
+						self._localRouteChanged();
 				});
 			},
 			
@@ -1179,12 +1179,12 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 				inherited.destroy.call(this);
 			},
 		
-			_getExternalRoute: function () {
+			_getLocalRoute: function () {
 				return window.location.pathname;
 			},
 			
-			_setExternalRoute: function (route) {
-				window.history.pushState({}, document.title, route);
+			_setLocalRoute: function (currentRoute) {
+				window.history.pushState({}, document.title, currentRoute.route);
 				this.__used = true;
 			}
 		};
@@ -1199,12 +1199,12 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 Scoped.define("module:LocationRouteBinder", ["base:Router.RouteBinder"], function (RouteBinder, scoped) {
 	return RouteBinder.extend({scoped: scoped}, {
 		
-		_getExternalRoute: function () {
+		_getLocalRoute: function () {
 			return window.location.pathname;
 		},
 		
-		_setExternalRoute: function (route) {
-			window.location.pathname = route;
+		_setLocalRoute: function (currentRoute) {
+			window.location.pathname = currentRoute.route;
 		}
 		
 	});

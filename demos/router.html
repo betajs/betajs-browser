@@ -10,34 +10,34 @@
 		<script src="../dist/beta-browser.js"></script>
 		<script>
 			$(document).ready(function () {
-				router = new BetaJS.Router.Router({
-					routes: {
-						"/main": "main",
-						"/about": "about",
-						"/pages": "pages",
-						"/pages/([0-9]+)": "pages"
-					}
-				});
-				router.main = function () {
+				router = new BetaJS.Router.Router();
+				router.bind("main", "/main", function () {
 					$("[data-selector='page']").css("display", "none");
 					$("#main").css("display", "");
-				};
-				router.about = function () {
+				});
+				router.bind("about", "/about", function () {
 					$("[data-selector='page']").css("display", "none");
 					$("#about").css("display", "");
-				};
-				router.pages = function (index) {
-					index = parseInt(index || 1);
+				});
+				router.bind("pages", "/pages", function () {
+					index = 1;
 					$("#pages #index").html(index);
 					$("#pages #next").attr("href", "javascript:router.navigate('/pages/" + (index+1) + "')");
 					$("[data-selector='page']").css("display", "none");
 					$("#pages").css("display", "");
-				};
+				});
+				router.bind("pages_idx", "/pages/(index:[0-9]+)", function (args) {
+					index = parseInt(args.index || 1);
+					$("#pages #index").html(index);
+					$("#pages #next").attr("href", "javascript:router.navigate('/pages/" + (index+1) + "')");
+					$("[data-selector='page']").css("display", "none");
+					$("#pages").css("display", "");
+				});
 				router_history = new BetaJS.Router.RouterHistory(router);
 				router_history.on("change", function () {
 					$("#history").html("");
 					for (var i = 0; i < router_history.count(); ++i) 
-						$("#history").append("<li>" + router_history.getRoute(i) + "</li>");
+						$("#history").append("<li>" + router_history.get(i).route + "</li>");
 				});
 				//binder = new BetaJS.Browser.HistoryRouteBinder(router);
 				binder = new BetaJS.Browser.HashRouteBinder(router);				
