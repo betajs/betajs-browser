@@ -10,7 +10,7 @@
 		<script src="../dist/beta-browser.js"></script>
 		<script>
 			$(document).ready(function () {
-				router = new BetaJS.Browser.Router({
+				router = new BetaJS.Router.Router({
 					routes: {
 						"/main": "main",
 						"/about": "about",
@@ -33,7 +33,7 @@
 					$("[data-selector='page']").css("display", "none");
 					$("#pages").css("display", "");
 				};
-				router_history = new BetaJS.Browser.RouterHistory(router);
+				router_history = new BetaJS.Router.RouterHistory(router);
 				router_history.on("change", function () {
 					$("#history").html("");
 					for (var i = 0; i < router_history.count(); ++i) 
