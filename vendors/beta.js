@@ -1,10 +1,10 @@
 /*!
-betajs - v1.0.0 - 2015-06-18
+betajs - v1.0.0 - 2015-07-08
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
 /*!
-betajs-scoped - v0.0.1 - 2015-03-26
+betajs-scoped - v0.0.1 - 2015-07-08
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -118,7 +118,7 @@ var Attach = {
 			var current_version = current.version.split(".");
 			var newer = false;
 			for (var i = 0; i < Math.min(my_version.length, current_version.length); ++i) {
-				newer = my_version[i] > current_version[i];
+				newer = parseInt(my_version[i], 10) > parseInt(current_version[i], 10);
 				if (my_version[i] != current_version[i]) 
 					break;
 			}
@@ -287,6 +287,17 @@ function newNamespace (options) {
 			}
 		}
 	}
+	
+	function nodeUnresolvedWatchers(node, base, result) {
+		node = node || nsRoot;
+		base = base ? base + "." + node.route : node.route;
+		result = result || [];
+		if (!node.ready)
+			result.push(base);
+		for (var k in node.children)
+			result = nodeUnresolvedWatchers(node.children[k], base, result);
+		return result;
+	}
 
 	return {
 		
@@ -319,6 +330,10 @@ function newNamespace (options) {
 		
 		obtain: function (path, callback, context) {
 			nodeAddWatcher(nodeNavigate(path), callback, context);
+		},
+		
+		unresolvedWatchers: function () {
+			return nodeUnresolvedWatchers();
 		}
 		
 	};
@@ -511,7 +526,12 @@ function newScope (parent, parentNamespace, rootNamespace, globalNamespace) {
 			var ns = this.resolve(namespaceLocator);
 			ns.namespace.digest(ns.path);
 			return this;
-		}		
+		},
+		
+		unresolved: function (namespaceLocator) {
+			var ns = this.resolve(namespaceLocator);
+			return ns.namespace.unresolvedWatchers();
+		}
 		
 	};
 	
@@ -523,7 +543,7 @@ var rootScope = newScope(null, rootNamespace, rootNamespace, globalNamespace);
 var Public = Helper.extend(rootScope, {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '9.1427403679672',
+	version: '9.9436381745302',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -537,7 +557,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs - v1.0.0 - 2015-06-18
+betajs - v1.0.0 - 2015-07-08
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
@@ -550,7 +570,7 @@ Scoped.binding("module", "global:BetaJS");
 Scoped.define("module:", function () {
 	return {
 		guid: "71366f7a-7da3-4e55-9a0b-ea0e4e2a9e79",
-		version: '394.1434667835063'
+		version: '405.1436389310033'
 	};
 });
 
@@ -589,15 +609,17 @@ Scoped.define("module:Async", ["module:Types", "module:Functions"], function (Ty
 			}
 		},
 		
-		eventually: function (func, params, context) {
+		eventually: function () {
+			var args = Functions.matchArgs(arguments, {
+				func: true,
+				params: "array",
+				context: "object",
+				time: "number"
+			});
 			var timer = setTimeout(function () {
 				clearTimeout(timer);
-				if (!Types.is_array(params)) {
-					context = params;
-					params = [];
-				}
-				func.apply(context || this, params || []);
-			}, 0);
+				args.func.apply(args.context || this, args.params || []);
+			}, args.time || 0);
 		},
 		
 		eventuallyOnce: function (func, params, context) {
@@ -1531,6 +1553,64 @@ Scoped.define("module:Classes.ContextRegistry", [
 	});
 });
 
+
+
+Scoped.define("module:Classes.ConditionalInstance", [
+	 "module:Class",
+	 "module:Objs"
+], function (Class, Objs, scoped) {
+	return Class.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			constructor: function (options) {
+				inherited.constructor.call(this);
+				this._options = this.cls._initializeOptions(options);
+			}
+			
+		};
+	}, {
+		
+		_initializeOptions: function (options) {
+			return options;
+		},
+		
+		supported: function (options) {
+			return false;
+		}
+		
+	}, {
+
+		__registry: [],
+		
+		register: function (cls, priority) {
+			this.__registry.push({
+				cls: cls,
+				priority: priority
+			});
+		},
+		
+		match: function (options) {
+			options = this._initializeOptions(options);
+			var bestMatch = null;
+			Objs.iter(this.__registry, function (entry) {
+				if ((!bestMatch || bestMatch.priority < entry.priority) && entry.cls.supported(options))
+					bestMatch = entry;				
+			}, this);
+			return bestMatch;
+		},
+		
+		create: function (options) {
+			var match = this.match(options);
+			return match ? new match.cls(options) : null;
+		},
+		
+		anySupport: function (options) {
+			return this.match(options) !== null;
+		}
+		
+	});	
+});
+
 Scoped.define("module:Collections.Collection", [
 	    "module:Class",
 	    "module:Events.EventsMixin",
@@ -1800,6 +1880,129 @@ Scoped.define("module:Collections.FilteredCollection", [
 				return this.__parent.remove(object);
 			}
 			
+		};	
+	});
+});
+
+
+Scoped.define("module:Collections.MappedCollection", [
+    "module:Collections.Collection",
+    "module:Functions"
+], function (Collection, Functions, scoped) {
+	return Collection.extend({scoped: scoped}, function (inherited) {
+		return {
+
+			constructor : function(parent, options) {
+				this.__parent = parent;
+				this.__parentToThis = {};
+				this.__thisToParent = {};
+				options = options || {};
+				delete options.objects;
+				options.compare = Functions.as_method(this.__compareByParent, this);
+				inherited.constructor.call(this, options);
+				this._mapFunction = options.map;
+				this._mapCtx = options.context;
+				parent.on("add", this.__parentAdd, this);
+				parent.on("remove", this.__parentRemove, this);
+				parent.on("change", this.__parentUpdate, this);
+				parent.iterate(this.__parentAdd, this);		
+			},
+			
+			destroy: function () {
+				this.__parent.off(null, null, this);
+				inherited.destroy.call(this);
+			},
+
+			__compareByParent: function (item1, item2) {
+				return this.__parent.getIndex(this.__thisToParent[item1.cid()]) - this.__parent.getIndex(this.__thisToParent[item2.cid()]);
+			},
+			
+			__mapItem: function (parentItem, thisItem) {
+				return this._mapFunction.call(this._mapCtx || this, parentItem, thisItem);
+			},
+			
+			__parentAdd: function (item) {
+				var mapped = this.__mapItem(item);
+				this.__parentToThis[item.cid()] = mapped;
+				this.__thisToParent[mapped.cid()] = item;
+				this.add(mapped);
+			},
+			
+			__parentUpdate: function (item) {
+				this.__mapItem(item, this.__parentToThis[item.cid()]);
+			},
+			
+			__parentRemove: function (item) {
+				var mapped = this.__parentToThis[item.cid()];
+				delete this.__parentToThis[item.cid()];
+				delete this.__thisToParent[mapped.cid()];
+				this.remove(mapped);
+			}
+		
+		};	
+	});
+});
+
+
+Scoped.define("module:Collections.ConcatCollection", [
+    "module:Collections.Collection",
+    "module:Objs",
+    "module:Functions"
+], function (Collection, Objs, Functions, scoped) {
+	return Collection.extend({scoped: scoped}, function (inherited) {
+		return {
+
+			constructor : function (parents, options) {
+				this.__parents = {};
+				this.__itemToParent = {};
+				options = options || {};
+				delete options.objects;
+				options.compare = Functions.as_method(this.__compareByParent, this);
+				inherited.constructor.call(this, options);				
+				var idx = 0;
+				Objs.iter(parents, function (parent) {
+					this.__parents[parent.cid()] = {
+						idx: idx,
+						parent: parent
+					};
+					parent.iterate(function (item) {
+						this.__parentAdd(parent, item);
+					}, this);
+					parent.on("add", function (item) {
+						this.__parentAdd(parent, item);
+					}, this);
+					parent.on("remove", function (item) {
+						this.__parentRemove(parent, item);
+					}, this);
+					idx++;
+				}, this);
+			},
+			
+			destroy: function () {
+				Objs.iter(this.__parents, function (parent) {
+					parent.parent.off(null, null, this);
+				}, this);
+				inherited.destroy.call(this);
+			},
+			
+			__parentAdd: function (parent, item) {
+				this.__itemToParent[item.cid()] = parent;
+				this.add(item);
+			},
+			
+			__parentRemove: function (parent, item) {
+				delete this.__itemToParent[item.cid()];
+				this.remove(item);
+			},
+			
+			__compareByParent: function (item1, item2) {
+				var parent1 = this.__itemToParent[item1.cid()];
+				var parent2 = this.__itemToParent[item2.cid()];
+				if (parent1 === parent2)
+					return parent1.getIndex(item1) - parent2.getIndex(item2);
+				return this.__parents[parent1.cid()].idx - this.__parents[parent2.cid()].idx;
+			}			
+		
 		};	
 	});
 });
@@ -2331,7 +2534,7 @@ Scoped.define("module:IdGenerators.PrefixedIdGenerator", ["module:IdGenerators.I
 });
 
 
-Scoped.define("module:Ids.RandomIdGenerator", ["module:Ids.IdGenerator", "module:Tokens"], function (IdGenerator, Tokens, scoped) {
+Scoped.define("module:Ids.RandomIdGenerator", ["module:IdGenerators.IdGenerator", "module:Tokens"], function (IdGenerator, Tokens, scoped) {
 	return IdGenerator.extend({scoped: scoped}, function (inherited) {
 		return {
 
@@ -5013,9 +5216,7 @@ Scoped.define("module:Router.Router", [ "module:Class",
 
 	    		dispatch : function(name, args, route) {
 	    			if (this._current) {
-	    				if (this._current.name === name
-	    						&& Comparators.deepEqual(args,
-	    								this._current.args, 2))
+	    				if (this._current.name === name && Comparators.deepEqual(args, this._current.args, 2))
 	    					return;
 	    				this.trigger("leave", this._current.name,
 	    						this._current.args, this._current);
@@ -5215,7 +5416,7 @@ Scoped.define("module:Router.RouterHistory", [ "module:Class",
 				}
 				var item = this._history.pop();
 				this.trigger("change", item);
-				return this._router.dispatch(item.name, item.args)
+				return this._router.dispatch(item.name, item.args);
 			}
 
 		};
@@ -6800,6 +7001,7 @@ Scoped.define("module:Trees.TreeQueryEngine", ["module:Class", "module:Parser.Le
 					">\\+": {token: "Down"},
 					">": {token: "Down", single: true},
 					"\\[\s*([a-zA-Z]+)\s*=\s*\'([^']*)\'\s*\\]": {token: "Selector", key: "$1", value: "$2"},
+					"\\[\s*([a-zA-Z]+)\s*=\s*\"([^']*)\"\s*\\]": {token: "Selector", key: "$1", value: "$2"},
 					"\s": null
 				}));
 			},
@@ -6962,7 +7164,9 @@ Scoped.define("module:Trees.TreeQueryObject", ["module:Class", "module:Events.Ev
 						} else
 							this.__result[node_id].count++;
 					} else if (partial.partial_parent) {
-						this.__addDependentPartial(partial, this.__navigator.nodeParent(node));
+						var parent = this.__navigator.nodeParent(node);
+						if (parent)
+							this.__addDependentPartial(partial, parent);
 					} else if (partial.partial_children) {
 						Objs.iter(this.__navigator.nodeChildren(node), function (child) {
 							this.__addDependentPartial(partial, child);
@@ -7182,7 +7386,16 @@ Scoped.define("module:Types", function () {
 			if (type == "date" || type == "time" || type == "datetime")
 				return parseInt(x, 10);
 			return x;
+		},
+		
+		objectType: function (obj) {
+			if (!this.is_object(obj))
+				return null;
+			var matcher = obj.match(/\[object (.*)\]/);
+			return matcher ? matcher[1] : null;
 		}
+		
+		
 	};
 });
 
@@ -7229,7 +7442,7 @@ Scoped.define("module:Net.AjaxException", ["module:Exceptions.Exception"], funct
  * 
  */
 
-Scoped.define("module:Net.AbstractAjax", ["module:Class", "module:Objs", "module:Net.AjaxException"], function (Class, Objs, AjaxException, scoped) {
+Scoped.define("module:Net.AbstractAjax", ["module:Class", "module:Objs", "module:Net.AjaxException", "module:Net.Uri"], function (Class, Objs, AjaxException, Uri, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 
@@ -7243,6 +7456,10 @@ Scoped.define("module:Net.AbstractAjax", ["module:Class", "module:Objs", "module
 			
 			syncCall: function (options) {
 				try {
+          if (this._shouldMap(options)) {
+            options = this._mapPutToPost(options);
+          }
+
 					return this._syncCall(Objs.extend(Objs.clone(this.__options, 1), options));
 				} catch (e) {
 					throw AjaxException.ensure(e);
@@ -7250,6 +7467,11 @@ Scoped.define("module:Net.AbstractAjax", ["module:Class", "module:Objs", "module
 			},
 			
 			asyncCall: function (options) {
+
+        if (this._shouldMap(options)) {
+          options = this._mapPutToPost(options);
+        }
+
 				return this._asyncCall(Objs.extend(Objs.clone(this.__options, 1), options));
 			},
 			
@@ -7259,11 +7481,47 @@ Scoped.define("module:Net.AbstractAjax", ["module:Class", "module:Objs", "module
 		
 			_asyncCall: function (options) {
 				throw "Unsupported";
-			}
-			
+			},
+
+      /**
+       * @method _shouldMap
+       *
+       * Check if should even attempt a mapping. Important to not assume
+       * that the method option is always specified.
+       *
+       * @return Boolean
+       */
+      _shouldMap: function (options) {
+        return this.__options.mapPutToPost &&
+          options.method && options.method.toLowerCase() === "put";
+
+      },
+
+      /**
+       * @method _mapPutToPost
+       *
+       * Some implementations of PUT to not supporting sending data with the PUT
+       * request. This fix converts the Request to use POST, so the data is
+       * sent, but the server still thinks it is receiving a PUT request.
+       *
+       * @param {object} options
+       *
+       * @return {object}
+       */
+      _mapPutToPost: function(options) {
+        options.method = "POST";
+        options.uri = Uri.appendUriParams(
+          options.uri, {
+          _method: "PUT"
+        });
+
+        return options;
+      }
 		};
 	});
 });
+
+
 Scoped.define("module:Net.SocketSenderChannel", ["module:Channels.Sender", "module:Types"], function (Sender, Types, scoped) {
 	return Sender.extend({scoped: scoped}, function (inherited) {
 		return {
