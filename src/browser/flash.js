@@ -145,7 +145,7 @@ Scoped.define("module:FlashHelper", [
 				var objs = $("object");
 				for (var i = 0; i < objs.length; ++i) {
 					if ($(objs[i]).closest(container).length > 0)
-						embed = $(objs[i]);
+						embed = $(objs[i]).get(0);
 				}
 			}
 			return embed;
@@ -230,6 +230,12 @@ Scoped.define("module:FlashHelper", [
 					"value": Types.is_object(options.FlashVars) ? Uri.encodeUriParams(options.FlashVars) : options.FlashVars
 				});
 			}
+			if (options.objectId) {
+				params.push({
+					"objectKey": "id",
+					"value": options.objectId
+				});
+			}
 			var objectKeys = [];
 			var objectParams = [];
 			var embedKeys = [];
@@ -245,6 +251,20 @@ Scoped.define("module:FlashHelper", [
 		},
 		
 		embedFlashObject: function (container, options) {
+			if (options && options.parentBgcolor) {
+				try {
+					var hex = $(container).css("background-color");
+					if (hex.indexOf("rgb") >= 0) {
+						var rgb = hex.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+					    var convert = function (x) {
+					        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
+					    };
+					    if (rgb && rgb.length > 3)
+					    	hex = "#" + convert(rgb[1]) + convert(rgb[2]) + convert(rgb[3]);
+					}
+					options.bgcolor = hex;
+				} catch (e) {}
+			}
 			$(container).html(this.embedTemplate(options));
 			return this.getFlashObject(container);
 		}

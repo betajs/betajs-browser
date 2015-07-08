@@ -6,6 +6,8 @@ Scoped.binding("module", "global:BetaJS.Browser");
 Scoped.binding("base", "global:BetaJS");
 
 Scoped.binding("jquery", "global:jQuery");
+Scoped.binding("json", "global:JSON");
+Scoped.binding("resumablejs", "global:Resumable");
 
 Scoped.define("base:$", ["jquery:"], function (jquery) {
 	return jquery;
