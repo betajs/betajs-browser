@@ -42,6 +42,7 @@ Scoped.define("module:Upload.FileUploader", [
 	}], {
 		
 		_initializeOptions: function (options) {
+			options = options || {};
 			return Objs.extend({
 				//url: "",
 				//source: null,
@@ -52,6 +53,84 @@ Scoped.define("module:Upload.FileUploader", [
 			}, options);
 		}
 		
+	});
+});
+
+
+Scoped.define("module:Upload.MultiUploader", [
+    "module:Upload.FileUploader",
+    "base:Objs"
+], function (FileUploader, Objs, scoped) {
+	return FileUploader.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			constructor: function (options) {
+				inherited.constructor.call(this, options);
+				this._uploaders = {};
+				this._count = 0;
+				this._success = 0;
+				this._total = 0;
+				this._uploaded = 0;
+			},
+			
+			addUploader: function (uploader) {
+				var entry = {
+					uploader: uploader,
+					success: false,
+					data: null,
+					uploaded: null,
+					total: null
+				};
+				this._uploaders[uploader.cid()] = entry;
+				this._count++;
+				uploader.on("success", function (data) {
+					this._success++;
+					entry.success = true;
+					entry.data = data;
+					this._checkDone();
+				}, this).on("error", function (data) {
+					this._error++;
+					entry.success = false;
+					entry.data = data;
+					this._checkDone();
+				}, this).on("progress", function (uploaded, total) {
+					if (entry.uploaded === null) {
+						entry.uploaded = 0;
+						entry.total = total;
+						this._total += total;
+					}
+					this._uploaded += uploaded - entry.uploaded;
+					entry.uploaded = uploaded;
+					this._progressCallback(this._uploaded, this._total);
+				}, this);
+			},
+			
+			_upload: function () {
+				this._error = 0;
+				Objs.iter(this._uploaders, function (entry) {
+					if (!entry.success) {
+						this._uploaded -= entry.uploaded;
+						this._total -= entry.total;
+						entry.uploaded = null;
+						entry.uploader.upload();
+					}
+				}, this);
+			},
+			
+			_checkDone: function () {				
+				if (this._success + this._error == this._count) {
+					var datas = [];
+					Objs.iter(this._uploaders, function (uploader) {
+						datas.push(uploader.data);
+					}, this);
+					if (this._error === 0)
+						this._successCallback(datas);
+					else
+						this._errorCallback(datas);
+				}
+			}
+			
+		};
 	});
 });
 
