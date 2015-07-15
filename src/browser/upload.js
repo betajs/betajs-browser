@@ -265,25 +265,31 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 
 Scoped.define("module:Upload.ResumableFileUploader", [
     "module:Upload.FileUploader",
-    "resumablejs:"
-], function (FileUploader, ResumableJS, scoped) {
+    "resumablejs:",
+    "base:Async"
+], function (FileUploader, ResumableJS, Async, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
 			this._resumable = new ResumableJS({
-				target: this._options.url
+				target: this._options.url,
+				withCredentials: false
 			});
-			this._resumable.addFile(this._options.source);
+			if (this._options.isBlob)
+				this._options.source.fileName = "blob";
+			this._resumable.addFile(this._options.isBlob ? this._options.source : this._options.source.files[0]);
 			var self = this;
 			this._resumable.on("fileProgress", function (file) {
-				var size = self._resumable.size;
-				self._progressCallback(Math.floor(self._resumable.progress() / size), size);
-			}).on("fileSuccess", function (file, message) {
+				var size = self._resumable.getSize();
+				self._progressCallback(Math.floor(self._resumable.progress() * size), size);
+			});
+			this._resumable.on("fileSuccess", function (file, message) {
 				self._successCallback(message);
-			}).on("fileError", function (file, message) {
+			});
+			this._resumable.on("fileError", function (file, message) {
 				self._errorCallback(message);
 			});
-			this._resumable.upload();
+			Async.eventually(this._resumable.upload, this._resumable);
 		}
 		
 	}, {
