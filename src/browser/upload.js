@@ -266,15 +266,15 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 Scoped.define("module:Upload.ResumableFileUploader", [
     "module:Upload.FileUploader",
     "resumablejs:",
-    "base:Async"
-], function (FileUploader, ResumableJS, Async, scoped) {
+    "base:Async",
+    "base:Objs"
+], function (FileUploader, ResumableJS, Async, Objs, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
-			this._resumable = new ResumableJS({
+			this._resumable = new ResumableJS(Objs.extend({
 				target: this._options.url,
-				withCredentials: false
-			});
+			}, this._options.resumable));
 			if (this._options.isBlob)
 				this._options.source.fileName = "blob";
 			this._resumable.addFile(this._options.isBlob ? this._options.source : this._options.source.files[0]);

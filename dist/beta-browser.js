@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-07-14
+betajs-browser - v1.0.0 - 2015-07-20
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.0 - 2015-07-14
+betajs-browser - v1.0.0 - 2015-07-20
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '30.1436877396357'
+		version: '31.1437421592183'
 	};
 });
 
@@ -2059,15 +2059,15 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 Scoped.define("module:Upload.ResumableFileUploader", [
     "module:Upload.FileUploader",
     "resumablejs:",
-    "base:Async"
-], function (FileUploader, ResumableJS, Async, scoped) {
+    "base:Async",
+    "base:Objs"
+], function (FileUploader, ResumableJS, Async, Objs, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
-			this._resumable = new ResumableJS({
+			this._resumable = new ResumableJS(Objs.extend({
 				target: this._options.url,
-				withCredentials: false
-			});
+			}, this._options.resumable));
 			if (this._options.isBlob)
 				this._options.source.fileName = "blob";
 			this._resumable.addFile(this._options.isBlob ? this._options.source : this._options.source.files[0]);
