@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '31.1437421592183'
+		version: '32.1437422309248'
 	};
 });
 
@@ -1507,7 +1507,7 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		
 		_upload: function () {
 			this._resumable = new ResumableJS(Objs.extend({
-				target: this._options.url,
+				target: this._options.url
 			}, this._options.resumable));
 			if (this._options.isBlob)
 				this._options.source.fileName = "blob";

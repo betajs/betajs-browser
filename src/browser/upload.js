@@ -273,7 +273,7 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		
 		_upload: function () {
 			this._resumable = new ResumableJS(Objs.extend({
-				target: this._options.url,
+				target: this._options.url
 			}, this._options.resumable));
 			if (this._options.isBlob)
 				this._options.source.fileName = "blob";
