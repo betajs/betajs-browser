@@ -267,8 +267,9 @@ Scoped.define("module:Upload.ResumableFileUploader", [
     "module:Upload.FileUploader",
     "resumablejs:",
     "base:Async",
-    "base:Objs"
-], function (FileUploader, ResumableJS, Async, Objs, scoped) {
+    "base:Objs",
+    "jquery:"
+], function (FileUploader, ResumableJS, Async, Objs, $, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -284,12 +285,41 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 				self._progressCallback(Math.floor(self._resumable.progress() * size), size);
 			});
 			this._resumable.on("fileSuccess", function (file, message) {
-				self._successCallback(message);
+				if (self._options.resumable.assembleUrl)
+					self._resumableSuccessCallback(file, message, self._options.resumable.assembleResilience || 1);
+				else
+					self._successCallback(message);
 			});
 			this._resumable.on("fileError", function (file, message) {
 				self._errorCallback(message);
 			});
 			Async.eventually(this._resumable.upload, this._resumable);
+		},
+		
+		_resumableSuccessCallback: function (file, message, resilience) {
+			if (resilience <= 0)
+				this._errorCallback(message);
+			var self = this;
+			$.ajax({
+				type: "POST",
+				async: true,
+				url: this._options.resumable.assembleUrl,
+				dataType: null, 
+				data: {
+					resumableIdentifier: file.file.uniqueIdentifier,
+					resumableFilename: file.file.name,
+					resumableTotalSize: file.file.size,
+					resumableType: file.file.type
+				},
+				success: function (response) {
+					self._successCallback(message);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					Async.eventually(function () {
+						self._resumableSuccessCallback(file, message, resilience - 1);
+					}, self._options.resumable.assembleResilienceTimeout || 0);
+				}
+			});
 		}
 		
 	}, {
