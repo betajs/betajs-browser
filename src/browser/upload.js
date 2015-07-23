@@ -49,7 +49,8 @@ Scoped.define("module:Upload.FileUploader", [
 				serverSupportChunked: false,
 				serverSupportPostMessage: false,
 				isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
-				resilience: 1
+				resilience: 1,
+				data: {}
 			}, options);
 		}
 		
@@ -138,14 +139,18 @@ Scoped.define("module:Upload.MultiUploader", [
 Scoped.define("module:Upload.FormDataFileUploader", [
     "module:Upload.FileUploader",
     "module:Info",
-    "jquery:"
-], function (FileUploader, Info, $, scoped) {
+    "jquery:",
+    "base:Objs"
+], function (FileUploader, Info, $, Objs, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
 			var self = this;
 			var formData = new FormData();
         	formData.append("file", this._options.isBlob ? this._options.source : this._options.source.files[0]);
+        	Objs.iter(this._options.data, function (value, key) {
+        		formData.append(key, value);
+        	}, this);
 			$.ajax({
 				type: "POST",
 				async: true,
@@ -197,8 +202,9 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
      "module:Upload.FileUploader",
      "jquery:",
      "base:Net.Uri",
-     "json:"
-], function (FileUploader, $, Uri, JSON, scoped) {
+     "json:",
+     "base:Objs"
+], function (FileUploader, $, Uri, JSON, Objs, scoped) {
 	var Cls = FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -216,6 +222,13 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			document.body.appendChild(form);
 			var oldParent = this._options.source.parent;
 			form.appendChild(this._options.source);
+			Objs.iter(this._options.data, function (value, key) {
+				var input = document.createElement("input");
+				input.type = "hidden";
+				input.name = key;
+				input.value = value;
+				form.appendChild(input);				
+			}, this);
 			var post_message_fallback = !("postMessage" in window);
 			iframe.onerror = function () {
 				if (post_message_fallback)
@@ -274,7 +287,8 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		
 		_upload: function () {
 			this._resumable = new ResumableJS(Objs.extend({
-				target: this._options.url
+				target: this._options.url,
+				headers: this._options.data
 			}, this._options.resumable));
 			if (this._options.isBlob)
 				this._options.source.fileName = "blob";
@@ -305,12 +319,12 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 				async: true,
 				url: this._options.resumable.assembleUrl,
 				dataType: null, 
-				data: {
+				data: Objs.extend({
 					resumableIdentifier: file.file.uniqueIdentifier,
-					resumableFilename: file.file.name,
+					resumableFilename: file.file.fileName || file.file.name,
 					resumableTotalSize: file.file.size,
 					resumableType: file.file.type
-				},
+				}, this._options.data),
 				success: function (response) {
 					self._successCallback(message);
 				},
