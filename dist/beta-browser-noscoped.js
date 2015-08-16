@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-08-03
+betajs-browser - v1.0.0 - 2015-08-15
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '35.1438612785957'
+		version: '36.1439654432184'
 	};
 });
 
@@ -866,9 +866,15 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isEdge: function () {
+			return this.__cached("isEdge", function (nav, ua) {
+				return ua.indexOf('Edge') != -1;
+			});
+		},
+		
 		isChrome: function () {
 			return this.__cached("isChrome", function (nav, ua) {
-				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera();
+				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera() && !this.isEdge();
 			});
 		},
 		
@@ -942,7 +948,7 @@ Scoped.define("module:Info", [
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && ualc.indexOf("safari") != -1;
 			});
 		},
 		
@@ -1116,6 +1122,9 @@ Scoped.define("module:Info", [
 		    }, blackberry: {
 		    	format: "Blackberry",
 		    	check: function () { return this.isBlackberry(); }
+		    }, edge: {
+		    	format: "Edge",
+		    	check: function () { return this.isEdge(); }
 		    }
 		},
 		

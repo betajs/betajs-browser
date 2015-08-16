@@ -51,9 +51,15 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isEdge: function () {
+			return this.__cached("isEdge", function (nav, ua) {
+				return ua.indexOf('Edge') != -1;
+			});
+		},
+		
 		isChrome: function () {
 			return this.__cached("isChrome", function (nav, ua) {
-				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera();
+				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera() && !this.isEdge();
 			});
 		},
 		
@@ -127,7 +133,7 @@ Scoped.define("module:Info", [
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && ualc.indexOf("safari") != -1;
 			});
 		},
 		
@@ -301,6 +307,9 @@ Scoped.define("module:Info", [
 		    }, blackberry: {
 		    	format: "Blackberry",
 		    	check: function () { return this.isBlackberry(); }
+		    }, edge: {
+		    	format: "Edge",
+		    	check: function () { return this.isEdge(); }
 		    }
 		},
 		
