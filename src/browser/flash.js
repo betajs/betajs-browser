@@ -16,7 +16,7 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 		            var mimeTypes = navigator.mimeTypes;
 		            if (mimeTypes && mimeTypes[type] && mimeTypes[type].enabledPlugin && mimeTypes[type].enabledPlugin.description)
 		                this.__version = this.parseVersion(mimeTypes[type].enabledPlugin.description);
-		        } else if (navigator.appVersion.indexOf("Mac") == -1 && window.execScript) {
+		        } else if (navigator.appVersion.indexOf("Mac") == -1 && "execScript" in window) {
 		            for (var i = 0; i < this.__activeXDetectRules.length; i++) {
 				        try {
 				            var obj = new ActiveXObject(this.__activeXDetectRules[i].name);
@@ -251,9 +251,11 @@ Scoped.define("module:FlashHelper", [
 		},
 		
 		embedFlashObject: function (container, options) {
-			if (options && options.parentBgcolor) {
+			options = options || {};
+			var $container = $(container);
+			if (options.parentBgcolor) {
 				try {
-					var hex = $(container).css("background-color");
+					var hex = $container.css("background-color");
 					if (hex.indexOf("rgb") >= 0) {
 						var rgb = hex.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
 					    var convert = function (x) {
@@ -265,7 +267,16 @@ Scoped.define("module:FlashHelper", [
 					options.bgcolor = hex;
 				} catch (e) {}
 			}
-			$(container).html(this.embedTemplate(options));
+			if (options.fixHalfPixels) {
+				try {
+					var offset = $container.offset();
+					if (offset.top % 1 !== 0)
+						$container.css("margin-top", (Math.round(offset.top) - offset.top) + "px");
+					if (offset.left % 1 !== 0)
+						$container.css("margin-left", (Math.round(offset.left) - offset.left) + "px");
+				} catch (e) {}
+			}
+			$container.html(this.embedTemplate(options));
 			return this.getFlashObject(container);
 		}
 		

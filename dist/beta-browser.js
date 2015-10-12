@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.0 - 2015-08-15
+betajs-browser - v1.0.1 - 2015-10-11
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.0 - 2015-08-15
+betajs-browser - v1.0.1 - 2015-10-11
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '36.1439654432184'
+		version: '37.1444579747306'
 	};
 });
 
@@ -955,7 +955,7 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 		            var mimeTypes = navigator.mimeTypes;
 		            if (mimeTypes && mimeTypes[type] && mimeTypes[type].enabledPlugin && mimeTypes[type].enabledPlugin.description)
 		                this.__version = this.parseVersion(mimeTypes[type].enabledPlugin.description);
-		        } else if (navigator.appVersion.indexOf("Mac") == -1 && window.execScript) {
+		        } else if (navigator.appVersion.indexOf("Mac") == -1 && "execScript" in window) {
 		            for (var i = 0; i < this.__activeXDetectRules.length; i++) {
 				        try {
 				            var obj = new ActiveXObject(this.__activeXDetectRules[i].name);
@@ -1190,9 +1190,11 @@ Scoped.define("module:FlashHelper", [
 		},
 		
 		embedFlashObject: function (container, options) {
-			if (options && options.parentBgcolor) {
+			options = options || {};
+			var $container = $(container);
+			if (options.parentBgcolor) {
 				try {
-					var hex = $(container).css("background-color");
+					var hex = $container.css("background-color");
 					if (hex.indexOf("rgb") >= 0) {
 						var rgb = hex.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
 					    var convert = function (x) {
@@ -1204,7 +1206,16 @@ Scoped.define("module:FlashHelper", [
 					options.bgcolor = hex;
 				} catch (e) {}
 			}
-			$(container).html(this.embedTemplate(options));
+			if (options.fixHalfPixels) {
+				try {
+					var offset = $container.offset();
+					if (offset.top % 1 !== 0)
+						$container.css("margin-top", (Math.round(offset.top) - offset.top) + "px");
+					if (offset.left % 1 !== 0)
+						$container.css("margin-left", (Math.round(offset.left) - offset.left) + "px");
+				} catch (e) {}
+			}
+			$container.html(this.embedTemplate(options));
 			return this.getFlashObject(container);
 		}
 		
@@ -1538,12 +1549,12 @@ Scoped.define("module:Info", [
 		internetExplorerVersion: function () {
 			return this.__cached("internetExplorerVersion", function (nav, ua) {
 				if (nav.appName == 'Microsoft Internet Explorer') {
-				    var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+				    var re = new RegExp("MSIE ([0-9]+)");
 				    var ma = re.exec(ua);
 				    if (ma)
 				    	return ma[1];
 				} else if (nav.appName == 'Netscape') {
-				    var re2 = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+				    var re2 = new RegExp("Trident/.*rv:([0-9]+)");
 				    var ma2 = re2.exec(nav.userAgent); 
 				    if (ma2)
 				    	return parseFloat(ma2[1]);

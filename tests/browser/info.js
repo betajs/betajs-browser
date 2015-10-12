@@ -14,11 +14,11 @@ test("test flash info", function() {
 
 test("test different browsers", function () {
 	var check = function (device, os, browser, userAgent, other) {
-		BetaJS.Browser.Info.setNavigator(BetaJS.Objs.extend(other, {
+		BetaJS.Browser.Info.setNavigator(BetaJS.Objs.extend({
 			userAgent: userAgent,
 			appName: "Netscape",
 			appVersion: userAgent.substr(userAgent.indexOf("/") + 1)
-		}));
+		}, other));
 		var ident = [device, os, browser].join(" ");
 		QUnit.equal(BetaJS.Browser.Info.getDevice().key, device, "Device: " + ident);
 		QUnit.equal(BetaJS.Browser.Info.getOS().key, os, "OS: " + ident);
@@ -42,4 +42,17 @@ test("test different browsers", function () {
 	check("mobile", "android", "chrome", "Mozilla/5.0 (Linux; Android 5.0.2; SM-G920W8 Build/LRX22G) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.92 Mobile Safari/537.36", {window_chrome: true});
 	
 	check("desktop", "windows", "edge", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240", {window_chrome: true});
+	
+	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko", {appName: "Netscape"});
+	QUnit.equal(BetaJS.Browser.Info.internetExplorerVersion(), 11, "IE 11");
+
+	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)", {appName: "Microsoft Internet Explorer"});
+	QUnit.equal(BetaJS.Browser.Info.internetExplorerVersion(), 10, "IE 10");
+
+	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; WOW64; Trident/5.0)", {appName: "Microsoft Internet Explorer"});
+	QUnit.equal(BetaJS.Browser.Info.internetExplorerVersion(), 9, "IE 9");
+
+	check("desktop", "windows", "internetexplorer", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET4.0C)", {appName: "Microsoft Internet Explorer"});
+	QUnit.equal(BetaJS.Browser.Info.internetExplorerVersion(), 8, "IE 8");
+
 });

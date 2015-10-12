@@ -164,12 +164,12 @@ Scoped.define("module:Info", [
 		internetExplorerVersion: function () {
 			return this.__cached("internetExplorerVersion", function (nav, ua) {
 				if (nav.appName == 'Microsoft Internet Explorer') {
-				    var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+				    var re = new RegExp("MSIE ([0-9]+)");
 				    var ma = re.exec(ua);
 				    if (ma)
 				    	return ma[1];
 				} else if (nav.appName == 'Netscape') {
-				    var re2 = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+				    var re2 = new RegExp("Trident/.*rv:([0-9]+)");
 				    var ma2 = re2.exec(nav.userAgent); 
 				    if (ma2)
 				    	return parseFloat(ma2[1]);
