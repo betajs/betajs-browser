@@ -42,7 +42,8 @@ module.exports = function(grunt) {
 				clean : {
 					raw: "dist/beta-browser-raw.js",
 					closure: "dist/beta-browser-closure.js",
-					browserstack : [ "./browserstack.json", "BrowserStackLocal" ]
+					browserstack : [ "./browserstack.json", "BrowserStackLocal" ],
+					jsdoc : ['./jsdoc.conf.json']
 				},
 				uglify : {
 					options : {
@@ -82,6 +83,18 @@ module.exports = function(grunt) {
 						dest : "./dist/beta-browser-closure.js"
 					}
 				},
+				jsdoc : {
+					dist : {
+						src : [ './README.md', './src/browser/*.js' ],					
+						options : {
+							destination : 'docs',
+							template : "node_modules/grunt-betajs-docs-compile",
+							configure : "./jsdoc.conf.json",
+							tutorials: "./docsrc/tutorials",
+							recurse: true
+						}
+					}
+				},
 				wget : {
 					dependencies : {
 						options : {
@@ -96,11 +109,13 @@ module.exports = function(grunt) {
 				},
 				jsdoc : {
 					dist : {
-						src : [ './README.md', './src/**/*.js' ],
+						src : [ './README.md', './src/browser/*.js' ],					
 						options : {
 							destination : 'docs',
-							template : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template",
-							configure : "./jsdoc.conf.json"
+							template : "node_modules/grunt-betajs-docs-compile",
+							configure : "./jsdoc.conf.json",
+							tutorials: "./docsrc/tutorials",
+							recurse: true
 						}
 					}
 				},
@@ -126,6 +141,42 @@ module.exports = function(grunt) {
 						},
 						files : {
 							"README.md" : ["readme.tpl"]
+						}
+					},
+					"jsdoc": {
+						options: {
+							data: {
+								data: {
+									"tags": {
+										"allowUnknownTags": true
+									},
+									"plugins": ["plugins/markdown"],
+									"templates": {
+										"cleverLinks": false,
+										"monospaceLinks": false,
+										"dateFormat": "ddd MMM Do YYYY",
+										"outputSourceFiles": true,
+										"outputSourcePath": true,
+										"systemName": "BetaJS",
+										"footer": "",
+										"copyright": "BetaJS (c) - MIT License",
+										"navType": "vertical",
+										"theme": "cerulean",
+										"linenums": true,
+										"collapseSymbols": false,
+										"inverseNav": true,
+										"highlightTutorialCode": true,
+										"protocol": "fred://"
+									},
+									"markdown": {
+										"parser": "gfm",
+										"hardwrap": true
+									}
+								}
+							}
+						},
+						files : {
+							"jsdoc.conf.json": ["json.tpl"]
 						}
 					},
 					"browserstack-desktop" : {
@@ -197,6 +248,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', [ 'revision-count', 'concat:dist_raw',
 			'preprocess', 'clean:raw', 'concat:dist_scoped', 'uglify' ]);
 	grunt.registerTask('qunit', [ 'shell:tests' ]);
+	grunt.registerTask('docs', ['template:jsdoc', 'jsdoc', 'clean:jsdoc']);
 	grunt.registerTask('lint', [ 'jshint:source', 'jshint:dist',
 			'jshint:gruntfile', 'jshint:tests' ]);
 	grunt.registerTask('check', [ 'lint', 'qunit' ]);

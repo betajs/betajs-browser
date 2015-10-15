@@ -33,9 +33,11 @@ Scoped.define("module:Upload.FileUploader", [
 			
 			_errorCallback: function (data) {
 				this._uploading = false;
-				this.trigger("error", data);
-				if (this._options.resilience > 0)
+				if (this._options.resilience > 0) {
 					this.upload();
+					return;
+				}
+				this.trigger("error", data);
 			}
 			
 		};
