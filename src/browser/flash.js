@@ -131,8 +131,8 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 
 
 Scoped.define("module:FlashHelper", [
-    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "module:Info", "jquery:"
-], function (Time, Objs, Types, Uri, Info, $) {
+    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "jquery:"
+], function (Time, Objs, Types, Uri, Ids, Info, $) {
 	return {
 		
 		getFlashObject: function (container) {
@@ -230,12 +230,10 @@ Scoped.define("module:FlashHelper", [
 					"value": Types.is_object(options.FlashVars) ? Uri.encodeUriParams(options.FlashVars) : options.FlashVars
 				});
 			}
-			if (options.objectId) {
-				params.push({
-					"objectKey": "id",
-					"value": options.objectId
-				});
-			}
+			params.push({
+				"objectKey": "id",
+				"value": options.objectId || Ids.uniqueId("flash")
+			});
 			var objectKeys = [];
 			var objectParams = [];
 			var embedKeys = [];

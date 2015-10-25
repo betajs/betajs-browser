@@ -107,18 +107,6 @@ module.exports = function(grunt) {
 						}
 					}
 				},
-				jsdoc : {
-					dist : {
-						src : [ './README.md', './src/browser/*.js' ],					
-						options : {
-							destination : 'docs',
-							template : "node_modules/grunt-betajs-docs-compile",
-							configure : "./jsdoc.conf.json",
-							tutorials: "./docsrc/tutorials",
-							recurse: true
-						}
-					}
-				},
 				shell : {
 					tests: {
 						command: "open tests/tests.html"

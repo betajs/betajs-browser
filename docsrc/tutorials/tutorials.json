@@ -1,5 +1,14 @@
 {  
    "router":{  
       "title":"Browser Router"
+   },
+   "info": {
+	   "title": "Browser Environment"
+   },
+   "loader": {
+	   "title": "Loading Assets dynamically"
+   },
+   "uploader": {
+	   "title": "Uploading Files"
    }
 }

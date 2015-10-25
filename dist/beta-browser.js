@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.1 - 2015-10-15
+betajs-browser - v1.0.3 - 2015-10-25
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.1 - 2015-10-15
+betajs-browser - v1.0.3 - 2015-10-25
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '38.1444943619002'
+		version: '39.1445788723813'
 	};
 });
 
@@ -937,6 +937,118 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 				
 	};
 });
+Scoped.define("module:DomExtend.DomExtension", [
+    "base:Class", "jquery:", "base:Objs", "base:Functions", "base:Async"                                                   
+], function (Class, jquery, Objs, Functions, Async, scoped) {
+	return Class.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			_domMethods: [],
+			_domAttrs: {},
+			
+			constructor: function (element) {
+				inherited.constructor.call(this);
+				this._element = element;
+				this._$element = $(element);
+				element.domExtension = this;
+				this._actualBB = null;
+				this._idealBB = null;
+				Objs.iter(this._domMethods, function (method) {
+					this._element[method] = Functions.as_method(this[method], this);
+				}, this);
+				Objs.iter(['get', 'set'], function (method) {
+					this._element[method] = Functions.as_method(this[method], this);
+				}, this);
+				Async.eventually(function () {
+					var self = this;
+					$(document).on("DOMNodeRemoved." + this.cid(), function (event) {
+						if (event.target === element) {
+							self.weakDestroy();
+						}
+					});
+					$(window).on("resize." + this.cid(), function () {
+						self.recomputeBB();
+						self._notify("resized");
+					});
+				}, this);
+				if (!this._$element.css("display") || this._$element.css("display") == "inline")
+					this._$element.css("display", "inline-block");
+			},
+			
+			destroy: function () {
+				$(window).off("." + this.cid());
+				$(document).off("." + this.cid());
+				inherited.destroy.call(this);
+			},
+			
+			domEvent: function (eventName) {
+				this._$element.trigger(eventName);
+			},
+			
+			readAttr: function (key) {
+				return this._element.attributes[key] ? this._element.attributes[key].value : this._element[key];
+			},
+			
+			writeAttr: function (key, value) {
+				if (this._element.attributes[key])
+					this._element.attributes[key].value = value;
+				this._element[key] = value;
+			},
+			
+			unsetAttr: function (key) {
+				delete this._element[key];
+				this._element.removeAttribute(key);
+			},
+			
+			get: function (key) {
+				var meta = this._domAttrs[key] || {};
+				if (!(meta.get))
+					return this.readAttr(key);
+				var value = Functions.callWithin(this, meta.get);
+				this.writeAttr(key, value);
+				return value;
+			},
+			
+			set: function (key, value) {
+				this.writeAttr(key, value);
+				var meta = this._domAttrs[key] || {};
+				if (meta.set)
+					Functions.callWithin(this, meta.set, value);
+			},
+			
+			computeActualBB: function (idealBB) {
+				var width = this._$element.width();
+				if (this._$element.width() < idealBB.width && !this._element.style.width) {
+					this._element.style.width = idealBB.width + "px";
+					width = this._$element.width();
+					delete this._element.style.width;
+				}
+				return {
+					width: width,
+					height: Math.round(width * idealBB.height / idealBB.width)
+				};
+			},
+			
+			idealBB: function () {
+				return null;
+			},
+			
+			recomputeBB: function () {
+				var idealBB = this.idealBB();
+				if (!idealBB)
+					return;
+				var actualBB = this.computeActualBB(idealBB);
+				this._idealBB = idealBB;
+				this._actualBB = actualBB;
+				this.setActualBB(actualBB);
+			},
+			
+			setActualBB: function (actualBB) {}
+			
+		};
+	});
+});
+
 /*
 Copyright (c) Copyright (c) 2007, Carl S. Yestrau All rights reserved.
 Code licensed under the BSD License: http://www.featureblend.com/license.txt
@@ -1070,8 +1182,8 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 
 
 Scoped.define("module:FlashHelper", [
-    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "module:Info", "jquery:"
-], function (Time, Objs, Types, Uri, Info, $) {
+    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "jquery:"
+], function (Time, Objs, Types, Uri, Ids, Info, $) {
 	return {
 		
 		getFlashObject: function (container) {
@@ -1169,12 +1281,10 @@ Scoped.define("module:FlashHelper", [
 					"value": Types.is_object(options.FlashVars) ? Uri.encodeUriParams(options.FlashVars) : options.FlashVars
 				});
 			}
-			if (options.objectId) {
-				params.push({
-					"objectKey": "id",
-					"value": options.objectId
-				});
-			}
+			params.push({
+				"objectKey": "id",
+				"value": options.objectId || Ids.uniqueId("flash")
+			});
 			var objectKeys = [];
 			var objectParams = [];
 			var embedKeys = [];
