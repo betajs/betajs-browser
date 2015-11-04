@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.3 - 2015-10-25
+betajs-browser - v1.0.3 - 2015-10-28
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.3 - 2015-10-25
+betajs-browser - v1.0.3 - 2015-10-28
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '39.1445788723813'
+		version: '40.1446067601183'
 	};
 });
 
@@ -946,13 +946,14 @@ Scoped.define("module:DomExtend.DomExtension", [
 			_domMethods: [],
 			_domAttrs: {},
 			
-			constructor: function (element) {
+			constructor: function (element, attrs) {
 				inherited.constructor.call(this);
 				this._element = element;
 				this._$element = $(element);
 				element.domExtension = this;
 				this._actualBB = null;
 				this._idealBB = null;
+				this._attrs = attrs || {};
 				Objs.iter(this._domMethods, function (method) {
 					this._element[method] = Functions.as_method(this[method], this);
 				}, this);
@@ -986,18 +987,22 @@ Scoped.define("module:DomExtend.DomExtension", [
 			},
 			
 			readAttr: function (key) {
-				return this._element.attributes[key] ? this._element.attributes[key].value : this._element[key];
+				return key in this._element.attributes ? this._element.attributes[key].value : (key in this._element ? this._element[key] : this._attrs[key]);
 			},
 			
 			writeAttr: function (key, value) {
-				if (this._element.attributes[key])
+				if (key in this._element.attributes)
 					this._element.attributes[key].value = value;
-				this._element[key] = value;
+				else if (key in this._element)
+					this._element[key] = value;
+				else
+					this._attrs[key] = value;
 			},
 			
 			unsetAttr: function (key) {
 				delete this._element[key];
 				this._element.removeAttribute(key);
+				delete this._attrs[key];
 			},
 			
 			get: function (key) {

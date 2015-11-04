@@ -7,13 +7,14 @@ Scoped.define("module:DomExtend.DomExtension", [
 			_domMethods: [],
 			_domAttrs: {},
 			
-			constructor: function (element) {
+			constructor: function (element, attrs) {
 				inherited.constructor.call(this);
 				this._element = element;
 				this._$element = $(element);
 				element.domExtension = this;
 				this._actualBB = null;
 				this._idealBB = null;
+				this._attrs = attrs || {};
 				Objs.iter(this._domMethods, function (method) {
 					this._element[method] = Functions.as_method(this[method], this);
 				}, this);
@@ -47,18 +48,22 @@ Scoped.define("module:DomExtend.DomExtension", [
 			},
 			
 			readAttr: function (key) {
-				return this._element.attributes[key] ? this._element.attributes[key].value : this._element[key];
+				return key in this._element.attributes ? this._element.attributes[key].value : (key in this._element ? this._element[key] : this._attrs[key]);
 			},
 			
 			writeAttr: function (key, value) {
-				if (this._element.attributes[key])
+				if (key in this._element.attributes)
 					this._element.attributes[key].value = value;
-				this._element[key] = value;
+				else if (key in this._element)
+					this._element[key] = value;
+				else
+					this._attrs[key] = value;
 			},
 			
 			unsetAttr: function (key) {
 				delete this._element[key];
 				this._element.removeAttribute(key);
+				delete this._attrs[key];
 			},
 			
 			get: function (key) {
