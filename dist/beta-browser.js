@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.3 - 2015-10-28
+betajs-browser - v1.0.4 - 2015-11-07
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.3 - 2015-10-28
+betajs-browser - v1.0.4 - 2015-11-07
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '40.1446067601183'
+		version: '41.1446875211200'
 	};
 });
 
@@ -1557,6 +1557,12 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isCordova: function () {
+			return this.__cached("isCordova", function () {
+				return !!window.cordova || !!window._cordovaNative || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
+			});
+		},
+		
 		isChrome: function () {
 			return this.__cached("isChrome", function (nav, ua) {
 				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera() && !this.isEdge();
@@ -2334,4 +2340,50 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 	
 	return Cls;
 });
+
+
+
+Scoped.define("module:Upload.CordovaFileUploader", [
+     "module:Upload.FileUploader"
+], function (FileUploader, scoped) {
+	var Cls = FileUploader.extend({scoped: scoped}, {
+ 		
+ 		_upload: function () {
+ 			var self = this;
+ 		    var fileURI = this._options.source.localURL;
+ 		    var fileUploadOptions = new FileUploadOptions();
+ 		    fileUploadOptions.fileKey = "file";
+ 		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
+ 		    fileUploadOptions.mimeType = this._options.source.type;
+ 		    fileUploadOptions.httpMethod = "POST";
+ 		    fileUploadOptions.params = this._options.data;
+ 		    var fileTransfer = new FileTransfer();
+ 		    fileTransfer.upload(fileURI, this._options.url, function (data) {
+	    		self._successCallback(data);
+ 		    }, function (data) {
+ 		    	self._errorCallback(data);
+ 		    }, fileUploadOptions);
+ 		}
+ 		
+ 	}, {
+ 		
+ 		supported: function (options) {
+ 			var result =
+ 				!!navigator.device &&
+ 				!!navigator.device.capture &&
+ 				!!navigator.device.capture.captureVideo &&
+ 				!!window.FileTransfer &&
+ 				!!window.FileUploadOptions &&
+ 				!options.isBlob &&
+ 				("localURL" in options.source);
+ 			return true;
+ 		}
+ 		
+ 	});	
+ 	
+ 	FileUploader.register(Cls, 4);
+ 	
+ 	return Cls;
+ });
+
 }).call(Scoped);

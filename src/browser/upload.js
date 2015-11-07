@@ -350,3 +350,48 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 	
 	return Cls;
 });
+
+
+
+Scoped.define("module:Upload.CordovaFileUploader", [
+     "module:Upload.FileUploader"
+], function (FileUploader, scoped) {
+	var Cls = FileUploader.extend({scoped: scoped}, {
+ 		
+ 		_upload: function () {
+ 			var self = this;
+ 		    var fileURI = this._options.source.localURL;
+ 		    var fileUploadOptions = new FileUploadOptions();
+ 		    fileUploadOptions.fileKey = "file";
+ 		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
+ 		    fileUploadOptions.mimeType = this._options.source.type;
+ 		    fileUploadOptions.httpMethod = "POST";
+ 		    fileUploadOptions.params = this._options.data;
+ 		    var fileTransfer = new FileTransfer();
+ 		    fileTransfer.upload(fileURI, this._options.url, function (data) {
+	    		self._successCallback(data);
+ 		    }, function (data) {
+ 		    	self._errorCallback(data);
+ 		    }, fileUploadOptions);
+ 		}
+ 		
+ 	}, {
+ 		
+ 		supported: function (options) {
+ 			var result =
+ 				!!navigator.device &&
+ 				!!navigator.device.capture &&
+ 				!!navigator.device.capture.captureVideo &&
+ 				!!window.FileTransfer &&
+ 				!!window.FileUploadOptions &&
+ 				!options.isBlob &&
+ 				("localURL" in options.source);
+ 			return true;
+ 		}
+ 		
+ 	});	
+ 	
+ 	FileUploader.register(Cls, 4);
+ 	
+ 	return Cls;
+ });
