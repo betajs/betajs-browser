@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '41.1446875211200'
+		version: '42.1446909932425'
 	};
 });
 
@@ -2376,7 +2376,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  				!!window.FileUploadOptions &&
  				!options.isBlob &&
  				("localURL" in options.source);
- 			return true;
+ 			return result;
  		}
  		
  	});	

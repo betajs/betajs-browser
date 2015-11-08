@@ -386,7 +386,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  				!!window.FileUploadOptions &&
  				!options.isBlob &&
  				("localURL" in options.source);
- 			return true;
+ 			return result;
  		}
  		
  	});	
