@@ -71,7 +71,7 @@ Scoped.define("module:Info", [
 		
 		isOpera: function () {
 			return this.__cached("isOpera", function (nav, ua) {
-				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0;
+				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0 || ua.indexOf('Opera') >= 0;
 			});
 		},
 		

@@ -54,6 +54,24 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 				if (document.scripts[i].src.toLowerCase().indexOf(substr.toLowerCase()) >= 0)
 					return document.scripts[i];
 			return null;
+		},
+		
+		loadByIframe: function (options, callback, context) {
+		    var iframe = document.createElement("iframe");
+		    if (options.visible) {
+			    iframe.style.border = "none";
+			    iframe.style.width = "1px";
+			    iframe.style.height = "1px";
+		    } else {
+		    	iframe.style.display = "none";
+		    }
+		    iframe.onload = function () {
+		        callback.call(context || this);
+		        if (options.remove)
+		        	iframe.remove();
+		    };
+		    iframe.src = options.url;
+		    document.body.appendChild(iframe);
 		}
 
 	};

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.4 - 2015-11-07
+betajs-browser - v1.0.4 - 2015-11-10
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.4 - 2015-11-07
+betajs-browser - v1.0.4 - 2015-11-10
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '42.1446909932425'
+		version: '43.1447211373813'
 	};
 });
 
@@ -648,6 +648,131 @@ Scoped.define("module:JQueryAjax", [
 	});
 });
 	
+Scoped.define("module:Apps", [
+    "base:Time",
+    "base:Async",
+    "base:Promise",
+    "module:Info",
+    "module:Loader"
+], function (Time, Async, Promise, Info, Loader) {
+	return {
+		
+		STATE_INCOMPATIBLE_DEVICE: 1,
+		STATE_APP_LAUNCHED: 2,
+		STATE_APP_INSTALLED_AND_LAUNCHED: 3,
+		STATE_APP_NOT_INSTALLED: 4,
+		STATE_UNKNOWN: 5,
+				
+		//ios.launch, ios.install, android.intent, android.launch, android.install
+		launch: function (options) {			
+			var promise = Promise.create();
+			var start = Time.now();
+			if (Info.isiOS() && options.ios) {
+				Async.eventually(function () {
+					if (Time.now() - start > 3000)
+						promise.asyncSuccess(this.STATE_APP_LAUNCHED);
+					else {
+						start = Time.now();
+						Async.eventually(function () {
+							if (Time.now() - start > 3000)
+								promise.asyncSuccess(this.STATE_APP_INSTALLED_AND_LAUNCHED);
+							else 
+								promise.asyncError(this.STATE_APP_NOT_INSTALLED);
+						}, this, 2500);
+						document.location = options.ios.install;
+					}
+				}, this, 2500);
+				document.location = options.ios.launch;
+			} else /*if (Info.isAndroid() && options.android) {
+				if (Info.isOpera()) {
+					Loader.loadByIFrame({
+						url: options.android.launch
+					}, function () {
+						document.location
+					}, this);
+				} else if (Info.isFirefox()) {
+				} else {
+					document.location = options.android.intent;
+					promise.asyncSuccess(this.STATE_UNKNOWN);
+				}
+			} else*/
+				promise.asyncError(this.STATE_INCOMPATIBLE_DEVICE);
+			return promise;
+		},
+		
+		appStoreLink: function (appIdent) {
+			return "itms://itunes.apple.com/us/app/" + appIdent + "?mt=8&uo=4";
+		},
+		
+		playStoreLink: function (appIdent) {
+			return "http://play.google.com/store/apps/details?id=<" + appIdent + ">";
+		},
+		
+		iOSAppURL: function (protocol, url) {
+			return protocol + "://" + url;
+		},
+		
+		androidAppUrl: function (protocol, url) {
+			return protocol + "://" + url;
+		},
+		
+		googleIntent: function (protocol, url, appIdent) {
+			return "intent://" + uri + ";scheme=" + protocol + ";package=" + appIdent + ";end";
+		}
+		
+	};
+});
+
+
+/*
+function launchAndroidApp(el) {
+    heartbeat = setInterval(intervalHeartbeat, 200);
+    if (navigator.userAgent.match(/Opera/) || navigator.userAgent.match(/OPR/)) {
+        tryIframeApproach();
+    } else if (navigator.userAgent.match(/Firefox/)) {
+        webkitApproach();
+        iframe_timer = setTimeout(function () {
+            tryIframeApproach();
+        }, 1500);
+    } else if (navigator.userAgent.match(/Chrome/)) {
+        document.location = googleIntent; // Use google intent
+    } else { // Native browser ?
+        document.location = googleIntent; // Use google intent
+    }
+}
+
+function webkitApproach() {
+    document.location = nativeAndroidUrl;
+    timer = setTimeout(function () {
+        document.location = googlePlayStore;
+    }, 2500);
+}
+
+function clearTimers() {
+    clearTimeout(timer);
+    clearTimeout(heartbeat);
+    clearTimeout(iframe_timer);
+}
+
+function intervalHeartbeat() {
+    if (document.webkitHidden || document.hidden) {
+        clearTimers();
+    }
+}
+
+function tryIframeApproach() {
+    var iframe = document.createElement("iframe");
+    iframe.style.border = "none";
+    iframe.style.width = "1px";
+    iframe.style.height = "1px";
+    iframe.onload = function () {
+        document.location = googlePlayStore;
+    };
+    iframe.src = nativeAndroidUrl;
+    document.body.appendChild(iframe);
+}
+
+ */
 Scoped.define("module:Cookies", ["base:Objs", "base:Types"], function (Objs, Types) {
 	return {
 		
@@ -1571,7 +1696,7 @@ Scoped.define("module:Info", [
 		
 		isOpera: function () {
 			return this.__cached("isOpera", function (nav, ua) {
-				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0;
+				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0 || ua.indexOf('Opera') >= 0;
 			});
 		},
 		
@@ -1903,6 +2028,24 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 				if (document.scripts[i].src.toLowerCase().indexOf(substr.toLowerCase()) >= 0)
 					return document.scripts[i];
 			return null;
+		},
+		
+		loadByIframe: function (options, callback, context) {
+		    var iframe = document.createElement("iframe");
+		    if (options.visible) {
+			    iframe.style.border = "none";
+			    iframe.style.width = "1px";
+			    iframe.style.height = "1px";
+		    } else {
+		    	iframe.style.display = "none";
+		    }
+		    iframe.onload = function () {
+		        callback.call(context || this);
+		        if (options.remove)
+		        	iframe.remove();
+		    };
+		    iframe.src = options.url;
+		    document.body.appendChild(iframe);
 		}
 
 	};
