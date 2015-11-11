@@ -331,6 +331,10 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 					self._successCallback(message);
 				},
 				error: function (jqXHR, textStatus, errorThrown) {
+					if (self._options.resumable.acceptedAssembleError && self._options.resumable.acceptedAssembleError == jqXHR.status) {
+						self._successCallback(message);
+						return;
+					}
 					Async.eventually(function () {
 						self._resumableSuccessCallback(file, message, resilience - 1);
 					}, self._options.resumable.assembleResilienceTimeout || 0);

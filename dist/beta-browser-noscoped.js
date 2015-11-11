@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.4 - 2015-11-10
+betajs-browser - v1.0.4 - 2015-11-11
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '43.1447211373813'
+		version: '44.1447263375072'
 	};
 });
 
@@ -1905,6 +1905,10 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 					self._successCallback(message);
 				},
 				error: function (jqXHR, textStatus, errorThrown) {
+					if (self._options.resumable.acceptedAssembleError && self._options.resumable.acceptedAssembleError == jqXHR.status) {
+						self._successCallback(message);
+						return;
+					}
 					Async.eventually(function () {
 						self._resumableSuccessCallback(file, message, resilience - 1);
 					}, self._options.resumable.assembleResilienceTimeout || 0);
