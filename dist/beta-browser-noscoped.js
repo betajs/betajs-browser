@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.4 - 2015-11-11
+betajs-browser - v1.0.5 - 2015-11-12
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '44.1447263375072'
+		version: '45.1447348177254'
 	};
 });
 
@@ -1199,13 +1199,13 @@ Scoped.define("module:Info", [
 		
 		isFirefox: function () {
 			return this.__cached("isFirefox", function (nav, ua, ualc) {
-				return ualc.indexOf("firefox") != -1;
+				return ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1;
 			});
 		},
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && !this.isEdge() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1;
 			});
 		},
 		
