@@ -364,7 +364,8 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  		
  		_upload: function () {
  			var self = this;
- 		    var fileURI = this._options.source.localURL;
+ 		    //var fileURI = this._options.source.localURL;
+ 			var fileURI = this._options.source.fullPath.split(':')[1];
  		    var fileUploadOptions = new FileUploadOptions();
  		    fileUploadOptions.fileKey = "file";
  		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);

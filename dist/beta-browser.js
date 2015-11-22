@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.5 - 2015-11-12
+betajs-browser - v1.0.5 - 2015-11-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.5 - 2015-11-12
+betajs-browser - v1.0.5 - 2015-11-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '45.1447348177254'
+		version: '46.1447778895126'
 	};
 });
 
@@ -2497,7 +2497,8 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  		
  		_upload: function () {
  			var self = this;
- 		    var fileURI = this._options.source.localURL;
+ 		    //var fileURI = this._options.source.localURL;
+ 			var fileURI = this._options.source.fullPath.split(':')[1];
  		    var fileUploadOptions = new FileUploadOptions();
  		    fileUploadOptions.fileKey = "file";
  		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
