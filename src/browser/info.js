@@ -133,13 +133,13 @@ Scoped.define("module:Info", [
 		
 		isFirefox: function () {
 			return this.__cached("isFirefox", function (nav, ua, ualc) {
-				return ualc.indexOf("firefox") != -1;
+				return ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1;
 			});
 		},
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && !this.isEdge() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1;
 			});
 		},
 		
