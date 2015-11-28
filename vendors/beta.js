@@ -1,5 +1,5 @@
 /*!
-betajs - v1.0.0 - 2015-07-08
+betajs - v1.0.15 - 2015-11-28
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
@@ -557,7 +557,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs - v1.0.0 - 2015-07-08
+betajs - v1.0.15 - 2015-11-28
 Copyright (c) Oliver Friedmann,Victor Lingenthal
 MIT Software License.
 */
@@ -570,7 +570,7 @@ Scoped.binding("module", "global:BetaJS");
 Scoped.define("module:", function () {
 	return {
 		guid: "71366f7a-7da3-4e55-9a0b-ea0e4e2a9e79",
-		version: '405.1436389310033'
+		version: '435.1448752595890'
 	};
 });
 
@@ -1454,19 +1454,19 @@ Scoped.define("module:Classes.ObjectIdMixin", ["module:Classes.ObjectIdScope", "
 	    },
 	
 	    __object_id_scope: function () {
-	        if (this.object_id_scope)
-	            return this.object_id_scope;
-	        return ObjectIdScope.singleton();
+	    	if (!this.object_id_scope)
+	    		this.object_id_scope = ObjectIdScope.singleton();
+            return this.object_id_scope;
 	    },
 	
 	    __register_object_id: function () {
 	        var scope = this.__object_id_scope();
-	        scope.__objects[Ids.objectId(this)] = this;
+	        scope.__objects[this.cid()] = this;
 	    },
 	
 	    __unregister_object_id: function () {
 	        var scope = this.__object_id_scope();
-	        delete scope.__objects[Ids.objectId(this)];
+	        delete scope.__objects[this.cid()];
 	    }
 	
 	};
@@ -1619,13 +1619,19 @@ Scoped.define("module:Collections.Collection", [
 	    "module:Lists.ArrayList",
 	    "module:Ids",
 	    "module:Properties.Properties",
-	    "module:Iterators.ArrayIterator"
-	], function (Class, EventsMixin, Objs, Functions, ArrayList, Ids, Properties, ArrayIterator, scoped) {
+	    "module:Iterators.ArrayIterator",
+	    "module:Types"
+	], function (Class, EventsMixin, Objs, Functions, ArrayList, Ids, Properties, ArrayIterator, Types, scoped) {
 	return Class.extend({scoped: scoped}, [EventsMixin, function (inherited) {
 		return {
 
 			constructor : function(options) {
 				inherited.constructor.call(this);
+				if (Types.is_array(options)) {
+					options = {
+						objects: options
+					};
+				}
 				options = options || {};
 				this.__indices = {};
 				if (options.indices)
@@ -1770,11 +1776,11 @@ Scoped.define("module:Collections.Collection", [
 				Objs.iter(this.__indices, function (entry, key) {
 					delete entry[object.get(key)];
 				}, this);
-				this.trigger("remove", object);
-				this.trigger("update");
 				var result = this.__data.remove(object);
 				if ("off" in object)
 					object.off(null, null, this);
+				this.trigger("remove", object);
+				this.trigger("update");
 				return result;
 			},
 			
@@ -2245,7 +2251,22 @@ Scoped.define("module:Events.EventsMixin", [
 					}, this);
 				}, this);
 			}
-		}
+		},
+		
+		_eventChain: function () {},
+		
+		chainedTrigger: function (eventName, data) {
+			data = Objs.extend({
+				source: this,
+				bubbles: true
+			}, data);
+			this.trigger(eventName, data);
+			if (data.bubbles) {
+				var chain = this._eventChain();
+				if (chain && chain.chainedTrigger)
+					chain.chainedTrigger(eventName, data);
+			}
+	    }
 
 	};
 });
@@ -2466,6 +2487,12 @@ Scoped.define("module:Functions", ["module:Types"], function (Types) {
 		
 		newClass: function (cls) {
 			return this.newClassFunc(cls).apply(this, this.getArguments(arguments, 1));
+		},
+		
+		callWithin: function (context, method) {
+			if (Types.is_string(method))
+				method = context[method];
+			return method.apply(context, this.getArguments(arguments, 2));
 		}
 	
 	};
@@ -3467,6 +3494,14 @@ Scoped.define("module:Lists.ArrayList", ["module:Lists.AbstractList", "module:Id
 	});
 });
 
+/*
+ * 
+ * This module is deprecated and will be removed in future versions.
+ * 
+ * Use StringTable instead.
+ * 
+ */
+
 Scoped.define("module:Locales", function () {
 	return {
 		
@@ -3505,6 +3540,16 @@ Scoped.define("module:Locales", function () {
 	};
 	
 });	
+Scoped.define("module:Maths", [], function () {
+	return {
+		
+	    discreteCeil: function (number, steps, max) {
+	        var x = Math.ceil(number / steps) * steps;
+	        return max && x > max ? 0 : x;
+	    }
+	
+	};
+});
 Scoped.define("module:Objs", ["module:Types"], function (Types) {
 	return {
 
@@ -3580,7 +3625,7 @@ Scoped.define("module:Objs", ["module:Types"], function (Types) {
 			target = target || {};
 			if (source) {
 				for (var key in source) {
-					if (key in target && Types.is_object(target[key]) && Types.is_object(source[key]))
+					if (key in target && Types.is_object(target[key]) && Types.is_object(source[key]) && !Types.is_array(target[key]) && !Types.is_array(source[key]))
 						target[key] = this.tree_extend(target[key], source[key], depth);
 					else
 						target[key] = this.clone(source[key], depth);
@@ -3666,6 +3711,7 @@ Scoped.define("module:Objs", ["module:Types"], function (Types) {
 
 		filter: function (obj, f, context) {
 			var ret = null;
+			f = f || function (x) { return !!x; };
 			if (Types.is_array(obj)) {
 				ret = [];
 				for (var i = 0; i < obj.length; ++i) {
@@ -4138,7 +4184,13 @@ Scoped.define("module:Promise", ["module:Types", "module:Functions", "module:Asy
 		
 		is: function (obj) {
 			return obj && Types.is_object(obj) && obj.classGuid == this.Promise.prototype.classGuid;
-		} 
+		},
+		
+		resilience: function (method, context, resilience, args) {
+			return method.apply(context, args).mapError(function (error) {
+				return resilience === 0 ? error : this.resilience(method, context, resilience - 1, args);
+			}, this);
+		}
 		
 	};
 });
@@ -4358,6 +4410,36 @@ Scoped.define("module:Properties.PropertiesMixin", [
 		
 		materializes: [],
 		
+		_resolveProps: function (key) {
+			var result = {
+				props: this,
+				key: key
+			};
+			var scope = this.data();
+			while (key) {
+				if (!scope || !Types.is_object(scope))
+					return result;
+				if (scope.__properties_guid === this.__properties_guid)
+					return scope._resolveProps(key);
+				var spl = Strings.splitFirst(key, ".");
+				if (!(spl.head in scope))
+					return result;
+				key = spl.tail;
+				scope = scope[spl.head];
+			}
+			return result;
+		},
+		
+		getProp: function (key) {
+			var resolved = this._resolveProps(key);
+			return resolved.props.get(resolved.key);
+		},
+		
+		setProp: function (key, value) {
+			var resolved = this._resolveProps(key);
+			resolved.props.set(resolved.key, value);
+		},
+		
 		get: function (key) {
 			return Scopes.get(key, this.__properties.data);
 		},
@@ -4480,8 +4562,26 @@ Scoped.define("module:Properties.PropertiesMixin", [
 				});
 				self.set(key, func.apply(args.context, values));
 			}
-			for (var i = 0; i < deps.length; ++i)
-				deps[i].properties.on("change:" + deps[i].key, recompute, deps[i]);
+			BetaJS.Objs.iter(deps, function (dep) {
+				var value = dep.properties.get(dep.key);
+				// Ugly way of checking whether an EventsMixin is present - please improve in the future on this
+				if (value && typeof value == "object" && "on" in value && "off" in value && "trigger" in value) {
+					value.on("change update", function () {
+						recompute();
+					}, dep);
+				}
+				dep.properties.on("change:" + dep.key, function (value, oldValue) {
+					if (oldValue && typeof oldValue == "object" && "on" in oldValue && "off" in oldValue && "trigger" in oldValue) {
+						oldValue.off("change update", null, dep);
+					}
+					if (value && typeof value == "object" && "on" in value && "off" in value && "trigger" in value) {
+						value.on("change update", function () {
+							recompute();
+						}, dep);
+					}
+					recompute();
+				}, dep);
+			}, this);
 			recompute();
 			return this;
 		},
@@ -4521,8 +4621,8 @@ Scoped.define("module:Properties.PropertiesMixin", [
 			};
 			this.__properties.bindings[key] = this.__properties.bindings[key] || [];
 			this.__properties.bindings[key].push(binding);
+			var self = this;
 			if (binding.left) {
-				var self = this;
 				binding.properties.on("strongchange:" + binding.key, function (value) {
 					self.set(key, value);
 				}, binding);
@@ -4545,6 +4645,11 @@ Scoped.define("module:Properties.PropertiesMixin", [
 				}
 				if (!binding.right || !this.has(key))
 					this.set(key, binding.properties.get(binding.key));
+				if (key === "") {
+					Objs.iter(binding.properties.data(), function (value, k) {
+						this.set(k, value);
+					}, this);
+				}
 			}
 			if (binding.right) {
 				this.on("strongchange:" + key, function (value) {
@@ -4569,9 +4674,15 @@ Scoped.define("module:Properties.PropertiesMixin", [
 				}
 				if (!binding.left || this.has(key))
 					binding.properties.set(binding.key, this.get(key));
+				if (key === "") {
+					Objs.iter(this.data(), function (value, k) {
+						binding.properties.set(k, value);
+					}, this);
+				}
 			}
 			binding.properties.on("destroy", function () {
-				this.unbind(key);
+				if (!self.destroyed())
+					self.unbind(key);
 			}, binding);
 			return this;
 		},
@@ -4663,8 +4774,8 @@ Scoped.define("module:Properties.PropertiesMixin", [
 				Scopes.set(key, value, this.__properties.data);
 				this.__setChanged(key, value, oldValue);
 			} else if (force) {
-				this.trigger("change", key, value, oldValue);
-				this.trigger("change:" + key, value, oldValue);
+				this.trigger("change", key, value, oldValue, true);
+				this.trigger("change:" + key, value, oldValue, true);
 			}
 			return this;
 		},
@@ -4683,7 +4794,11 @@ Scoped.define("module:Properties.PropertiesMixin", [
 				func: f,
 				dependencies: dependencies
 			};
-		}	
+		},
+		
+		pid: function () {
+			return this.cid();
+		}
 		
 	};
 });
@@ -5984,6 +6099,12 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 	 */
 	return {
 		
+		padLeft: function (s, padding, length) {
+			while (s.length < length)
+				s = padding + s;
+			return s;
+		},
+		
 		/** Converts a string new lines to html <br /> tags
 		 *
 		 * @param s string
@@ -6145,23 +6266,7 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 			}
 			for ( i = 0; i < a.length; ++i)
 				a[i] = a[i].substring(len);
-			return a.join("\n").trim();
-		},
-	
-		read_cookie_string : function(raw, key) {
-			var cookie = "; " + raw;
-			var parts = cookie.split("; " + key + "=");
-			if (parts.length == 2)
-				return parts.pop().split(";").shift();
-			return null;
-		},
-	
-		write_cookie_string : function(raw, key, value) {
-			var cookie = "; " + raw;
-			var parts = cookie.split("; " + key + "=");
-			if (parts.length == 2)
-				cookie = parts[0] + parts[1].substring(parts[1].indexOf(";"));
-			return key + "=" + value + cookie;
+			return this.trim(a.join("\n"));
 		},
 	
 		capitalize : function(input) {
@@ -6173,10 +6278,10 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 		email_get_name : function(input) {
 		    input = input || "";
 			var temp = input.split("<");
-			input = temp[0].trim();
+			input = this.trim(temp[0]);
 			if (!input && temp.length > 1) {
 				temp = temp[1].split(">");
-				input = temp[0].trim();
+				input = this.trim(temp[0]);
 			}		
 			input = input.replace(/['"]/g, "").replace(/[\\._@]/g, " ");
 			return this.capitalize(input);
@@ -6185,18 +6290,22 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 		email_get_email : function(input) {
 	        input = input || "";
 			var temp = input.split("<");
-			input = temp[0].trim();
+			input = this.trim(temp[0]);
 			if (temp.length > 1) {
 				temp = temp[1].split(">");
-				input = temp[0].trim();
+				input = this.trim(temp[0]);
 			}
-			input = input.replace(/'/g, "").replace(/"/g, "").trim();
+			input = this.trim(input.replace(/'/g, "").replace(/"/g, ""));
 			return input;
 		},
 	
 		email_get_salutatory_name : function(input) {
 	        input = input || "";
 			return (this.email_get_name(input).split(" "))[0];
+		},
+		
+		trim: function (s) {
+			return String.prototype.trim ? s.trim() : s.replace(/^\s+|\s+$/g, ''); 
 		},
 		
 		regexReplaceGroups: function (regex, args) {
@@ -6254,6 +6363,7 @@ Scoped.define("module:Strings", ["module:Objs"], function (Objs) {
 	};
 
 });
+
 Scoped.define("module:Structures.AvlTree", function () {
 	return {
 	
@@ -6831,6 +6941,10 @@ Scoped.define("module:Time", ["module:Locales"], function (Locales) {
 			for (var key in replacers)
 				s = s.replace(key, replacers[key]);
 			return s;
+		},
+		
+		monthString: function (month) {
+			return (d = new Date(), d.setMonth(month), d).toDateString().substring(4,7);
 		}
 		
 	};
@@ -7026,8 +7140,8 @@ Scoped.define("module:Trees.TreeQueryObject", ["module:Class", "module:Events.Ev
 				this.__query = query;
 				this.__result = {};
 				this.__partials = {};
-				this.__register(node, 0, {});
 				this.__ids = 0;
+				this.__register(node, 0, {});
 			},
 
 			destroy: function () {
@@ -7399,6 +7513,120 @@ Scoped.define("module:Types", function () {
 	};
 });
 
+Scoped.define("module:Classes.Taggable", [
+    "module:Objs"
+], function (Objs) {
+	return {
+		
+		__tags: {},
+		
+		hasTag: function (tag) {
+			return tag in this.__tags;
+		},
+		
+		getTags: function () {
+			return Objs.keys(this.__tags);
+		},
+		
+		removeTag: function (tag) {
+			delete this.__tags[tag];
+			this._notify("tags-changed");
+			return this;
+		},
+		
+		addTag: function (tag) {
+			this.__tags[tag] = true;
+			this._notify("tags-changed");
+			return this;
+		},
+		
+		tagIntersect: function (tags) {
+			return Objs.filter(tags, this.hasTag, this);
+		}
+		
+	};
+});
+
+
+Scoped.define("module:Classes.StringTable", [
+    "module:Class",
+    "module:Classes.Taggable",
+    "module:Functions",
+    "module:Objs"
+], function (Class, Taggable, Functions, Objs, scoped) {
+	return Class.extend({scoped: scoped}, [Taggable, function (inherited) {
+		return {
+			
+			_notifications: {
+				"tags-changed": function () {
+					this.__cache = {};
+				}
+			},
+			
+			__strings: {},
+			__cache: {},
+			
+			__resolveKey: function (key, prefix) {
+				if (prefix)
+					key = prefix + "." + key;
+				key = key.replace(/[^\.]+\.</g, "");
+				return key;
+			},
+			
+			__betterMatch: function (candidate, reference) {
+				var c = this.tagIntersect(candidate.tags).length - this.tagIntersect(reference.tags).length;
+				if (c !== 0)
+					return c > 0;
+				c = candidate.priority - reference.priority;
+				if (c !== 0)
+					return c > 0;
+				c = reference.tags.length - candidate.tags.length;
+				return c > 0;
+			},
+			
+			register: function () {
+				var args = Functions.matchArgs(arguments, {
+					strings: true,
+					prefix: "string",
+					tags: "array",
+					priority: "int"
+				});
+				Objs.iter(args.strings, function (value, key) {
+					key = this.__resolveKey(key, args.prefix);
+					this.__strings[key] = this.__strings[key] || [];
+					this.__strings[key].push({
+						value: value,
+						tags: args.tags || [],
+						priority: args.priority || 0
+					});
+					delete this.__cache[key];
+				}, this);
+			},
+			
+			get: function (key, prefix) {
+				key = this.__resolveKey(key, prefix);
+				if (key in this.__cache)
+					return this.__cache[key];
+				if (!(key in this.__strings))
+					return null;
+				var current = null;
+				Objs.iter(this.__strings[key], function (candidate) {
+					if (!current || this.__betterMatch(candidate, current))
+						current = candidate;
+				}, this);
+				this.__cache[key] = current.value;
+				return current.value;
+			},
+			
+			all: function () {
+				return Objs.map(this.__strings, function (value, key) {
+					return this.get(key);
+				}, this);
+			}
+
+		};
+	}]);
+});
 Scoped.define("module:Net.AjaxException", ["module:Exceptions.Exception"], function (Exception, scoped) {
 	return Exception.extend({scoped: scoped}, function (inherited) {
 		return {
@@ -7656,7 +7884,7 @@ Scoped.define("module:Net.Uri", ["module:Objs", "module:Types"], function (Objs,
 				if (Types.is_object(value))
 					res = res.concat(this.encodeUriParams(value, prefix + key + "_"));
 				else
-					res.push(prefix + key + "=" + encodeURI(value));
+					res.push(prefix + key + "=" + encodeURIComponent(value));
 			}, this);
 			return res.join("&");
 		},

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.4 - 2015-11-10
+betajs-browser - v1.0.5 - 2015-11-28
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -558,7 +558,7 @@ Public.exports();
 }).call(this);
 
 /*!
-betajs-browser - v1.0.4 - 2015-11-10
+betajs-browser - v1.0.5 - 2015-11-28
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -580,7 +580,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '43.1447211373813'
+		version: '44.1448752645328'
 	};
 });
 
@@ -842,7 +842,9 @@ Scoped.define("module:Cookies", ["base:Objs", "base:Types"], function (Objs, Typ
 	};
 });
 
-Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
+Scoped.define("module:Dom", [
+    "base:Objs", "jquery:", "base:Types"
+], function (Objs, $, Types) {
 	return {	
 		
 		changeTag: function (node, name) {
@@ -1058,6 +1060,16 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			if (start_offset > 0) 
 				node = $(node.get(0).splitText(start_offset));
 			return node;
+		},
+		
+		entitiesToUnicode: function (s) {
+			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
+				return s;
+			var temp = document.createElement("span");
+			temp.innerHTML = s;
+			s = temp.innerText;
+			temp.remove();
+			return s;
 		}
 				
 	};

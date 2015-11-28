@@ -1,4 +1,6 @@
-Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
+Scoped.define("module:Dom", [
+    "base:Objs", "jquery:", "base:Types"
+], function (Objs, $, Types) {
 	return {	
 		
 		changeTag: function (node, name) {
@@ -214,6 +216,16 @@ Scoped.define("module:Dom", ["base:Objs", "jquery:"], function (Objs, $) {
 			if (start_offset > 0) 
 				node = $(node.get(0).splitText(start_offset));
 			return node;
+		},
+		
+		entitiesToUnicode: function (s) {
+			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
+				return s;
+			var temp = document.createElement("span");
+			temp.innerHTML = s;
+			s = temp.innerText;
+			temp.remove();
+			return s;
 		}
 				
 	};

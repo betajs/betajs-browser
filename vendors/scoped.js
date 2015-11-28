@@ -285,12 +285,14 @@ function newNamespace (options) {
 	
 	function nodeUnresolvedWatchers(node, base, result) {
 		node = node || nsRoot;
-		base = base ? base + "." + node.route : node.route;
 		result = result || [];
 		if (!node.ready)
 			result.push(base);
-		for (var k in node.children)
-			result = nodeUnresolvedWatchers(node.children[k], base, result);
+		for (var k in node.children) {
+			var c = node.children[k];
+			var r = (base ? base + "." : "") + c.route;
+			result = nodeUnresolvedWatchers(c, r, result);
+		}
 		return result;
 	}
 
@@ -538,7 +540,7 @@ var rootScope = newScope(null, rootNamespace, rootNamespace, globalNamespace);
 var Public = Helper.extend(rootScope, {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '9.9436390238591',
+	version: '9.9436392609879',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
