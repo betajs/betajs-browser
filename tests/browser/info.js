@@ -28,6 +28,10 @@ test("test different browsers", function () {
 	check("desktop", "macosx", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/600.5.17 (KHTML, like Gecko) Version/8.0.5 Safari/600.5.17");
 	
 	check("desktop", "macosx", "chrome", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", {window_chrome: true});
+	QUnit.equal(BetaJS.Browser.Info.chromeVersion(), 42.0, "Chrome 42.0");
+
+	check("desktop", "macosx", "chrome", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36", {window_chrome: true});
+	QUnit.equal(BetaJS.Browser.Info.chromeVersion(), 47.0, "Chrome 47.0");
 	
 	check("desktop", "macosx", "opera", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36 OPR/28.0.1750.51", {window_chrome: true});
 	

@@ -184,6 +184,16 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		chromeVersion: function () {
+			return this.__cached("chromeVersion", function (nav, ua) {
+				var re = /Chrome\/(\d+\.\d+)[^\d]/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
+		
 		inIframe: function () {
 		    try {
 		        return window.self !== window.top;
