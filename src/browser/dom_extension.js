@@ -51,6 +51,10 @@ Scoped.define("module:DomExtend.DomExtension", [
 				return key in this._element.attributes ? this._element.attributes[key].value : (key in this._element ? this._element[key] : this._attrs[key]);
 			},
 			
+			hasAttr: function (key) {
+				return key in this._element.attributes || key in this._element || key in this._attrs;
+			},
+
 			writeAttr: function (key, value) {
 				if (key in this._element.attributes)
 					this._element.attributes[key].value = value;

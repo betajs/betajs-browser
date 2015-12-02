@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.6 - 2015-11-28
+betajs-browser - v1.0.6 - 2015-12-01
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '45.1448752726220'
+		version: '49.1449022123008'
 	};
 });
 
@@ -568,6 +568,10 @@ Scoped.define("module:DomExtend.DomExtension", [
 				return key in this._element.attributes ? this._element.attributes[key].value : (key in this._element ? this._element[key] : this._attrs[key]);
 			},
 			
+			hasAttr: function (key) {
+				return key in this._element.attributes || key in this._element || key in this._attrs;
+			},
+
 			writeAttr: function (key, value) {
 				if (key in this._element.attributes)
 					this._element.attributes[key].value = value;
