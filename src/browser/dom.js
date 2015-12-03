@@ -224,7 +224,8 @@ Scoped.define("module:Dom", [
 			var temp = document.createElement("span");
 			temp.innerHTML = s;
 			s = temp.innerText;
-			temp.remove();
+			if (temp.remove)
+				temp.remove();
 			return s;
 		}
 				
