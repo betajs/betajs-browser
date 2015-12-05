@@ -16,15 +16,15 @@ module.exports = function(grunt) {
 						banner : module.banner
 					},
 					dist_raw : {
-						dest : 'dist/beta-browser-raw.js',
+						dest : 'dist/betajs-browser-raw.js',
 						src : [ 'src/fragments/begin.js-fragment',
 								'src/browser/*.js',
 								'src/fragments/end.js-fragment' ]
 					},
 					dist_scoped : {
-						dest : 'dist/beta-browser.js',
+						dest : 'dist/betajs-browser.js',
 						src : [ 'vendors/scoped.js',
-								'dist/beta-browser-noscoped.js' ]
+								'dist/betajs-browser-noscoped.js' ]
 					}
 				},
 				preprocess : {
@@ -35,13 +35,13 @@ module.exports = function(grunt) {
 						}
 					},
 					dist : {
-						src : 'dist/beta-browser-raw.js',
-						dest : 'dist/beta-browser-noscoped.js'
+						src : 'dist/betajs-browser-raw.js',
+						dest : 'dist/betajs-browser-noscoped.js'
 					}
 				},
 				clean : {
-					raw: "dist/beta-browser-raw.js",
-					closure: "dist/beta-browser-closure.js",
+					raw: "dist/betajs-browser-raw.js",
+					closure: "dist/betajs-browser-closure.js",
 					browserstack : [ "./browserstack.json", "BrowserStackLocal" ],
 					jsdoc : ['./jsdoc.conf.json']
 				},
@@ -51,8 +51,8 @@ module.exports = function(grunt) {
 					},
 					dist : {
 						files : {
-							'dist/beta-browser-noscoped.min.js' : [ 'dist/beta-browser-noscoped.js' ],
-							'dist/beta-browser.min.js' : [ 'dist/beta-browser.js' ]
+							'dist/betajs-browser-noscoped.min.js' : [ 'dist/betajs-browser-noscoped.js' ],
+							'dist/betajs-browser.min.js' : [ 'dist/betajs-browser.js' ]
 						}
 					}
 				},
@@ -62,8 +62,8 @@ module.exports = function(grunt) {
 						es3 : true
 					},
 					source : [ "./src/browser/*.js" ],
-					dist : [ "./dist/beta-browser-noscoped.js",
-							"./dist/beta-browser.js" ],
+					dist : [ "./dist/betajs-browser-noscoped.js",
+							"./dist/betajs-browser.js" ],
 					gruntfile : [ "./Gruntfile.js" ],
 					tests : [ "./tests/browser/*.js" ]
 				},
@@ -79,8 +79,8 @@ module.exports = function(grunt) {
 					},
 					dist : {
 						src : [ "./vendors/beta.js",
-								"./dist/beta-browser-noscoped.js" ],
-						dest : "./dist/beta-browser-closure.js"
+								"./dist/betajs-browser-noscoped.js" ],
+						dest : "./dist/betajs-browser-closure.js"
 					}
 				},
 				jsdoc : {

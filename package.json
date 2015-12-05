@@ -1,6 +1,6 @@
 {
 	"name": "betajs-browser",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
 	"homepage": "http://betajs.com",
 	"contributors": ["Oliver Friedmann"],
@@ -52,10 +52,10 @@
 			"Test Suite": "http://rawgit.com/betajs/betajs-browser/master/tests/tests.html"
 		},
 		"cdn": {
-			"beta-browser.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.js",
-			"beta-browser.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.min.js",
-			"beta-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.js",
-			"beta-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.min.js"
+			"betajs-browser.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js",
+			"betajs-browser.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js",
+			"betajs-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js",
+			"betajs-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js"
 		}
 	} 
 }

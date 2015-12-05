@@ -1,4 +1,4 @@
-# betajs-browser 1.0.0
+# betajs-browser 1.0.7
 
 BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.
 
@@ -30,10 +30,10 @@ Active, Production ready
 ## CDN
 | Resource | URL |
 | :----- | -------: |
-| beta-browser.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.js) |
-| beta-browser.min.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.min.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser.min.js) |
-| beta-browser-noscoped.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.js) |
-| beta-browser-noscoped.min.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.min.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/beta-browser-noscoped.min.js) |
+| betajs-browser.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js) |
+| betajs-browser.min.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js) |
+| betajs-browser-noscoped.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js) |
+| betajs-browser-noscoped.min.js | [http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js](http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js) |
 
 
 ## Unit Tests
