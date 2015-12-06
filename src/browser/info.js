@@ -313,7 +313,7 @@ Scoped.define("module:Info", [
 		    	check: function () { return this.isSafari(); }
 		    }, android: {
 		    	format: "Android",
-		    	check: function () { return this.isAndroid() && !this.isChrome(); }
+		    	check: function () { return this.isAndroid() && !this.isChrome() && !this.isFirefox(); }
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }
