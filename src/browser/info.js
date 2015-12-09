@@ -16,7 +16,8 @@ Scoped.define("module:Info", [
 					platform: navigator.platform,
 					userAgent: navigator.userAgent,
 					window_chrome: "chrome" in window,
-					window_opera: "opera" in window
+					window_opera: "opera" in window,
+					language: navigator.language || navigator.userLanguage || ""
 				};
 			}
 			return this.__navigator;
@@ -35,6 +36,12 @@ Scoped.define("module:Info", [
 		setNavigator: function (obj) {
 			this.__navigator = obj;
 			this.__cache = {};
+		},
+		
+		language: function () {
+			return this.__cached("language", function (nav) {
+				return nav.language;
+			});
 		},
 	
 		flash: function () {
