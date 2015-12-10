@@ -34,6 +34,7 @@ test("test different browsers", function () {
 	QUnit.equal(BetaJS.Browser.Info.chromeVersion(), 47.0, "Chrome 47.0");
 	
 	check("desktop", "macosx", "opera", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36 OPR/28.0.1750.51", {window_chrome: true});
+	QUnit.equal(BetaJS.Browser.Info.operaVersion(), 28.0, "Opera 28.0");
 	
 	check("desktop", "macosx", "firefox", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:36.0) Gecko/20100101 Firefox/36.0", {appVersion: "Mozilla/5.0 (Macintosh)"});
 	

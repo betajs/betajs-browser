@@ -201,6 +201,16 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		operaVersion: function () {
+			return this.__cached("operaVersion", function (nav, ua) {
+				var re = /OPR\/(\d+\.\d+)[^\d]/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
+
 		inIframe: function () {
 		    try {
 		        return window.self !== window.top;
