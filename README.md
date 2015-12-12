@@ -1,4 +1,4 @@
-# betajs-browser 1.0.9
+# betajs-browser 1.0.12
 
 BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.
 
