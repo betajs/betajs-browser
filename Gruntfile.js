@@ -78,7 +78,7 @@ module.exports = function(grunt) {
 						}
 					},
 					dist : {
-						src : [ "./vendors/beta.js",
+						src : [ "./vendors/scoped.js", "./vendors/beta-noscoped.js",
 								"./dist/betajs-browser-noscoped.js" ],
 						dest : "./dist/betajs-browser-closure.js"
 					}
@@ -102,7 +102,7 @@ module.exports = function(grunt) {
 						},
 						files : {
 							"./vendors/scoped.js" : "https://raw.githubusercontent.com/betajs/betajs-scoped/master/dist/scoped.js",
-							"./vendors/beta.js" : "https://raw.githubusercontent.com/betajs/betajs/master/dist/beta.js",
+							"./vendors/beta-noscoped.js" : "https://raw.githubusercontent.com/betajs/betajs/master/dist/beta-noscoped.js",
 							"./vendors/jquery-1.9.closure-extern.js" : "https://raw.githubusercontent.com/google/closure-compiler/master/contrib/externs/jquery-1.9.js"
 						}
 					}

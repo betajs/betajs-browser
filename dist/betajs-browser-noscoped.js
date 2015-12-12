@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.10 - 2015-12-08
+betajs-browser - v1.0.11 - 2015-12-12
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,10 +21,11 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '56.1449625251783'
+		version: '57.1449951768779'
 	};
 });
 
+Scoped.assumeVersion("base:version", 444);
 Scoped.define("module:JQueryAjax", [
 	    "base:Net.AbstractAjax",
 	    "base:Net.AjaxException",
