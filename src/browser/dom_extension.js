@@ -88,10 +88,15 @@ Scoped.define("module:DomExtend.DomExtension", [
 			
 			computeActualBB: function (idealBB) {
 				var width = this._$element.width();
-				if (this._$element.width() < idealBB.width && !this._element.style.width) {
+				if (this._$element.width() <= idealBB.width && !this._element.style.width) {
 					this._element.style.width = idealBB.width + "px";
 					width = this._$element.width();
-					delete this._element.style.width;
+					var current = this._$element;
+					while (current.get(0) != document) {
+						current = current.parent();
+						width = Math.min(width, current.width());
+					}
+					this._element.style.width = null;
 				}
 				return {
 					width: width,

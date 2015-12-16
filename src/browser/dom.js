@@ -223,7 +223,7 @@ Scoped.define("module:Dom", [
 				return s;
 			var temp = document.createElement("span");
 			temp.innerHTML = s;
-			s = temp.innerText;
+			s = $(temp).text();
 			if (temp.remove)
 				temp.remove();
 			return s;
