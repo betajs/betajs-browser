@@ -52,7 +52,7 @@ Scoped.define("module:Info", [
 		
 		isiOS: function () {
 			return this.__cached("isiOS", function (nav, ua) {
-				if (this.isInternetExplorer())
+				if (this.isInternetExplorer() || this.isIEMobile())
 					return false;
 				return ua.indexOf('iPhone') != -1 || ua.indexOf('iPod') != -1 || ua.indexOf('iPad') != -1;
 			});
@@ -70,6 +70,12 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isLocalCordova: function () {
+			return this.__cached("isLocalCordova", function () {
+				return this.isCordova() && document.location.href.indexOf("http") !== 0;
+			});
+		},
+
 		isChrome: function () {
 			return this.__cached("isChrome", function (nav, ua) {
 				return (nav.window_chrome || ua.indexOf('CriOS') != -1) && !this.isOpera() && !this.isEdge();
@@ -134,10 +140,16 @@ Scoped.define("module:Info", [
 		isInternetExplorer: function () {
 			return this.__cached("isInternetExplorer", function () {
 				//return navigator.appName == 'Microsoft Internet Explorer';
-				return this.internetExplorerVersion() !== null;
+				return !this.isIEMobile() && this.internetExplorerVersion() !== null;
 			});
 		},
 		
+		isIEMobile: function () {
+			return this.__cached("isIEMobile", function (nav, ua, ualc) {
+				return ualc.indexOf("iemobile") >= 0;
+			});
+		},
+
 		isFirefox: function () {
 			return this.__cached("isFirefox", function (nav, ua, ualc) {
 				return ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1;
@@ -152,7 +164,7 @@ Scoped.define("module:Info", [
 		
 		isWindows: function () {
 			return this.__cached("isWindows", function (nav) {
-				return nav.appVersion.toLowerCase().indexOf("win") != -1;
+				return nav.appVersion.toLowerCase().indexOf("win") != -1 && !this.isWindowsPhone();
 			});
 		},
 		
@@ -334,16 +346,16 @@ Scoped.define("module:Info", [
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }
-		    }, windowsphone: {
-		    	format: "Windows Phone",
-		    	check: function () { return this.isWindowsPhone(); }
 		    }, blackberry: {
 		    	format: "Blackberry",
 		    	check: function () { return this.isBlackberry(); }
 		    }, edge: {
 		    	format: "Edge",
 		    	check: function () { return this.isEdge(); }
-		    }
+		    }, iemobile: {
+		    	format: "IE Mobile",
+		    	check: function () { return this.isIEMobile(); }
+		    }		    
 		},
 		
 		getBrowser: function () {
