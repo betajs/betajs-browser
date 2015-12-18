@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.14 - 2015-12-16
+betajs-browser - v1.0.15 - 2015-12-17
 Copyright (c) Oliver Friedmann
 MIT Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '61.1450308662627'
+		version: '62.1450385743675'
 	};
 });
 
@@ -1171,6 +1171,18 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isChromium: function () {
+			return this.__cached("isChromium", function (nav, ua, ualc) {
+				return !this.isChrome() && this.isAndroid() && ualc.indexOf("linux") >= 0;
+			});
+		},
+		
+		isChromiumBased: function () {
+			return this.__cached("isChromiumBased", function () {
+				return this.isChrome() || this.isChromium();
+			});
+		},
+		
 		isOpera: function () {
 			return this.__cached("isOpera", function (nav, ua) {
 				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0 || ua.indexOf('Opera') >= 0;
@@ -1247,7 +1259,7 @@ Scoped.define("module:Info", [
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1 && !this.isAndroid();
 			});
 		},
 		
@@ -1414,6 +1426,9 @@ Scoped.define("module:Info", [
 		    chrome: {
 		    	format: "Chrome",
 		    	check: function () { return this.isChrome(); }
+		    }, chromium: {
+		    	format: "Chromium",
+		    	check: function () { return this.isChromium(); }
 		    }, opera: {
 		    	format: "Opera",
 		    	check: function () { return this.isOpera(); }
@@ -1429,9 +1444,6 @@ Scoped.define("module:Info", [
 		    }, safari: {
 		    	format: "Safari",
 		    	check: function () { return this.isSafari(); }
-		    }, android: {
-		    	format: "Android",
-		    	check: function () { return this.isAndroid() && !this.isChrome() && !this.isFirefox(); }
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }

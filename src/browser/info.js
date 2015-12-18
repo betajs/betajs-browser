@@ -82,6 +82,18 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		isChromium: function () {
+			return this.__cached("isChromium", function (nav, ua, ualc) {
+				return !this.isChrome() && this.isAndroid() && ualc.indexOf("linux") >= 0;
+			});
+		},
+		
+		isChromiumBased: function () {
+			return this.__cached("isChromiumBased", function () {
+				return this.isChrome() || this.isChromium();
+			});
+		},
+		
 		isOpera: function () {
 			return this.__cached("isOpera", function (nav, ua) {
 				return nav.window_opera || ua.indexOf(' OPR/') >= 0 || ua.indexOf("OPiOS") >= 0 || ua.indexOf('Opera') >= 0;
@@ -158,7 +170,7 @@ Scoped.define("module:Info", [
 		
 		isSafari: function () {
 			return this.__cached("isSafari", function (nav, ua, ualc) {
-				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1;
+				return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1 && !this.isAndroid();
 			});
 		},
 		
@@ -325,6 +337,9 @@ Scoped.define("module:Info", [
 		    chrome: {
 		    	format: "Chrome",
 		    	check: function () { return this.isChrome(); }
+		    }, chromium: {
+		    	format: "Chromium",
+		    	check: function () { return this.isChromium(); }
 		    }, opera: {
 		    	format: "Opera",
 		    	check: function () { return this.isOpera(); }
@@ -340,9 +355,6 @@ Scoped.define("module:Info", [
 		    }, safari: {
 		    	format: "Safari",
 		    	check: function () { return this.isSafari(); }
-		    }, android: {
-		    	format: "Android",
-		    	check: function () { return this.isAndroid() && !this.isChrome() && !this.isFirefox(); }
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }

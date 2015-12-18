@@ -66,4 +66,8 @@ test("test different browsers", function () {
 
 	check("mobile", "windowsphone", "iemobile", "Mozilla/5.0 (Windows Phone 8.1; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; NOKIA; Lumia 920) like Gecko");
 	
+	check("mobile", "android", "chromium", "Mozilla/5.0 (Linux; Android 5.0; GT-I9192 Build/LRX21Q) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/37.0.0.0 Mobile Safari/537.36");
+	
+	check("mobile", "android", "chromium", "Mozilla/5.0 (Linux; U; Android 4.3.1; en-us; Ascend Y300 Build/JLS36I) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 CyanogenMod/10.2/u8833");
+	
 });
