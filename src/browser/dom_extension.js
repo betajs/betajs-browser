@@ -1,6 +1,12 @@
 Scoped.define("module:DomExtend.DomExtension", [
-    "base:Class", "jquery:", "base:Objs", "base:Functions", "base:Async"                                                   
-], function (Class, jquery, Objs, Functions, Async, scoped) {
+    "base:Class",
+    "jquery:",
+    "base:Objs",
+    "base:Functions",
+    "base:Async",
+    "module:DomMutation.NodeRemoveObserver",
+    "module:DomMutation.NodeResizeObserver"
+], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -22,25 +28,16 @@ Scoped.define("module:DomExtend.DomExtension", [
 					this._element[method] = Functions.as_method(this[method], this);
 				}, this);
 				Async.eventually(function () {
-					var self = this;
-					$(document).on("DOMNodeRemoved." + this.cid(), function (event) {
-						if (event.target === element) {
-							self.weakDestroy();
-						}
-					});
-					$(window).on("resize." + this.cid(), function () {
-						self.recomputeBB();
-						self._notify("resized");
-					});
+					this._nodeRemoveObserver = this.auto_destroy(new NodeRemoveObserver(element));
+					this._nodeRemoveObserver.on("node-removed", this.weakDestroy, this);
+					this._nodeResizeObserver = this.auto_destroy(new NodeResizeObserver(element));
+					this._nodeResizeObserver.on("node-resized", function () {
+						this.recomputeBB();
+						this._notify("resized");
+					}, this);
 				}, this);
 				if (!this._$element.css("display") || this._$element.css("display") == "inline")
 					this._$element.css("display", "inline-block");
-			},
-			
-			destroy: function () {
-				$(window).off("." + this.cid());
-				$(document).off("." + this.cid());
-				inherited.destroy.call(this);
 			},
 			
 			domEvent: function (eventName) {

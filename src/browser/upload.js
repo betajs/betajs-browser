@@ -144,7 +144,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     "jquery:",
     "base:Objs"
 ], function (FileUploader, Info, $, Objs, scoped) {
-	var Cls = FileUploader.extend({scoped: scoped}, {
+	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
 			var self = this;
@@ -192,10 +192,6 @@ Scoped.define("module:Upload.FormDataFileUploader", [
 		}
 		
 	});	
-	
-	FileUploader.register(Cls, 2);
-	
-	return Cls;
 });
 
 
@@ -207,7 +203,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
      "json:",
      "base:Objs"
 ], function (FileUploader, $, Uri, JSON, Objs, scoped) {
-	var Cls = FileUploader.extend({scoped: scoped}, {
+	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
 			var self = this;
@@ -270,10 +266,6 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 		}
 		
 	});	
-	
-	FileUploader.register(Cls, 1);
-	
-	return Cls;
 });
 
 
@@ -285,7 +277,7 @@ Scoped.define("module:Upload.ResumableFileUploader", [
     "base:Objs",
     "jquery:"
 ], function (FileUploader, ResumableJS, Async, Objs, $, scoped) {
-	var Cls = FileUploader.extend({scoped: scoped}, {
+	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
 			this._resumable = new ResumableJS(Objs.extend({
@@ -349,10 +341,6 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		}
 		
 	});	
-	
-	FileUploader.register(Cls, 3);
-	
-	return Cls;
 });
 
 
@@ -360,7 +348,7 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 Scoped.define("module:Upload.CordovaFileUploader", [
      "module:Upload.FileUploader"
 ], function (FileUploader, scoped) {
-	var Cls = FileUploader.extend({scoped: scoped}, {
+	return FileUploader.extend({scoped: scoped}, {
  		
  		_upload: function () {
  			var self = this;
@@ -395,8 +383,25 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  		}
  		
  	});	
- 	
- 	FileUploader.register(Cls, 4);
- 	
- 	return Cls;
- });
+});
+
+
+Scoped.extend("module:Upload.FileUploader", [
+	"module:Upload.FileUploader",
+	"module:Upload.FormDataFileUploader",
+	"module:Upload.FormIframeFileUploader",
+	"module:Upload.CordovaFileUploader"
+], function (FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader) {
+	FileUploader.register(FormDataFileUploader, 2);
+	FileUploader.register(FormIframeFileUploader, 1);
+	FileUploader.register(CordovaFileUploader, 4);
+	return {};
+});
+
+Scoped.extend("module:Upload.FileUploader", [
+	"module:Upload.FileUploader",
+	"module:Upload.ResumableFileUploader"
+], function (FileUploader, ResumableFileUploader) {
+	FileUploader.register(ResumableFileUploader, 3);
+	return {};
+});
