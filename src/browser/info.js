@@ -234,6 +234,16 @@ Scoped.define("module:Info", [
 				return null;
 			});
 		},
+		
+		safariVersion: function () {
+			return this.__cached("safariVersion", function (nav, ua) {
+				var re = /Version\/(\d+\.\d+)[^\d]/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
 
 		inIframe: function () {
 		    try {

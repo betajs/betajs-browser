@@ -8,30 +8,6 @@ Scoped.define("module:JQueryAjax", [
 	return AbstractAjax.extend({scoped: scoped}, function (inherited) {
 		return {
 			
-			_syncCall: function (options) {
-				var result;
-				$.ajax({
-					type: options.method,
-					async: false,
-					url: options.uri,
-					dataType: options.decodeType ? options.decodeType : null, 
-					data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
-					success: function (response) {
-						result = response;
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						var err = "";
-						try {
-							err = JSON.parse(jqXHR.responseText);
-						} catch (e) {
-							err = JSON.parse('"' + jqXHR.responseText + '"');
-						}
-						throw new AjaxException(jqXHR.status, errorThrown, err);
-					}
-				});
-				return result;
-			},
-			
 			_asyncCall: function (options, callbacks) {
 				var promise = Promise.create();
 				if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)

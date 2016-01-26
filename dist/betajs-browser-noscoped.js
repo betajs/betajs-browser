@@ -1,7 +1,7 @@
 /*!
-betajs-browser - v1.0.17 - 2015-12-23
+betajs-browser - v1.0.18 - 2016-01-25
 Copyright (c) Oliver Friedmann
-MIT Software License.
+Apache 2.0 Software License.
 */
 (function () {
 
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '63.1450889613503'
+		version: '64.1453782012718'
 	};
 });
 
@@ -35,30 +35,6 @@ Scoped.define("module:JQueryAjax", [
 	], function (AbstractAjax, AjaxException, Promise, BrowserInfo, $, scoped) {
 	return AbstractAjax.extend({scoped: scoped}, function (inherited) {
 		return {
-			
-			_syncCall: function (options) {
-				var result;
-				$.ajax({
-					type: options.method,
-					async: false,
-					url: options.uri,
-					dataType: options.decodeType ? options.decodeType : null, 
-					data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
-					success: function (response) {
-						result = response;
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						var err = "";
-						try {
-							err = JSON.parse(jqXHR.responseText);
-						} catch (e) {
-							err = JSON.parse('"' + jqXHR.responseText + '"');
-						}
-						throw new AjaxException(jqXHR.status, errorThrown, err);
-					}
-				});
-				return result;
-			},
 			
 			_asyncCall: function (options, callbacks) {
 				var promise = Promise.create();
@@ -706,8 +682,9 @@ Scoped.define("module:DomMutation.MutationObserverNodeRemoveObserver", [
 
 Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 	"module:DomMutation.NodeRemoveObserver",
+	"module:Info",
 	"jquery:"
-], function (Observer, $, scoped) {
+], function (Observer, Info, $, scoped) {
 	return Observer.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -728,7 +705,7 @@ Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 	}, {
 		
 		supported: function (node) {
-			return true;
+			return !Info.isInternetExplorer() || Info.internetExplorerVersion() >= 9;
 		}
 		
 	});	
@@ -736,13 +713,56 @@ Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 });
 
 
+
+Scoped.define("module:DomMutation.TimerNodeRemoveObserver", [
+  	"module:DomMutation.NodeRemoveObserver",
+  	"base:Timers.Timer",
+  	"jquery:"
+], function (Observer, Timer, $, scoped) {
+	return Observer.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			constructor: function (node) {
+				inherited.constructor.call(this, node);
+				this._timer = new Timer({
+					context: this,
+					fire: this._fire,
+					delay: 100
+				});
+			},
+			
+			destroy: function () {
+				this._timer.weakDestroy();
+				inherited.destroy.call(this);
+			},
+			
+			_fire: function () {
+				if (!this._node.parentElement) {
+					this._timer.stop();
+					this._nodeRemoved(this._node);
+				}
+			}
+			
+		};
+	}, {
+		
+		supported: function (node) {
+			return true;
+		}
+		
+	});	
+
+});
+
 Scoped.extend("module:DomMutation.NodeRemoveObserver", [
     "module:DomMutation.NodeRemoveObserver",
     "module:DomMutation.MutationObserverNodeRemoveObserver",
-    "module:DomMutation.DOMNodeRemovedNodeRemoveObserver"
-], function (Observer, MutationObserverNodeRemoveObserver, DOMNodeRemovedNodeRemoveObserver) {
-	Observer.register(MutationObserverNodeRemoveObserver, 2);
-	Observer.register(DOMNodeRemovedNodeRemoveObserver, 1);
+    "module:DomMutation.DOMNodeRemovedNodeRemoveObserver",
+    "module:DomMutation.TimerNodeRemoveObserver"
+], function (Observer, MutationObserverNodeRemoveObserver, DOMNodeRemovedNodeRemoveObserver, TimerNodeRemoveObserver) {
+	Observer.register(MutationObserverNodeRemoveObserver, 3);
+	Observer.register(DOMNodeRemovedNodeRemoveObserver, 2);
+	Observer.register(TimerNodeRemoveObserver, 1);
 	return {};
 });
 
@@ -878,8 +898,8 @@ Scoped.extend("module:DomMutation.NodeInsertObserver", [
 	"module:DomMutation.MutationObserverNodeInsertObserver",
 	"module:DomMutation.DOMNodeInsertedNodeInsertObserver"
 ], function (Observer, MutationObserverNodeInsertObserver, DOMNodeInsertedNodeInsertObserver) {
-	Observer.register(MutationObserverNodeInsertObserver, 2);
-	Observer.register(DOMNodeInsertedNodeInsertObserver, 1);
+	Observer.register(MutationObserverNodeInsertObserver, 3);
+	Observer.register(DOMNodeInsertedNodeInsertObserver, 2);
 	return {};
 });
 
@@ -1557,6 +1577,16 @@ Scoped.define("module:Info", [
 		operaVersion: function () {
 			return this.__cached("operaVersion", function (nav, ua) {
 				var re = /OPR\/(\d+\.\d+)[^\d]/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
+		
+		safariVersion: function () {
+			return this.__cached("safariVersion", function (nav, ua) {
+				var re = /Version\/(\d+\.\d+)[^\d]/gi;
 				var ma = re.exec(ua);
 				if (ma)
 					return parseFloat(ma[1]);

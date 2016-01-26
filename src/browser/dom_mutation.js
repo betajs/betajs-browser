@@ -64,8 +64,9 @@ Scoped.define("module:DomMutation.MutationObserverNodeRemoveObserver", [
 
 Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 	"module:DomMutation.NodeRemoveObserver",
+	"module:Info",
 	"jquery:"
-], function (Observer, $, scoped) {
+], function (Observer, Info, $, scoped) {
 	return Observer.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -86,7 +87,7 @@ Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 	}, {
 		
 		supported: function (node) {
-			return true;
+			return !Info.isInternetExplorer() || Info.internetExplorerVersion() >= 9;
 		}
 		
 	});	
@@ -94,13 +95,56 @@ Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 });
 
 
+
+Scoped.define("module:DomMutation.TimerNodeRemoveObserver", [
+  	"module:DomMutation.NodeRemoveObserver",
+  	"base:Timers.Timer",
+  	"jquery:"
+], function (Observer, Timer, $, scoped) {
+	return Observer.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			constructor: function (node) {
+				inherited.constructor.call(this, node);
+				this._timer = new Timer({
+					context: this,
+					fire: this._fire,
+					delay: 100
+				});
+			},
+			
+			destroy: function () {
+				this._timer.weakDestroy();
+				inherited.destroy.call(this);
+			},
+			
+			_fire: function () {
+				if (!this._node.parentElement) {
+					this._timer.stop();
+					this._nodeRemoved(this._node);
+				}
+			}
+			
+		};
+	}, {
+		
+		supported: function (node) {
+			return true;
+		}
+		
+	});	
+
+});
+
 Scoped.extend("module:DomMutation.NodeRemoveObserver", [
     "module:DomMutation.NodeRemoveObserver",
     "module:DomMutation.MutationObserverNodeRemoveObserver",
-    "module:DomMutation.DOMNodeRemovedNodeRemoveObserver"
-], function (Observer, MutationObserverNodeRemoveObserver, DOMNodeRemovedNodeRemoveObserver) {
-	Observer.register(MutationObserverNodeRemoveObserver, 2);
-	Observer.register(DOMNodeRemovedNodeRemoveObserver, 1);
+    "module:DomMutation.DOMNodeRemovedNodeRemoveObserver",
+    "module:DomMutation.TimerNodeRemoveObserver"
+], function (Observer, MutationObserverNodeRemoveObserver, DOMNodeRemovedNodeRemoveObserver, TimerNodeRemoveObserver) {
+	Observer.register(MutationObserverNodeRemoveObserver, 3);
+	Observer.register(DOMNodeRemovedNodeRemoveObserver, 2);
+	Observer.register(TimerNodeRemoveObserver, 1);
 	return {};
 });
 
@@ -236,7 +280,7 @@ Scoped.extend("module:DomMutation.NodeInsertObserver", [
 	"module:DomMutation.MutationObserverNodeInsertObserver",
 	"module:DomMutation.DOMNodeInsertedNodeInsertObserver"
 ], function (Observer, MutationObserverNodeInsertObserver, DOMNodeInsertedNodeInsertObserver) {
-	Observer.register(MutationObserverNodeInsertObserver, 2);
-	Observer.register(DOMNodeInsertedNodeInsertObserver, 1);
+	Observer.register(MutationObserverNodeInsertObserver, 3);
+	Observer.register(DOMNodeInsertedNodeInsertObserver, 2);
 	return {};
 });

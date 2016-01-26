@@ -26,6 +26,7 @@ test("test different browsers", function () {
 	};
 	
 	check("desktop", "macosx", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/600.5.17 (KHTML, like Gecko) Version/8.0.5 Safari/600.5.17");
+	QUnit.equal(BetaJS.Browser.Info.safariVersion(), 8.0, "Safari 8");
 	
 	check("desktop", "macosx", "chrome", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", {window_chrome: true});
 	QUnit.equal(BetaJS.Browser.Info.chromeVersion(), 42.0, "Chrome 42.0");
@@ -70,4 +71,5 @@ test("test different browsers", function () {
 	
 	check("mobile", "android", "chromium", "Mozilla/5.0 (Linux; U; Android 4.3.1; en-us; Ascend Y300 Build/JLS36I) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 CyanogenMod/10.2/u8833");
 	
+	BetaJS.Browser.Info.setNavigator();
 });
