@@ -245,6 +245,16 @@ Scoped.define("module:Info", [
 			});
 		},
 
+		firefoxVersion: function () {
+			return this.__cached("firefoxVersion", function (nav, ua) {
+				var re = /Firefox\/(\d+\.\d+)/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
+
 		inIframe: function () {
 		    try {
 		        return window.self !== window.top;

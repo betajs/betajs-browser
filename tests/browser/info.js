@@ -38,6 +38,7 @@ test("test different browsers", function () {
 	QUnit.equal(BetaJS.Browser.Info.operaVersion(), 28.0, "Opera 28.0");
 	
 	check("desktop", "macosx", "firefox", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:36.0) Gecko/20100101 Firefox/36.0", {appVersion: "Mozilla/5.0 (Macintosh)"});
+	QUnit.equal(BetaJS.Browser.Info.firefoxVersion(), 36.0, "Firefox 36.0");
 	
 	check("mobile", "ios", "safari", "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4");
 	

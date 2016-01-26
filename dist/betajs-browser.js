@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.18 - 2016-01-25
+betajs-browser - v1.0.19 - 2016-01-26
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -608,7 +608,7 @@ var Scoped = function () {
 }.call(this);
 
 /*!
-betajs-browser - v1.0.18 - 2016-01-25
+betajs-browser - v1.0.19 - 2016-01-26
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -630,11 +630,11 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '64.1453782012718'
+		version: '65.1453822294725'
 	};
 });
 
-Scoped.assumeVersion("base:version", 444);
+Scoped.assumeVersion("base:version", 451);
 Scoped.define("module:JQueryAjax", [
 	    "base:Net.AbstractAjax",
 	    "base:Net.AjaxException",
@@ -870,9 +870,18 @@ Scoped.define("module:Cookies", ["base:Objs", "base:Types"], function (Objs, Typ
 });
 
 Scoped.define("module:Dom", [
-    "base:Objs", "jquery:", "base:Types"
-], function (Objs, $, Types) {
-	return {	
+    "base:Objs",
+    "jquery:",
+    "base:Types",
+    "module:Info"
+], function (Objs, $, Types, Info) {
+	return {
+		
+		outerHTML: function (element) {
+			if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
+				return element.outerHTML;
+			return $('<div>').append($(element).clone()).html();
+		},
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
@@ -2196,6 +2205,16 @@ Scoped.define("module:Info", [
 		safariVersion: function () {
 			return this.__cached("safariVersion", function (nav, ua) {
 				var re = /Version\/(\d+\.\d+)[^\d]/gi;
+				var ma = re.exec(ua);
+				if (ma)
+					return parseFloat(ma[1]);
+				return null;
+			});
+		},
+
+		firefoxVersion: function () {
+			return this.__cached("firefoxVersion", function (nav, ua) {
+				var re = /Firefox\/(\d+\.\d+)/gi;
 				var ma = re.exec(ua);
 				if (ma)
 					return parseFloat(ma[1]);

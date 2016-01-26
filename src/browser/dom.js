@@ -1,7 +1,16 @@
 Scoped.define("module:Dom", [
-    "base:Objs", "jquery:", "base:Types"
-], function (Objs, $, Types) {
-	return {	
+    "base:Objs",
+    "jquery:",
+    "base:Types",
+    "module:Info"
+], function (Objs, $, Types, Info) {
+	return {
+		
+		outerHTML: function (element) {
+			if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
+				return element.outerHTML;
+			return $('<div>').append($(element).clone()).html();
+		},
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
