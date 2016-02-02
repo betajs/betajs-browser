@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.19 - 2016-01-26
+betajs-browser - v1.0.20 - 2016-02-02
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '65.1453822294725'
+		version: '66.1454452224603'
 	};
 });
 
@@ -659,7 +659,7 @@ Scoped.define("module:DomMutation.MutationObserverNodeRemoveObserver", [
 			constructor: function (node) {
 				inherited.constructor.call(this, node);
 				var self = this;
-				this._observer = new MutationObserver(function (mutations) {
+				this._observer = new window.MutationObserver(function (mutations) {
 					Objs.iter(mutations, function (mutation) {
 						for (var i = 0; i < mutation.removedNodes.length; ++i)
 							self._nodeRemoved(mutation.removedNodes[i]);
@@ -838,7 +838,7 @@ Scoped.define("module:DomMutation.MutationObserverNodeInsertObserver", [
 			constructor: function (options) {
 				inherited.constructor.call(this, options);
 				var self = this;
-				this._observer = new MutationObserver(function (mutations) {
+				this._observer = new window.MutationObserver(function (mutations) {
 					Objs.iter(mutations, function (mutation) {
 						for (var i = 0; i < mutation.addedNodes.length; ++i)
 							self._nodeInserted(mutation.addedNodes[i]);

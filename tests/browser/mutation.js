@@ -10,18 +10,20 @@ test("remove mutation", function () {
 	$("#test-mutation").remove();	
 });
 
-if (!BetaJS.Browser.Info.isInternetExplorer() || BetaJS.Browser.Info.internetExplorerVersion() > 8) {
-	test("insert mutation", function () {
-		$("#qunit-fixture").html("<div id='test-mutation'></div>");
-		var observer = BetaJS.Browser.DomMutation.NodeInsertObserver.create({
-			parent: $("#qunit-fixture").get(0)
-		});
-		observer.on("node-inserted", function (node) {
-			ok(true);
-			observer.destroy();
-			start();
-		});
-		stop();
-		$("#qunit-fixture").append("<div></div>");
+test("insert mutation", function () {
+	if (BetaJS.Browser.Info.isInternetExplorer() && BetaJS.Browser.Info.internetExplorerVersion() < 9) {
+		ok(true);
+		return;
+	}
+	$("#qunit-fixture").html("<div id='test-mutation'></div>");
+	var observer = BetaJS.Browser.DomMutation.NodeInsertObserver.create({
+		parent: $("#qunit-fixture").get(0)
 	});
-}
+	observer.on("node-inserted", function (node) {
+		ok(true);
+		observer.destroy();
+		start();
+	});
+	stop();
+	$("#qunit-fixture").append("<div></div>");
+});

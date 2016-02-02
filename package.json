@@ -1,6 +1,6 @@
 {
 	"name": "betajs-browser",
-	"version": "1.0.19",
+	"version": "1.0.20",
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
 	"homepage": "http://betajs.com",
 	"contributors": ["Oliver Friedmann"],
@@ -21,11 +21,15 @@
 		"grunt-jsdoc": "",
 		"grunt-shell": "",
 		"grunt-template": "",
-		"grunt-betajs-docs-compile":""
+		"grunt-betajs-docs-compile":"",
+		"jsdom": ""
 	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/betajs/betajs-browser.git"
+	},
+	"scripts": {
+		"test": "grunt check-node"
 	},
 	"meta": {
 		"credits": [ 

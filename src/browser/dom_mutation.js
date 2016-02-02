@@ -32,7 +32,7 @@ Scoped.define("module:DomMutation.MutationObserverNodeRemoveObserver", [
 			constructor: function (node) {
 				inherited.constructor.call(this, node);
 				var self = this;
-				this._observer = new MutationObserver(function (mutations) {
+				this._observer = new window.MutationObserver(function (mutations) {
 					Objs.iter(mutations, function (mutation) {
 						for (var i = 0; i < mutation.removedNodes.length; ++i)
 							self._nodeRemoved(mutation.removedNodes[i]);
@@ -211,7 +211,7 @@ Scoped.define("module:DomMutation.MutationObserverNodeInsertObserver", [
 			constructor: function (options) {
 				inherited.constructor.call(this, options);
 				var self = this;
-				this._observer = new MutationObserver(function (mutations) {
+				this._observer = new window.MutationObserver(function (mutations) {
 					Objs.iter(mutations, function (mutation) {
 						for (var i = 0; i < mutation.addedNodes.length; ++i)
 							self._nodeInserted(mutation.addedNodes[i]);
