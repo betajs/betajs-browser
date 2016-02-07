@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.20 - 2016-02-02
+betajs-browser - v1.0.21 - 2016-02-06
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -21,7 +21,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '66.1454452224603'
+		version: '68.1454803718556'
 	};
 });
 
@@ -135,7 +135,7 @@ Scoped.define("module:Apps", [
 		},
 		
 		googleIntent: function (protocol, url, appIdent) {
-			return "intent://" + uri + ";scheme=" + protocol + ";package=" + appIdent + ";end";
+			return "intent://" + url + ";scheme=" + protocol + ";package=" + appIdent + ";end";
 		}
 		
 	};
@@ -2291,13 +2291,13 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  			var self = this;
  		    //var fileURI = this._options.source.localURL;
  			var fileURI = this._options.source.fullPath.split(':')[1];
- 		    var fileUploadOptions = new FileUploadOptions();
+ 		    var fileUploadOptions = new window.FileUploadOptions();
  		    fileUploadOptions.fileKey = "file";
  		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
  		    fileUploadOptions.mimeType = this._options.source.type;
  		    fileUploadOptions.httpMethod = "POST";
  		    fileUploadOptions.params = this._options.data;
- 		    var fileTransfer = new FileTransfer();
+ 		    var fileTransfer = new window.FileTransfer();
  		    fileTransfer.upload(fileURI, this._options.url, function (data) {
 	    		self._successCallback(data);
  		    }, function (data) {

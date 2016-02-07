@@ -1,6 +1,6 @@
 {
 	"name": "betajs-browser",
-	"version": "1.0.20",
+	"version": "1.0.21",
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
 	"homepage": "http://betajs.com",
 	"contributors": ["Oliver Friedmann"],
@@ -22,7 +22,8 @@
 		"grunt-shell": "",
 		"grunt-template": "",
 		"grunt-betajs-docs-compile":"",
-		"jsdom": ""
+		"jsdom": "",
+		"betajs-compile": "betajs/betajs-compile"
 	},
 	"repository": {
 		"type": "git",
@@ -32,6 +33,14 @@
 		"test": "grunt check-node"
 	},
 	"meta": {
+		"guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
+		"blog": "http://blog.betajs.com",
+		"twitter": "http://twitter.com/thebetajs",
+		"badges": {
+			"codeclimate": true,
+			"travis": true,
+			"npm": false
+		},
 		"credits": [ 
 			"FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",
 			"Keyboard Shortcuts, BSD Software License, (c) Binny V A"

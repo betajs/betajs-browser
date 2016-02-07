@@ -354,13 +354,13 @@ Scoped.define("module:Upload.CordovaFileUploader", [
  			var self = this;
  		    //var fileURI = this._options.source.localURL;
  			var fileURI = this._options.source.fullPath.split(':')[1];
- 		    var fileUploadOptions = new FileUploadOptions();
+ 		    var fileUploadOptions = new window.FileUploadOptions();
  		    fileUploadOptions.fileKey = "file";
  		    fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
  		    fileUploadOptions.mimeType = this._options.source.type;
  		    fileUploadOptions.httpMethod = "POST";
  		    fileUploadOptions.params = this._options.data;
- 		    var fileTransfer = new FileTransfer();
+ 		    var fileTransfer = new window.FileTransfer();
  		    fileTransfer.upload(fileURI, this._options.url, function (data) {
 	    		self._successCallback(data);
  		    }, function (data) {

@@ -67,7 +67,7 @@ Scoped.define("module:Apps", [
 		},
 		
 		googleIntent: function (protocol, url, appIdent) {
-			return "intent://" + uri + ";scheme=" + protocol + ";package=" + appIdent + ";end";
+			return "intent://" + url + ";scheme=" + protocol + ";package=" + appIdent + ";end";
 		}
 		
 	};
