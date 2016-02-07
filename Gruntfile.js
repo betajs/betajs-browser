@@ -40,7 +40,7 @@ module.exports = function(grunt) {
 
 	grunt.initConfig(gruntHelper.config);	
 
-	grunt.registerTask('default', ['concat-raw', 'preprocessrevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
+	grunt.registerTask('default', ['readme', 'license', 'codeclimate', 'travis', 'concat-raw', 'preprocessrevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 

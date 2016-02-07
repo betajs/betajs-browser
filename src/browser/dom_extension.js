@@ -5,8 +5,9 @@ Scoped.define("module:DomExtend.DomExtension", [
     "base:Functions",
     "base:Async",
     "module:DomMutation.NodeRemoveObserver",
-    "module:DomMutation.NodeResizeObserver"
-], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, scoped) {
+    "module:DomMutation.NodeResizeObserver",
+    "jquery:"
+], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, $, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 			

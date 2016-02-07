@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.21 - 2016-02-06
+betajs-browser - v1.0.22 - 2016-02-06
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -629,7 +629,7 @@ var Scoped = function () {
 }.call(this);
 
 /*!
-betajs-browser - v1.0.21 - 2016-02-06
+betajs-browser - v1.0.22 - 2016-02-06
 Copyright (c) Oliver Friedmann
 Apache 2.0 Software License.
 */
@@ -651,7 +651,7 @@ Scoped.define("base:$", ["jquery:"], function (jquery) {
 Scoped.define("module:", function () {
 	return {
 		guid: "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		version: '68.1454803718556'
+		version: '69.1454807666949'
 	};
 });
 
@@ -684,7 +684,11 @@ Scoped.define("module:JQueryAjax", [
 						try {
 							err = JSON.parse(jqXHR.responseText);
 						} catch (e) {
-							err = JSON.parse('"' + jqXHR.responseText + '"');
+							try {
+								err = JSON.parse('"' + jqXHR.responseText + '"');
+							} catch (e) {
+								err = {};
+							}
 						}
 						promise.asyncError(new AjaxException(jqXHR.status, errorThrown, err));
 					}
@@ -1139,8 +1143,9 @@ Scoped.define("module:DomExtend.DomExtension", [
     "base:Functions",
     "base:Async",
     "module:DomMutation.NodeRemoveObserver",
-    "module:DomMutation.NodeResizeObserver"
-], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, scoped) {
+    "module:DomMutation.NodeResizeObserver",
+    "jquery:"
+], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, $, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 			
