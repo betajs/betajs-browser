@@ -200,9 +200,8 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
      "module:Upload.FileUploader",
      "jquery:",
      "base:Net.Uri",
-     "json:",
      "base:Objs"
-], function (FileUploader, $, Uri, JSON, Objs, scoped) {
+], function (FileUploader, $, Uri, Objs, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {

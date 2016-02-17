@@ -3,13 +3,19 @@ module.exports = function(grunt) {
 	var pkg = grunt.file.readJSON('package.json');
 	var gruntHelper = require('betajs-compile/grunt.js');
 	var dist = 'betajs-browser';
-
+	
 	gruntHelper.init(pkg, grunt)
 	
 	
-    /* Compilation */    
-    .concatTask('concat-raw', ['src/fragments/begin.js-fragment', 'src/**/*.js', 'src/fragments/end.js-fragment'], 'dist/' + dist + '-raw.js')
-    .preprocessrevisionTask(null, 'dist/' + dist + '-raw.js', 'dist/' + dist + '-noscoped.js')
+    /* Compilation */   
+	.scopedclosurerevisionTask(null, "src/**/*.js", "dist/" + dist + "-noscoped.js", {
+		"module": "global:BetaJS.Browser",
+		"base": "global:BetaJS",
+		"jquery": "global:jQuery",
+		"resumablejs": "global:Resumable"
+    }, {
+    	"base:version": 474
+    })	
     .concatTask('concat-scoped', ['vendors/scoped.js', 'dist/' + dist + '-noscoped.js'], 'dist/' + dist + '.js')
     .uglifyTask('uglify-noscoped', 'dist/' + dist + '-noscoped.js', 'dist/' + dist + '-noscoped.min.js')
     .uglifyTask('uglify-scoped', 'dist/' + dist + '.js', 'dist/' + dist + '.min.js')
@@ -37,10 +43,11 @@ module.exports = function(grunt) {
     
     /* Documentation */
     .docsTask();
-
+    
+	
 	grunt.initConfig(gruntHelper.config);	
 
-	grunt.registerTask('default', ['readme', 'license', 'codeclimate', 'travis', 'concat-raw', 'preprocessrevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
+	grunt.registerTask('default', ['readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 

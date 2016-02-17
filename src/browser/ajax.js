@@ -28,7 +28,7 @@ Scoped.define("module:JQueryAjax", [
 						} catch (e) {
 							try {
 								err = JSON.parse('"' + jqXHR.responseText + '"');
-							} catch (e) {
+							} catch (e2) {
 								err = {};
 							}
 						}
