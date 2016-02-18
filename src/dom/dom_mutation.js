@@ -219,7 +219,7 @@ Scoped.define("module:DomMutation.MutationObserverNodeInsertObserver", [
 				});
 				this._observer.observe(this._options.root || this._options.parent || document.body, {
 					childList: true,
-					subtree: !!this._options.parent
+					subtree: !this._options.parent
 				});
 			},
 			
