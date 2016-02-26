@@ -33,6 +33,7 @@ module.exports = function(grunt) {
     /* External Configurations */
     .codeclimateTask()
     .travisTask(null, "4.0")
+    .packageTask()
     
     /* Dependencies */
     .dependenciesTask(null, { github: ['betajs/betajs-scoped/dist/scoped.js', 'betajs/betajs/dist/beta-noscoped.js'] })
@@ -47,7 +48,7 @@ module.exports = function(grunt) {
 	
 	grunt.initConfig(gruntHelper.config);	
 
-	grunt.registerTask('default', ['readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
+	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 

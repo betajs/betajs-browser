@@ -1,0 +1,73 @@
+{
+	"name": "betajs-browser",
+	"version": "1.0.25",
+	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
+	"contributors": ["Oliver Friedmann"],
+	"devDependencies": {
+		"grunt": "",
+		"grunt-contrib-jshint": "",
+		"grunt-contrib-concat": "",
+		"grunt-contrib-uglify": "",
+		"grunt-contrib-clean": "",
+		"grunt-preprocess": "",
+		"grunt-git-revision-count": "",
+		"grunt-closure-tools": "",
+		"grunt-node-qunit": "",
+		"qunit": "",
+		"grunt-contrib-jshint": "",
+		"grunt-wget": "",
+		"grunt-jsdoc": "",
+		"grunt-shell": "",
+		"grunt-template": "",
+		"grunt-betajs-docs-compile":"",
+		"jsdom": "",
+		"betajs-scoped": "",
+		"betajs-compile": "betajs/betajs-compile"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/betajs/betajs-browser.git"
+	},
+	"scripts": {
+		"test": "grunt check-node"
+	},
+	"meta": {
+		"guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
+		"installdoc": "docsrc/common/install.md",
+		"summarydoc": "docsrc/common/summary.md",
+		"badges": {
+			"codeclimate": true,
+			"travis": true,
+			"npm": false
+		},
+		"credits": [ 
+			"FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",
+			"Keyboard Shortcuts, BSD Software License, (c) Binny V A"
+		],
+		"compatability": {
+			"Firefox": "4 - Latest",
+			"Chrome": "15 - Latest",
+			"Safari": "4 - Latest",
+			"Opera": "12 - Latest",
+			"Internet Explorer": "6 - Latest",
+			"Edge": "12 - Latest",
+			"iOS": "7.0 - Latest",
+			"Android": "4.0 - Latest" 
+		},
+		"weakDependencies": {
+			"betajs-scoped": "https://github.com/betajs/betajs-scoped"
+		},
+		"dependencies": {
+			"betajs": "https://github.com/betajs/betajs"
+		},
+		"tests": {
+			"Test Suite": "http://rawgit.com/betajs/betajs-browser/master/tests/tests.html"
+		},
+		"cdn": {
+			"betajs-browser.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js",
+			"betajs-browser.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js",
+			"betajs-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js",
+			"betajs-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js"
+		}
+	} 
+}

@@ -1,16 +1,49 @@
-# betajs-browser 1.0.24
+# betajs-browser 1.0.25
 [![Build Status](https://api.travis-ci.org/betajs/betajs-browser.svg?branch=master)](https://travis-ci.org/betajs/betajs-browser)
 [![Code Climate](https://codeclimate.com/github/betajs/betajs-browser/badges/gpa.svg)](https://codeclimate.com/github/betajs/betajs-browser)
 
 
 BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.
 
-## Status
-Active, Production ready
+
+
+## Getting Started
+
+
+You can use the library in the browser and compile it as well.
+
+#### Browser
+
+```javascript
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="betajs/dist/betajs.min.js"></script>
+	<script src="betajs-browser/dist/betajs-browser.min.js"></script>
+``` 
+
+#### Compile
+
+```javascript
+	git clone https://github.com/betajs/betajs-browser.git
+	npm install
+	grunt
+```
 
 
 
+## Basic Usage
 
+
+The BetaJS Browser module contains a variety of browser helper libraries, particularly:
+- Information about the browser environment at hand
+- Ajax
+- Cookie Handling
+- Flash Embeddings
+- Asynchronous Loading of Scripts, Styles and HTML
+- Browser Routing
+- File / Blob Uploading
+- Dom Manipulation
+- Dom Mutation Events
+- Dom Helper Routines
 
 
 
@@ -25,7 +58,7 @@ Active, Production ready
 
 
 
-## Compatability (Tested)
+## Compatability
 | Target | Versions |
 | :----- | -------: |
 | Firefox | 4 - Latest |
@@ -72,7 +105,7 @@ Active, Production ready
 
 ## License
 
-Apache 2.0
+Apache-2.0
 
 
 ## Credits
