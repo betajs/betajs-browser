@@ -1,4 +1,4 @@
-Different browser require different techniques for asynchronous uploading of files and binary large objects (BLOBs).
+Different browsers require different techniques for asynchronously uploading of files and binary large objects (BLOBs).
 
 This library takes care of that.
 ```javascript
