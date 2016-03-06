@@ -4,6 +4,7 @@
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
 	"contributors": ["Oliver Friedmann"],
 	"devDependencies": {
+        "lodash": "",
 		"grunt": "",
 		"grunt-contrib-jshint": "",
 		"grunt-contrib-concat": "",
