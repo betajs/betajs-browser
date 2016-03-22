@@ -236,7 +236,64 @@ Scoped.define("module:Dom", [
 			if (temp.remove)
 				temp.remove();
 			return s;
+		},
+		
+		elementSupportsFullscreen: function (element) {
+			return [
+			    "requestFullscreen",
+			    "webkitRequestFullscreen",
+			    "mozRequestFullScreen",
+			    "msRequestFullscreen"
+			].some(function (key) {
+				return key in element;
+			});
+		},
+		
+		elementEnterFullscreen: function (element) {
+			Objs.iter([
+			    "requestFullscreen",
+			    "webkitRequestFullscreen",
+			    "mozRequestFullScreen",
+			    "msRequestFullscreen"
+			], function (key) {
+				if (key in element)
+					element[key].call(element);
+				return !(key in element);
+			});
+		},
+		
+		elementIsFullscreen: function (element) {
+			return [
+			    "fullscreenElement",
+			    "webkitFullscreenElement",
+			    "mozFullScreenElement",
+			    "msFullscreenElement"
+			].some(function (key) {
+				return document[key] === element;
+			});
+		},
+		
+		elementOnFullscreenChange: function (element, callback, context) {
+			var self = this;
+			$(element).on([
+			    "fullscreenchange",
+			    "webkitfullscreenchange",
+			    "mozfullscreenchange",
+			    "MSFullscreenChange"
+            ].join(" "), function () {
+				callback.call(context || this, element, self.elementIsFullscreen(element));
+			});
+		},
+		
+		elementOffFullscreenChange: function (element) {
+			$(element).off([
+			    "fullscreenchange",
+			    "webkitfullscreenchange",
+			    "mozfullscreenchange",
+			    "MSFullscreenChange"
+            ].join(" "));
 		}
+		
 				
 	};
 });
