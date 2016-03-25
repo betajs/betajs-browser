@@ -186,7 +186,11 @@ Scoped.define("module:DomMutation.NodeInsertObserver", [
 	return ConditionalInstance.extend({scoped: scoped}, [EventsMixin, function (inherited) {
 		return {
 			
-			_nodeInserted: function (node) {
+			_nodeInserted: function (node, expand) {
+				if (expand) {
+					for (var i = 0; i < node.childNodes.length; ++i)
+						this._nodeInserted(node.childNodes[i], expand);
+				}
 				if (this._options.parent && node.parentNode !== this._options.parent)
 					return;
 				if (this._options.root && !this._options.root.contains(node))
@@ -209,12 +213,13 @@ Scoped.define("module:DomMutation.MutationObserverNodeInsertObserver", [
 		return {
 			
 			constructor: function (options) {
+				options = options || {};
 				inherited.constructor.call(this, options);
 				var self = this;
 				this._observer = new window.MutationObserver(function (mutations) {
 					Objs.iter(mutations, function (mutation) {
 						for (var i = 0; i < mutation.addedNodes.length; ++i)
-							self._nodeInserted(mutation.addedNodes[i]);
+							self._nodeInserted(mutation.addedNodes[i], true);
 					});
 				});
 				this._observer.observe(this._options.root || this._options.parent || document.body, {
@@ -252,6 +257,7 @@ Scoped.define("module:DomMutation.DOMNodeInsertedNodeInsertObserver", [
 		return {
 			
 			constructor: function (options) {
+				options = options || {};
 				inherited.constructor.call(this, options);
 				var self = this;
 				$(document).on("DOMNodeInserted." + this.cid(), function (event) {
