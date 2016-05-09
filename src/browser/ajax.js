@@ -14,6 +14,7 @@ Scoped.define("module:JQueryAjax", [
 					$.support.cors = true;
 				$.ajax({
 					type: options.method,
+					cache: false,
 					async: true,
 					url: options.uri,
 					dataType: options.decodeType ? options.decodeType : null, 

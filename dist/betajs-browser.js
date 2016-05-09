@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.27 - 2016-03-25
+betajs-browser - v1.0.28 - 2016-05-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -629,7 +629,7 @@ var Scoped = function () {
 }.call(this);
 
 /*!
-betajs-browser - v1.0.27 - 2016-03-25
+betajs-browser - v1.0.28 - 2016-05-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -643,7 +643,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "76.1458939089675"
+    "version": "77.1462829581429"
 };
 });
 Scoped.assumeVersion('base:version', 474);
@@ -663,6 +663,7 @@ Scoped.define("module:JQueryAjax", [
 					$.support.cors = true;
 				$.ajax({
 					type: options.method,
+					cache: false,
 					async: true,
 					url: options.uri,
 					dataType: options.decodeType ? options.decodeType : null, 
