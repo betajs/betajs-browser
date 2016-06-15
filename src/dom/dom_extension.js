@@ -86,7 +86,8 @@ Scoped.define("module:DomExtend.DomExtension", [
 			
 			computeActualBB: function (idealBB) {
 				var width = this._$element.width();
-				if (this._$element.width() <= idealBB.width && !this._element.style.width) {
+				//var height = this._$element.height();
+				if (this._$element.width() < idealBB.width && !this._element.style.width) {
 					this._element.style.width = idealBB.width + "px";
 					width = this._$element.width();
 					var current = this._$element;
@@ -96,9 +97,27 @@ Scoped.define("module:DomExtend.DomExtension", [
 					}
 					this._element.style.width = null;
 				}
+				/*
+				if (this._$element.height() < idealBB.height && !this._element.style.height) {
+					this._element.style.height = idealBB.height + "px";
+					height = this._$element.height();
+					var current = this._$element;
+					while (current.get(0) != document) {
+						current = current.parent();
+						height = Math.min(height, current.height());
+					}
+					this._element.style.height = null;
+				}
+				var arWidth = Math.round(height * idealBB.width / idealBB.height);
+				var arHeight = Math.round(width * idealBB.height / idealBB.width);
+				return {
+					width: Math.min(width, arWidth),
+					height: Math.min(height, arHeight)
+				};
+				*/
 				return {
 					width: width,
-					height: Math.round(width * idealBB.height / idealBB.width)
+					height: width * idealBB.height / idealBB.width
 				};
 			},
 			

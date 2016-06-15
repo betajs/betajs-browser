@@ -9,35 +9,79 @@ Scoped.define("module:Upload.FileUploader", [
 			
 			constructor: function (options) {
 				inherited.constructor.call(this, options);
-				this._uploading = false;
+				// idle, uploading, success, error
+				this._state = "idle";
+			},
+			
+			_setState: function (state, triggerdata) {
+				this._state = state;
+				this.trigger(state, triggerdata);
+				this.trigger("state", state, triggerdata);
+			},
+			
+			state: function () {
+				return this._state;
+			},
+			
+			data: function () {
+				return this._data;
+			},
+			
+			progress: function () {
+				return {
+					uploaded: this._uploaded,
+					total: this._total
+				};
+			},
+			
+			reset: function () {
+				if (this.state() === "error") {
+					this._setState("idle");
+					delete this._data;
+					delete this._uploaded;
+					delete this._total;
+				}
 			},
 
 			upload: function () {
-				this._uploading = true;
+				if (this.state() !== "idle")
+					return this;
+				this._setState("uploading");
+				this.__upload();
+				return this;
+			},
+			
+			__upload: function () {
 				this._options.resilience--;
 				this._upload();
-				this.trigger("uploading");
-				return this;
 			},
 			
 			_upload: function () {},
 			
 			_progressCallback: function (uploaded, total) {
+				if (this.state() !== "uploading")
+					return;
+				this._uploaded = uploaded;
+				this._total = total;
 				this.trigger("progress", uploaded, total);
 			},
 			
 			_successCallback: function (data) {
-				this._uploading = false;
-				this.trigger("success", data);
+				if (this.state() !== "uploading")
+					return;
+				this._data = data;
+				this._setState("success", data);
 			},
 			
 			_errorCallback: function (data) {
-				this._uploading = false;
+				if (this.state() !== "uploading")
+					return;
 				if (this._options.resilience > 0) {
-					this.upload();
+					this.__upload();
 					return;
 				}
-				this.trigger("error", data);
+				this._data = data;
+				this._setState("error", data);
 			}
 			
 		};
@@ -60,6 +104,31 @@ Scoped.define("module:Upload.FileUploader", [
 });
 
 
+Scoped.define("module:Upload.CustomUploader", [
+	"module:Upload.FileUploader"
+], function (FileUploader, scoped) {
+	return FileUploader.extend({scoped: scoped}, {
+	
+		_upload: function () {
+			this.trigger("upload", this._options);
+		},
+		
+		progressCallback: function (uploaded, total) {
+			this._progressCallback(uploaded, total);
+		},
+		
+		successCallback: function (data) {
+			this._successCallback(data);
+		},
+		
+		errorCallback: function (data) {
+			this._errorCallback(data);
+		}
+	
+	});	
+});
+
+
 Scoped.define("module:Upload.MultiUploader", [
     "module:Upload.FileUploader",
     "base:Objs"
@@ -70,69 +139,76 @@ Scoped.define("module:Upload.MultiUploader", [
 			constructor: function (options) {
 				inherited.constructor.call(this, options);
 				this._uploaders = {};
-				this._count = 0;
-				this._success = 0;
-				this._total = 0;
-				this._uploaded = 0;
 			},
 			
 			addUploader: function (uploader) {
-				var entry = {
-					uploader: uploader,
-					success: false,
-					data: null,
-					uploaded: null,
-					total: null
-				};
-				this._uploaders[uploader.cid()] = entry;
-				this._count++;
-				uploader.on("success", function (data) {
-					this._success++;
-					entry.success = true;
-					entry.data = data;
-					this._checkDone();
-				}, this).on("error", function (data) {
-					this._error++;
-					entry.success = false;
-					entry.data = data;
-					this._checkDone();
-				}, this).on("progress", function (uploaded, total) {
-					if (entry.uploaded === null) {
-						entry.uploaded = 0;
-						entry.total = total;
-						this._total += total;
-					}
-					this._uploaded += uploaded - entry.uploaded;
-					entry.uploaded = uploaded;
-					this._progressCallback(this._uploaded, this._total);
-				}, this);
+				this._uploaders[uploader.cid()] = uploader;
+				uploader.on("state", this._updateState, this);
+				uploader.on("progress", this._updateProgress, this);
+				if (this.state() === "uploading") {
+					if (uploader.state() === "error")
+						uploader.reset();
+					if (uploader.state() === "idle")
+						uploader.upload();
+				}
+				return this;
 			},
 			
 			_upload: function () {
-				this._error = 0;
-				Objs.iter(this._uploaders, function (entry) {
-					if (!entry.success) {
-						this._uploaded -= entry.uploaded;
-						this._total -= entry.total;
-						entry.uploaded = null;
-						entry.uploader.upload();
-					}
+				Objs.iter(this._uploaders, function (uploader) {
+					if (uploader.state() === "error")
+						uploader.reset();
+					if (uploader.state() === "idle")
+						uploader.upload();
 				}, this);
+				this._updateState();
 			},
 			
-			_checkDone: function () {				
-				if (this._success + this._error == this._count) {
-					var datas = [];
-					Objs.iter(this._uploaders, function (uploader) {
-						datas.push(uploader.data);
-					}, this);
-					if (this._error === 0)
-						this._successCallback(datas);
-					else
-						this._errorCallback(datas);
-				}
-			}
+			_updateState: function () {
+				if (this.state() !== "uploading")
+					return;
+				var success = 0;
+				var error = false;
+				var uploading = false;
+				Objs.iter(this._uploaders, function (uploader) {
+					uploading = uploading || uploader.state() === "uploading";
+					error = error || uploader.state() === "error";
+				}, this);
+				if (uploading)
+					return;
+				var datas = [];
+				Objs.iter(this._uploaders, function (uploader) {
+					var result = (error && uploader.state() === "error") || (!error && uploader.state() === "success") ? uploader.data() : undefined;
+					datas.push(result);
+				}, this);
+				if (error)
+					this._errorCallback(datas);
+				else
+					this._successCallback(datas);
+			},
 			
+			_updateProgress: function () {
+				if (this.state() !== "uploading")
+					return;
+				var total = 0;
+				var uploaded = 0;
+				Objs.iter(this._uploaders, function (uploader) {
+					var state = uploader.state();
+					var progress = uploader.progress();
+					if (progress && progress.total) {
+						if (uploader.state() === "success") {
+							total += progress.total;
+							uploaded += progress.total;
+						}
+						if (uploader.state() === "uploading") {
+							total += progress.total;
+							uploaded += progress.uploaded;
+						}
+					}
+				}, this);
+				this._progressCallback(uploaded, total);
+			}
+
 		};
 	});
 });
