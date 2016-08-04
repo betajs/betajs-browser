@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.29 - 2016-06-14
+betajs-browser - v1.0.30 - 2016-08-04
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -13,53 +13,61 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "78.1465945162742"
+    "version": "79.1470287546363"
 };
 });
-Scoped.assumeVersion('base:version', 474);
+Scoped.assumeVersion('base:version', 531);
 Scoped.define("module:JQueryAjax", [
-	    "base:Net.AbstractAjax",
-	    "base:Net.AjaxException",
-	    "base:Promise",
-	    "module:Info",
-	    "jquery:"
-	], function (AbstractAjax, AjaxException, Promise, BrowserInfo, $, scoped) {
-	return AbstractAjax.extend({scoped: scoped}, function (inherited) {
-		return {
-			
-			_asyncCall: function (options, callbacks) {
-				var promise = Promise.create();
-				if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)
-					$.support.cors = true;
-				$.ajax({
-					type: options.method,
-					cache: false,
-					async: true,
-					url: options.uri,
-					dataType: options.decodeType ? options.decodeType : null, 
-					data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
-					success: function (response) {
-						promise.asyncSuccess(response);
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						var err = "";
+    "base:Net.Ajax",
+    "base:Net.AjaxException",
+    "base:Promise",
+    "module:Info",
+    "jquery:"
+], function (Ajax, AjaxException, Promise, BrowserInfo, $, scoped) {
+	var Cls = Ajax.extend({scoped: scoped},  {
+		
+		_asyncCall: function (options, callbacks) {
+			var promise = Promise.create();
+			if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)
+				$.support.cors = true;
+			$.ajax({
+				type: options.method,
+				cache: false,
+				async: true,
+				url: options.uri,
+				dataType: options.decodeType ? options.decodeType : null, 
+				data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
+				success: function (response) {
+					promise.asyncSuccess(response);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					var err = "";
+					try {
+						err = JSON.parse(jqXHR.responseText);
+					} catch (e) {
 						try {
-							err = JSON.parse(jqXHR.responseText);
-						} catch (e) {
-							try {
-								err = JSON.parse('"' + jqXHR.responseText + '"');
-							} catch (e2) {
-								err = {};
-							}
+							err = JSON.parse('"' + jqXHR.responseText + '"');
+						} catch (e2) {
+							err = {};
 						}
-						promise.asyncError(new AjaxException(jqXHR.status, errorThrown, err));
 					}
-				});
-				return promise;
-			}
+					promise.asyncError(new AjaxException(jqXHR.status, errorThrown, err));
+				}
+			});
+			return promise;
+		}
 			
-		};
+	}, {
+		
+		supported: function (options) {
+			return true;
+		}
+		
 	});
+	
+	Ajax.register(Cls, 1);
+	
+	return Cls;
 });
 	
 Scoped.define("module:Apps", [

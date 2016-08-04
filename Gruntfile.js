@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 		"jquery": "global:jQuery",
 		"resumablejs": "global:Resumable"
     }, {
-    	"base:version": 474
+    	"base:version": 531
     })	
     .concatTask('concat-scoped', ['vendors/scoped.js', 'dist/' + dist + '-noscoped.js'], 'dist/' + dist + '.js')
     .uglifyTask('uglify-noscoped', 'dist/' + dist + '-noscoped.js', 'dist/' + dist + '-noscoped.min.js')
