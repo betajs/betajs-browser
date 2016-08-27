@@ -66,7 +66,7 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    	iframe.style.display = "none";
 		    }
 		    iframe.onload = function () {
-		        callback.call(context || this);
+		        callback.call(context || this, iframe.contentDocument.body.textContent, iframe.contentDocument.body, iframe);
 		        if (options.remove)
 		        	iframe.remove();
 		    };

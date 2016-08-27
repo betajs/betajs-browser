@@ -15,7 +15,7 @@
         "url": "https://github.com/betajs/betajs-browser/issues"
     },
     "name": "betajs-browser",
-    "version": "1.0.30",
+    "version": "1.0.31",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
@@ -32,6 +32,9 @@
         "grunt-closure-tools": "",
         "grunt-node-qunit": "",
         "qunit": "",
+        "express": "",
+        "cookie-parser": "",
+        "body-parser": "",
         "grunt-wget": "",
         "grunt-jsdoc": "",
         "grunt-shell": "",

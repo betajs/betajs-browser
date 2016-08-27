@@ -46,10 +46,19 @@ module.exports = function(grunt) {
     .docsTask();
     
 	
-	grunt.initConfig(gruntHelper.config);	
+	gruntHelper.config.shell.ajaxqunit = {
+		command: [
+		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/assets/index.html',
+		    'node tests/ajax/test-server.js'
+		].join("&&")
+	};
+	
+	grunt.initConfig(gruntHelper.config);
+	
+	grunt.registerTask("ajaxqunit", ["shell:ajaxqunit"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
-	grunt.registerTask('check', ['check-node', 'browserqunit']);
+	grunt.registerTask('check', ['check-node', 'browserqunit', 'ajaxqunit']);
 
 };
