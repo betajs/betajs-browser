@@ -59,6 +59,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
-	grunt.registerTask('check', ['check-node', 'browserqunit', 'ajaxqunit']);
+	grunt.registerTask('check', ['check-node', 'browserqunit']);
 
 };

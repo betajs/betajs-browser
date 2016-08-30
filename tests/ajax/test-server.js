@@ -15,10 +15,11 @@ var logs = {};
 	express.use("/static", Express["static"](__dirname + '/../..'));
 
 	express.get('/logs/:id', function (request, response) {
+		response.header('Content-Type', 'text/html');
 		if (logs[request.params.id])
-			response.status(200).send(logs[request.params.id]);
+			response.status(200).send(JSON.stringify(logs[request.params.id]));
 		else
-			response.status(404).send('Not found');
+			response.status(200).send('{}');
 	});
 
 	express.all('/request/:options/:path*?', function (request, response) {
@@ -58,13 +59,15 @@ var logs = {};
 			logs[log.id] = log;
 		
 		console.log(log);
+		
+		response.header('Content-Type', 'application/json');
 
 		if (options.cors) {
 			response.header("Access-Control-Allow-Origin", "*");
 			response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		}
 
-		response.status(log.response.status).send("");
+		response.status(log.response.status).send(log);
 	});
 
 	express.listen(port, function () {

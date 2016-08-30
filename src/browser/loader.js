@@ -65,11 +65,16 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    } else {
 		    	iframe.style.display = "none";
 		    }
-		    iframe.onload = function () {
-		        callback.call(context || this, iframe.contentDocument.body.textContent, iframe.contentDocument.body, iframe);
+		    var loaded = function () {
+		    	var body = iframe.contentDocument.body;
+		        callback.call(context || this, body.textContent || body.innerText, body, iframe);
 		        if (options.remove)
-		        	iframe.remove();
+		        	document.body.removeChild(iframe);
 		    };
+		    if (iframe.attachEvent)
+		    	iframe.attachEvent("onload", loaded);
+		    else
+		    	iframe.onload = loaded;
 		    iframe.src = options.url;
 		    document.body.appendChild(iframe);
 		}

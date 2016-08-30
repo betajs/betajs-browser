@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.31 - 2016-08-27
+betajs-browser - v1.0.31 - 2016-08-30
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.31 - 2016-08-27
+betajs-browser - v1.0.31 - 2016-08-30
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "80.1472335012256"
+    "version": "81.1472579589908"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2192,11 +2192,16 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    } else {
 		    	iframe.style.display = "none";
 		    }
-		    iframe.onload = function () {
-		        callback.call(context || this, iframe.contentDocument.body.textContent, iframe.contentDocument.body, iframe);
+		    var loaded = function () {
+		    	var body = iframe.contentDocument.body;
+		        callback.call(context || this, body.textContent || body.innerText, body, iframe);
 		        if (options.remove)
-		        	iframe.remove();
+		        	document.body.removeChild(iframe);
 		    };
+		    if (iframe.attachEvent)
+		    	iframe.attachEvent("onload", loaded);
+		    else
+		    	iframe.onload = loaded;
 		    iframe.src = options.url;
 		    document.body.appendChild(iframe);
 		}
