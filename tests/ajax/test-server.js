@@ -37,6 +37,7 @@ var logs = {};
 			status: 200
 		}, BetaJS.Types.parseTypes(options, {		
 			cors: "bool",
+			jsonp: "bool",
 			status: "int"
 		}));
 		
@@ -60,14 +61,18 @@ var logs = {};
 		
 		console.log(log);
 		
-		response.header('Content-Type', 'application/json');
-
 		if (options.cors) {
 			response.header("Access-Control-Allow-Origin", "*");
 			response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		}
 
-		response.status(log.response.status).send(log);
+		if (log.options.jsonp) {
+			response.header('Content-Type', 'text/html');
+			response.status(log.response.status).send(log.request.query.jsonp + "(" + JSON.stringify(log) + ");");
+		} else {
+			response.header('Content-Type', 'application/json');
+			response.status(log.response.status).send(log);
+		}
 	});
 
 	express.listen(port, function () {

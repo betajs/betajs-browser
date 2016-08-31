@@ -1,10 +1,11 @@
 Scoped.define("module:JQueryAjax", [
     "base:Net.Ajax",
+    "base:Ajax.Support",
     "base:Net.AjaxException",
     "base:Promise",
     "module:Info",
     "jquery:"
-], function (Ajax, AjaxException, Promise, BrowserInfo, $, scoped) {
+], function (Ajax, AjaxSupport, AjaxException, Promise, BrowserInfo, $, scoped) {
 	var Cls = Ajax.extend({scoped: scoped},  {
 		
 		_asyncCall: function (options, callbacks) {
@@ -16,7 +17,8 @@ Scoped.define("module:JQueryAjax", [
 				cache: false,
 				async: true,
 				url: options.uri,
-				dataType: options.decodeType ? options.decodeType : null, 
+				jsonp: options.jsonp,
+				dataType: options.jsonp ? "jsonp" : (options.decodeType ? options.decodeType : null), 
 				data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
 				success: function (response) {
 					promise.asyncSuccess(response);
@@ -47,6 +49,15 @@ Scoped.define("module:JQueryAjax", [
 	});
 	
 	Ajax.register(Cls, 1);
+	
+	AjaxSupport.register({
+		supports: function () {
+			return true;
+		},
+		execute: function (options) {
+			return (new Cls()).asyncCall(options);
+		}
+	}, 1);
 	
 	return Cls;
 });

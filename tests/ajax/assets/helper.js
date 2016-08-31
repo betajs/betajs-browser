@@ -29,7 +29,6 @@ window.Helper = {
 		var arr = [];
 		for (var key in serverOptions)
 			arr.push(key + ":" + serverOptions[key]);
-		var l = document.location;
 		return {
 			uri: (clientOptions.cors ? corsHost : "") + "/request/" + arr.join(",") + clientOptions.path,
 			id: id
@@ -54,7 +53,7 @@ window.Helper = {
 	testSuccess: function (promise, callback, request) {
 		stop();
 		promise.error(function (e) {
-			ok(false, "Should not fail: " + e.status_text());
+			ok(false, "Should not fail: " + e);
 			start();
 		}).success(function (value) {
 			Helper.requestLog(request.id).error(function (e) {

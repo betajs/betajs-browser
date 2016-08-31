@@ -1,8 +1,8 @@
+var Ajax = BetaJS.Ajax.Support;
+
 
 test("get, query, cookies, same origin", function () {
 
-	var ajax = new BetaJS.Browser.JQueryAjax();
-	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
 	var queryvalue = BetaJS.Tokens.generate_token();
@@ -15,8 +15,38 @@ test("get, query, cookies, same origin", function () {
 		path: path
 	});
 		
-	Helper.testSuccess(ajax.asyncCall({
-		uri: request.uri + "?" + querykey + "=" + queryvalue 
+	Helper.testSuccess(Ajax.execute({
+		uri: request.uri + "?" + querykey + "=" + queryvalue,
+		experimental: true
+	}), function (value, log) {
+		QUnit.equal(log.request.path, path);
+		QUnit.equal(log.request.query[querykey], queryvalue);
+		QUnit.equal(log.request.cookies[cookiekey], cookievalue);
+		QUnit.deepEqual(value, log);
+	}, request);
+		
+});
+
+
+test("get, query, cookies, same origin, jsonp", function () {
+	
+	var path = "/" + BetaJS.Tokens.generate_token();
+	var querykey = BetaJS.Tokens.generate_token();
+	var queryvalue = BetaJS.Tokens.generate_token();
+	var cookiekey = "ajax_unit_test";
+	var cookievalue = BetaJS.Tokens.generate_token();
+	
+	BetaJS.Browser.Cookies.set(cookiekey, cookievalue, null, "/");
+
+	var request = Helper.createRequest({
+		path: path
+	}, {
+		jsonp: true
+	});
+		
+	Helper.testSuccess(Ajax.execute({
+		uri: request.uri + "?" + querykey + "=" + queryvalue,
+		jsonp: "jsonp"
 	}), function (value, log) {
 		QUnit.equal(log.request.path, path);
 		QUnit.equal(log.request.query[querykey], queryvalue);
@@ -28,8 +58,6 @@ test("get, query, cookies, same origin", function () {
 
 
 test("get, query, cookies, cross origin fail", function () {
-	
-	var ajax = new BetaJS.Browser.JQueryAjax();
 	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
@@ -44,13 +72,13 @@ test("get, query, cookies, cross origin fail", function () {
 		cors: true
 	});
 
-	Helper.testFail(ajax.asyncCall({
+	Helper.testFail(Ajax.execute({
 		uri: request.uri + "?" + querykey + "=" + queryvalue 
 	}), function (error, log) {
 		if (log.request) {
 			QUnit.equal(log.request.path, path);
 			QUnit.equal(log.request.query[querykey], queryvalue);
-			QUnit.equal(log.request.cookies[cookiekey], undefined);
+			QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
 		} else
 			ok(true);
 	}, request);
@@ -59,8 +87,6 @@ test("get, query, cookies, cross origin fail", function () {
 
 
 test("get, query, cookies, cross origin", function () {
-	
-	var ajax = new BetaJS.Browser.JQueryAjax();
 	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
@@ -77,12 +103,43 @@ test("get, query, cookies, cross origin", function () {
 		cors: true
 	});
 	
-	Helper.testSuccess(ajax.asyncCall({
+	Helper.testSuccess(Ajax.execute({
 		uri: request.uri + "?" + querykey + "=" + queryvalue 
 	}), function (value, log) {
 		QUnit.equal(log.request.path, path);
 		QUnit.equal(log.request.query[querykey], queryvalue);
-		QUnit.equal(log.request.cookies[cookiekey], undefined);
+		QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
+		QUnit.deepEqual(value, log);
+	}, request);
+	
+});
+
+
+test("get, query, cookies, cross origin, jsonp", function () {
+	
+	var path = "/" + BetaJS.Tokens.generate_token();
+	var querykey = BetaJS.Tokens.generate_token();
+	var queryvalue = BetaJS.Tokens.generate_token();
+	var cookiekey = "ajax_unit_test";
+	var cookievalue = BetaJS.Tokens.generate_token();
+	
+	BetaJS.Browser.Cookies.set(cookiekey, cookievalue, null, "/");
+
+	var request = Helper.createRequest({
+		path: path,
+		cors: true
+	}, {
+		cors: true,
+		jsonp: true
+	});
+	
+	Helper.testSuccess(Ajax.execute({
+		uri: request.uri + "?" + querykey + "=" + queryvalue,
+		jsonp: "jsonp"
+	}), function (value, log) {
+		QUnit.equal(log.request.path, path);
+		QUnit.equal(log.request.query[querykey], queryvalue);
+		QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
 		QUnit.deepEqual(value, log);
 	}, request);
 	
@@ -91,8 +148,6 @@ test("get, query, cookies, cross origin", function () {
 
 test("post, query, data, cookies, same origin", function () {
 
-	var ajax = new BetaJS.Browser.JQueryAjax();
-	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
 	var queryvalue = BetaJS.Tokens.generate_token();
@@ -107,7 +162,7 @@ test("post, query, data, cookies, same origin", function () {
 		path: path
 	});
 		
-	Helper.testSuccess(ajax.asyncCall({
+	Helper.testSuccess(Ajax.execute({
 		method: "POST",
 		data: BetaJS.Objs.objectBy(datakey, datavalue),
 		uri: request.uri + "?" + querykey + "=" + queryvalue
@@ -121,10 +176,41 @@ test("post, query, data, cookies, same origin", function () {
 		
 });
 
+test("post, query, data, cookies, same origin, jsonp", function () {
+
+	var path = "/" + BetaJS.Tokens.generate_token();
+	var querykey = BetaJS.Tokens.generate_token();
+	var queryvalue = BetaJS.Tokens.generate_token();
+	var datakey = BetaJS.Tokens.generate_token();
+	var datavalue = BetaJS.Tokens.generate_token();
+	var cookiekey = "ajax_unit_test";
+	var cookievalue = BetaJS.Tokens.generate_token();
+	
+	BetaJS.Browser.Cookies.set(cookiekey, cookievalue, null, "/");
+
+	var request = Helper.createRequest({
+		path: path
+	}, {
+		jsonp: true
+	});
+		
+	Helper.testSuccess(Ajax.execute({
+		method: "POST",
+		data: BetaJS.Objs.objectBy(datakey, datavalue),
+		uri: request.uri + "?" + querykey + "=" + queryvalue,
+		jsonp: "jsonp"
+	}), function (value, log) {
+		QUnit.equal(log.request.path, path);
+		QUnit.equal(log.request.query[querykey], queryvalue);
+		QUnit.equal(log.request.body[datakey], datavalue);
+		QUnit.equal(log.request.cookies[cookiekey], cookievalue);
+		QUnit.deepEqual(value, log);
+	}, request);
+		
+});
+
 test("post, query, cookies, cross origin fail", function () {
 
-	var ajax = new BetaJS.Browser.JQueryAjax();
-	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
 	var queryvalue = BetaJS.Tokens.generate_token();
@@ -140,7 +226,7 @@ test("post, query, cookies, cross origin fail", function () {
 		cors: true
 	});
 
-	Helper.testFail(ajax.asyncCall({
+	Helper.testFail(Ajax.execute({
 		method: "POST",
 		data: BetaJS.Objs.objectBy(datakey, datavalue),
 		uri: request.uri + "?" + querykey + "=" + queryvalue 
@@ -149,7 +235,7 @@ test("post, query, cookies, cross origin fail", function () {
 			QUnit.equal(log.request.path, path);
 			QUnit.equal(log.request.query[querykey], queryvalue);
 			QUnit.equal(log.request.body[datakey], datavalue);
-			QUnit.equal(log.request.cookies[cookiekey], undefined);
+			QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
 		} else
 			ok(true);
 	}, request);
@@ -158,8 +244,6 @@ test("post, query, cookies, cross origin fail", function () {
 
 test("post, query, cookies, cross origin", function () {
 
-	var ajax = new BetaJS.Browser.JQueryAjax();
-	
 	var path = "/" + BetaJS.Tokens.generate_token();
 	var querykey = BetaJS.Tokens.generate_token();
 	var queryvalue = BetaJS.Tokens.generate_token();
@@ -177,7 +261,7 @@ test("post, query, cookies, cross origin", function () {
 		cors: true
 	});
 	
-	Helper.testSuccess(ajax.asyncCall({
+	Helper.testSuccess(Ajax.execute({
 		method: "POST",
 		data: BetaJS.Objs.objectBy(datakey, datavalue),
 		uri: request.uri + "?" + querykey + "=" + queryvalue 
@@ -185,8 +269,52 @@ test("post, query, cookies, cross origin", function () {
 		QUnit.equal(log.request.path, path);
 		QUnit.equal(log.request.query[querykey], queryvalue);
 		QUnit.equal(log.request.body[datakey], datavalue);
-		QUnit.equal(log.request.cookies[cookiekey], undefined);
+		QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
 		QUnit.deepEqual(value, log);
 	}, request);
 	
 });
+
+/*
+ * Does not work yet with jQuery + need iFrame variation as well
+ * Need:
+ *   - XmlHttpRequest
+ *   - jsonp
+ *   - iframe form
+ */
+/*
+test("post, query, cookies, cross origin, jsonp", function () {
+
+	var path = "/" + BetaJS.Tokens.generate_token();
+	var querykey = BetaJS.Tokens.generate_token();
+	var queryvalue = BetaJS.Tokens.generate_token();
+	var datakey = BetaJS.Tokens.generate_token();
+	var datavalue = BetaJS.Tokens.generate_token();
+	var cookiekey = "ajax_unit_test";
+	var cookievalue = BetaJS.Tokens.generate_token();
+	
+	BetaJS.Browser.Cookies.set(cookiekey, cookievalue, null, "/");
+
+	var request = Helper.createRequest({
+		path: path,
+		cors: true
+	}, {
+		cors: true,
+		jsonp: true
+	});
+	
+	Helper.testSuccess(Ajax.execute({
+		method: "POST",
+		data: BetaJS.Objs.objectBy(datakey, datavalue),
+		uri: request.uri + "?" + querykey + "=" + queryvalue,
+		jsonp: "jsonp"
+	}), function (value, log) {
+		QUnit.equal(log.request.path, path);
+		QUnit.equal(log.request.query[querykey], queryvalue);
+		QUnit.equal(log.request.body[datakey], datavalue);
+		QUnit.notEqual(log.request.cookies[cookiekey], cookievalue);
+		QUnit.deepEqual(value, log);
+	}, request);
+	
+});
+*/
