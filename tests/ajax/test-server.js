@@ -5,7 +5,10 @@ var Express = require("express");
 
 var logs = {};
 
-[5000, 5001].forEach(function (port) {
+var hosts = process.argv[2].split(",");
+var ports = process.argv[3].split(",").map(function (x) { return parseInt(x, 10); });
+
+ports.forEach(function (port) {
 	
 	var express = Express();
 
@@ -49,7 +52,8 @@ var logs = {};
 				method: request.method,
 				query: request.query,
 				body: request.body,
-				cookies: request.cookies
+				cookies: request.cookies,
+				origin: request.headers.origin
 			},
 			response: {
 				status: options.status
@@ -62,8 +66,10 @@ var logs = {};
 		console.log(log);
 		
 		if (options.cors) {
-			response.header("Access-Control-Allow-Origin", "*");
-			response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			response.header("Access-Control-Allow-Origin", request.headers.origin);
+			//response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			response.header("Access-Control-Allow-Methods", "*");
+			response.header("Access-Control-Allow-Credentials", options.corscreds ? "true" : "false");
 		}
 
 		if (log.options.jsonp) {

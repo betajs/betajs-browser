@@ -8,7 +8,7 @@ Scoped.define("module:JQueryAjax", [
 ], function (Ajax, AjaxSupport, AjaxException, Promise, BrowserInfo, $, scoped) {
 	var Cls = Ajax.extend({scoped: scoped},  {
 		
-		_asyncCall: function (options, callbacks) {
+		_asyncCall: function (options) {
 			var promise = Promise.create();
 			if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)
 				$.support.cors = true;

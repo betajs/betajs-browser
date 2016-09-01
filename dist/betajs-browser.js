@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.32 - 2016-08-31
+betajs-browser - v1.0.33 - 2016-09-01
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.32 - 2016-08-31
+betajs-browser - v1.0.33 - 2016-09-01
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "82.1472655633591"
+    "version": "83.1472746625700"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1018,8 +1018,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
     "base:Net.HttpHeader",
-    "base:Promise"
-], function (AjaxSupport, Uri, HttpHeader, Promise) {
+    "base:Promise",
+    "base:Types",
+    "base:Ajax.RequestException"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException) {
 	
 	var Module = {
 		
@@ -1041,16 +1043,25 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			var xmlhttp = new XMLHttpRequest();
 
 			xmlhttp.onreadystatechange = function () {
-			    if (xmlhttp.readyState == 4 && xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
-			    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, options.decodeType);
-			    	return;
+			    if (xmlhttp.readyState === 4) {
+			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
+				    	// TODO: Figure out response type.
+				    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, "json"); //options.decodeType);
+			    	} else {
+			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			    	}
 			    }
-			    // TODO: Error Handling
-			    // TODO: Data
 			};
+			
+			if (options.corscreds)
+				xmlhttp.withCredentials = true;
 
 			xmlhttp.open(options.method, uri, true);
-			xmlhttp.send();
+			if (options.method !== "GET" && !Types.is_empty(options.data)) {
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xmlhttp.send(Uri.encodeUriParams(options.data));
+			} else
+				xmlhttp.send();
 			
 			return promise;
 		}
@@ -1073,7 +1084,7 @@ Scoped.define("module:JQueryAjax", [
 ], function (Ajax, AjaxSupport, AjaxException, Promise, BrowserInfo, $, scoped) {
 	var Cls = Ajax.extend({scoped: scoped},  {
 		
-		_asyncCall: function (options, callbacks) {
+		_asyncCall: function (options) {
 			var promise = Promise.create();
 			if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)
 				$.support.cors = true;

@@ -2,8 +2,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
     "base:Net.HttpHeader",
-    "base:Promise"
-], function (AjaxSupport, Uri, HttpHeader, Promise) {
+    "base:Promise",
+    "base:Types",
+    "base:Ajax.RequestException"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException) {
 	
 	var Module = {
 		
@@ -25,16 +27,25 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			var xmlhttp = new XMLHttpRequest();
 
 			xmlhttp.onreadystatechange = function () {
-			    if (xmlhttp.readyState == 4 && xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
-			    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, options.decodeType);
-			    	return;
+			    if (xmlhttp.readyState === 4) {
+			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
+				    	// TODO: Figure out response type.
+				    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, "json"); //options.decodeType);
+			    	} else {
+			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			    	}
 			    }
-			    // TODO: Error Handling
-			    // TODO: Data
 			};
+			
+			if (options.corscreds)
+				xmlhttp.withCredentials = true;
 
 			xmlhttp.open(options.method, uri, true);
-			xmlhttp.send();
+			if (options.method !== "GET" && !Types.is_empty(options.data)) {
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xmlhttp.send(Uri.encodeUriParams(options.data));
+			} else
+				xmlhttp.send();
 			
 			return promise;
 		}

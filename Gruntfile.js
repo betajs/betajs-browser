@@ -48,8 +48,8 @@ module.exports = function(grunt) {
 	
 	gruntHelper.config.shell.ajaxqunit = {
 		command: [
-		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/assets/index.html',
-		    'node tests/ajax/test-server.js'
+		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/assets/index.html?cors=' + gruntHelper.myhostname() + ":5001",
+		    'node tests/ajax/test-server.js ' + [gruntHelper.myip(), gruntHelper.myhostname()].join(",") + " " + [5000, 5001].join(",")
 		].join("&&")
 	};
 	
