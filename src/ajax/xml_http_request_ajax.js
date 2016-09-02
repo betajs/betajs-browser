@@ -14,6 +14,8 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (!window.XMLHttpRequest)
 				return false;
+			if (options.forceJsonp)
+				return false;
 			// TODO: Check Data
 			return true;
 		},

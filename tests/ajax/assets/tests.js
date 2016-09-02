@@ -1,6 +1,5 @@
-/**
+/*
  * Next
- * 	- JSONP
  *  - IFRAME
  */
 
@@ -52,7 +51,9 @@ test("get, query, cookies, same origin, jsonp", function () {
 		
 	Helper.testSuccess(Ajax.execute({
 		uri: request.uri + "?" + querykey + "=" + queryvalue,
-		jsonp: "jsonp"
+		jsonp: "jsonp",
+		forceJsonp: true,
+		experimental: true
 	}), function (value, log) {
 		QUnit.equal(log.request.path, path);
 		QUnit.equal(log.request.query[querykey], queryvalue);
@@ -175,7 +176,9 @@ test("get, query, cookies, cross origin, jsonp", function () {
 	
 	Helper.testSuccess(Ajax.execute({
 		uri: request.uri + "?" + querykey + "=" + queryvalue,
-		jsonp: "jsonp"
+		jsonp: "jsonp",
+		forceJsonp: true,
+		experimental: true
 	}), function (value, log) {
 		QUnit.equal(log.request.path, path);
 		QUnit.equal(log.request.query[querykey], queryvalue);
