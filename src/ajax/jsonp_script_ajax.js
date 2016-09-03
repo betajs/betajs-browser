@@ -40,7 +40,9 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			var head = document.getElementsByTagName("head")[0];
 			var script = document.createElement("script");
 			var executed = false; 
-			
+			script.onerror = function () {
+				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
+			};			
 			script.onload = script.onreadystatechange = function() {
 				if (!executed && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
 					executed = true;

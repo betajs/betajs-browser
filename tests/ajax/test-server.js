@@ -24,6 +24,14 @@ ports.forEach(function (port) {
 		else
 			response.status(200).send('{}');
 	});
+	
+	express.get("/setcookie", function (request, response) {
+		response.header('Content-Type', 'text/html');
+		var cookiename = request.query.name;
+		var cookievalue = request.query.value;
+		response.cookie(cookiename, cookievalue, { maxAge: 900000, httpOnly: true });
+		response.status(200).send('Set-Cookie: ' + cookiename + "=" + cookievalue);
+	});
 
 	express.all('/request/:options/:path*?', function (request, response) {
 		
@@ -41,6 +49,7 @@ ports.forEach(function (port) {
 		}, BetaJS.Types.parseTypes(options, {		
 			cors: "bool",
 			jsonp: "bool",
+			postmessage: "bool",
 			status: "int"
 		}));
 		
@@ -75,6 +84,9 @@ ports.forEach(function (port) {
 		if (log.options.jsonp) {
 			response.header('Content-Type', 'text/html');
 			response.status(log.response.status).send(log.request.query.jsonp + "(" + JSON.stringify(log) + ");");
+		} else if (log.options.postmessage) {
+			response.header('Content-Type', 'text/html');
+			response.status(log.response.status).send("<!DOCTYPE html><script>parent.postMessage({'" + log.request.query.postmessage + "' : " + JSON.stringify(log) + " }, '*');</script>");
 		} else {
 			response.header('Content-Type', 'application/json');
 			response.status(log.response.status).send(log);

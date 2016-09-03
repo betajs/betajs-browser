@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.34 - 2016-09-02
+betajs-browser - v1.0.35 - 2016-09-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.34 - 2016-09-02
+betajs-browser - v1.0.35 - 2016-09-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "84.1472839726820"
+    "version": "85.1472942269878"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1078,6 +1078,93 @@ Scoped.define("module:JQueryAjax", [
 	return Cls;
 });
 	
+Scoped.define("module:Ajax.IframePostmessageAjax", [
+    "base:Ajax.Support",
+    "base:Net.Uri",
+    "base:Net.HttpHeader",
+    "base:Promise",
+    "base:Types",
+    "base:Ajax.RequestException",
+    "base:Tokens",
+    "base:Objs",
+    "jquery:"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs, $) {
+	
+	var id = 1;
+	
+	var Module = {
+		
+		supports: function (options) {
+			if (!options.experimental)
+				return false;
+			if (!options.postmessage)
+				return false;
+			return true;
+		},
+		
+		execute: function (options) {
+			var postmessageName = "postmessage_" + Tokens.generate_token() + "_" + (id++);
+			var params = Objs.objectBy(options.postmessage, postmessageName);
+			params = Objs.extend(params, options.query);
+			var uri = Uri.appendUriParams(options.uri, params);
+			var iframe = document.createElement("iframe");
+			iframe.id = postmessageName;
+			iframe.name = postmessageName;
+			iframe.style.display = "none";
+			var form = document.createElement("form");
+			form.method = options.method;
+			form.target = postmessageName;
+			form.action = uri;
+			form.style.display = "none";
+			var promise = Promise.create();
+			document.body.appendChild(iframe);
+			document.body.appendChild(form);
+			Objs.iter(options.data, function (value, key) {
+				var input = document.createElement("input");
+				input.type = "hidden";
+				input.name = key;
+				input.value = Types.is_array(value) || Types.is_object(value) ? JSON.stringify(value) : value;
+				form.appendChild(input);				
+			}, this);
+			var post_message_fallback = !("postMessage" in window);
+			var self = this;
+			iframe.onerror = function () {
+				if (post_message_fallback)
+					window.postMessage = null;
+				$(window).off("message." + postmessageName);
+				document.body.removeChild(form);
+				document.body.removeChild(iframe);
+				// TODO
+				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			};				
+			var handle_success = function (raw_data) {
+				if (!(postmessageName in raw_data))
+					return;
+				raw_data = raw_data[postmessageName];
+				if (post_message_fallback)
+					window.postMessage = null;
+				$(window).off("message." + postmessageName);
+				document.body.removeChild(form);
+				document.body.removeChild(iframe);				
+				AjaxSupport.promiseReturnData(promise, raw_data, "json"); //options.decodeType);
+			};
+			$(window).on("message." + postmessageName, function (event) {
+				handle_success(event.originalEvent.data);
+			});
+			if (post_message_fallback) 
+				window.postMessage = handle_success;
+			form.submit();			
+			return promise;
+		}
+			
+	};
+	
+	AjaxSupport.register(Module, 4);
+	
+	return Module;
+});
+
+
 Scoped.define("module:Ajax.JsonpScriptAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
@@ -1120,7 +1207,9 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			var head = document.getElementsByTagName("head")[0];
 			var script = document.createElement("script");
 			var executed = false; 
-			
+			script.onerror = function () {
+				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
+			};			
 			script.onload = script.onreadystatechange = function() {
 				if (!executed && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
 					executed = true;
@@ -1159,7 +1248,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (!window.XMLHttpRequest)
 				return false;
-			if (options.forceJsonp)
+			if (options.forceJsonp || options.forcePostmessage)
 				return false;
 			// TODO: Check Data
 			return true;
@@ -1189,8 +1278,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.open(options.method, uri, true);
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				xmlhttp.send(Uri.encodeUriParams(options.data));
+				if (options.contentType === "json") {
+					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					xmlhttp.send(JSON.stringify(options.data));
+				} else {
+					xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xmlhttp.send(Uri.encodeUriParams(options.data));
+				}
 			} else
 				xmlhttp.send();
 			
@@ -2201,13 +2295,19 @@ Scoped.define("module:Info", [
 		__browserMap: {
 		    chrome: {
 		    	format: "Chrome",
-		    	check: function () { return this.isChrome(); }
+		    	check: function () { return this.isChrome(); },
+		    	version: function () {
+		    		return this.chromeVersion();
+		    	}
 		    }, chromium: {
 		    	format: "Chromium",
 		    	check: function () { return this.isChromium(); }
 		    }, opera: {
 		    	format: "Opera",
-		    	check: function () { return this.isOpera(); }
+		    	check: function () { return this.isOpera(); },
+		    	version: function () {
+		    		return this.operaVersion();
+		    	}
 		    }, internetexplorer: {
 		    	format: "Internet Explorer",
 		    	check: function () { return this.isInternetExplorer(); },
@@ -2216,10 +2316,16 @@ Scoped.define("module:Info", [
 		    	}
 		    }, firefox: {
 		    	format: "Firefox",
-		    	check: function () { return this.isFirefox(); }
+		    	check: function () { return this.isFirefox(); },
+		    	version: function () {
+		    		return this.firefoxVersion();
+		    	}
 		    }, safari: {
 		    	format: "Safari",
-		    	check: function () { return this.isSafari(); }
+		    	check: function () { return this.isSafari(); },
+		    	version: function () {
+		    		return this.safariVersion();
+		    	}
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }
@@ -2331,8 +2437,8 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    	iframe.style.display = "none";
 		    }
 		    var loaded = function () {
-		    	var body = iframe.contentDocument.body;
-		        callback.call(context || this, body.textContent || body.innerText, body, iframe);
+		    	var body = iframe.contentDocument ? iframe.contentDocument.body : null;
+		        callback.call(context || this, body ? body.textContent || body.innerText : null, body, iframe);
 		        if (options.remove)
 		        	document.body.removeChild(iframe);
 		    };
@@ -3430,7 +3536,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 					window.postMessage = null;
 				$(window).off("message." + self.cid());
 				if (oldParent)
-					oldParent.appendChild(this._options.source);
+					oldParent.appendChild(self._options.source);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
 				self._errorCallback();
@@ -3442,7 +3548,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 					window.postMessage = null;
 				$(window).off("message." + self.cid());
 				if (oldParent)
-					oldParent.appendChild(this._options.source);
+					oldParent.appendChild(self._options.source);
 				var data = JSON.parse(raw_data);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);

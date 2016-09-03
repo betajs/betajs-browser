@@ -14,7 +14,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (!window.XMLHttpRequest)
 				return false;
-			if (options.forceJsonp)
+			if (options.forceJsonp || options.forcePostmessage)
 				return false;
 			// TODO: Check Data
 			return true;
@@ -44,8 +44,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.open(options.method, uri, true);
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				xmlhttp.send(Uri.encodeUriParams(options.data));
+				if (options.contentType === "json") {
+					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					xmlhttp.send(JSON.stringify(options.data));
+				} else {
+					xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xmlhttp.send(Uri.encodeUriParams(options.data));
+				}
 			} else
 				xmlhttp.send();
 			

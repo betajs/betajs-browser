@@ -356,13 +356,19 @@ Scoped.define("module:Info", [
 		__browserMap: {
 		    chrome: {
 		    	format: "Chrome",
-		    	check: function () { return this.isChrome(); }
+		    	check: function () { return this.isChrome(); },
+		    	version: function () {
+		    		return this.chromeVersion();
+		    	}
 		    }, chromium: {
 		    	format: "Chromium",
 		    	check: function () { return this.isChromium(); }
 		    }, opera: {
 		    	format: "Opera",
-		    	check: function () { return this.isOpera(); }
+		    	check: function () { return this.isOpera(); },
+		    	version: function () {
+		    		return this.operaVersion();
+		    	}
 		    }, internetexplorer: {
 		    	format: "Internet Explorer",
 		    	check: function () { return this.isInternetExplorer(); },
@@ -371,10 +377,16 @@ Scoped.define("module:Info", [
 		    	}
 		    }, firefox: {
 		    	format: "Firefox",
-		    	check: function () { return this.isFirefox(); }
+		    	check: function () { return this.isFirefox(); },
+		    	version: function () {
+		    		return this.firefoxVersion();
+		    	}
 		    }, safari: {
 		    	format: "Safari",
-		    	check: function () { return this.isSafari(); }
+		    	check: function () { return this.isSafari(); },
+		    	version: function () {
+		    		return this.safariVersion();
+		    	}
 		    }, webos: {
 		    	format: "WebOS",
 		    	check: function () { return this.isWebOS(); }

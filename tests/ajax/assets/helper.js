@@ -35,6 +35,20 @@ window.Helper = {
 		};
 	},
 	
+	createCrossCookie: function (cookiename, cookievalue) {
+		var promise = BetaJS.Promise.create();
+		BetaJS.Browser.Loader.loadByIframe({
+			url: corsHost + "/setcookie?" + BetaJS.Net.Uri.encodeUriParams({
+				name: cookiename,
+				value: cookievalue
+			}),
+			remove: false
+		}, function () {
+			promise.asyncSuccess(true);
+		});
+		return promise;
+	},
+	
 	requestLog: function (id) {
 		var promise = BetaJS.Promise.create();
 		BetaJS.Browser.Loader.loadByIframe({
@@ -80,6 +94,101 @@ window.Helper = {
 				start();
 			});
 		});
+	},
+	
+	test: function (opts) {
+		var name = [];
+		name.push(opts.method.toLowerCase());
+		name.push(opts.origin + " origin");
+		if (opts.jsondata)
+			name.push("jsondata");
+		if (opts.jsonp)
+			name.push("jsonp");
+		if (opts.postmessage)
+			name.push("postmessage");
+		if (opts.corscreds)
+			name.push("cors credentials");
+		name.push("status " + opts.status);
+		name.push("cookie expect " + opts.cookie);
+		name.push("should " + opts.should);
+		
+		test(name.join(", "), function () {
+			
+			var path = "/" + BetaJS.Tokens.generate_token();
+			var querykey = BetaJS.Tokens.generate_token();
+			var queryvalue = BetaJS.Tokens.generate_token();
+			var datakey = BetaJS.Tokens.generate_token();
+			var datavalue = BetaJS.Tokens.generate_token();
+			if (opts.jsondata)
+				datavalue = { foo: datavalue };
+			var cookiekey = "ajax_unit_test";
+			var cookievalue = BetaJS.Tokens.generate_token();
+			var crosscookievalue = BetaJS.Tokens.generate_token();
+
+			BetaJS.Browser.Cookies.set(cookiekey, cookievalue, null, "/");
+
+			var request = Helper.createRequest({
+				path: path,
+				cors: opts.origin === "cross"
+			}, {
+				status: opts.status,
+				cors: !!opts.servercors,
+				corscreds: !!opts.corscreds,
+				jsonp: !!opts.jsonp,
+				postmessage: !!opts.postmessage
+			});
+
+			stop();
+			Helper.createCrossCookie(cookiekey, crosscookievalue).error(function () {
+				ok(false, "Setting cross cookie failed");
+				start();
+			}).success(function () {
+				start();
+				if (opts.should === "succeed") {
+					Helper.testSuccess(BetaJS.Ajax.Support.execute({
+						method: opts.method,
+						uri: request.uri + "?" + querykey + "=" + queryvalue,
+						data: BetaJS.Objs.objectBy(datakey, datavalue),
+						jsonp: "jsonp",
+						postmessage: "postmessage",
+						forceJsonp: !!opts.jsonp,
+						forcePostmessage: !!opts.postmessage,
+						experimental: true,
+						corscreds: !!opts.corscreds
+					}), function (value, log) {
+						QUnit.equal(log.response.status, opts.status);
+						QUnit.equal(log.request.method, opts.method);
+						QUnit.equal(log.request.path, path);
+						QUnit.equal(log.request.query[querykey], queryvalue);
+						if (opts.method !== "GET")
+							QUnit.deepEqual(log.request.body[datakey], datavalue);
+						QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+						QUnit.deepEqual(value, log);
+					}, request);
+				} else {
+					Helper.testFail(BetaJS.Ajax.Support.execute({
+						method: opts.method,
+						uri: request.uri + "?" + querykey + "=" + queryvalue,
+						data: BetaJS.Objs.objectBy(datakey, datavalue),
+						jsonp: "jsonp",
+						postmessage: "postmessage",
+						forceJsonp: !!opts.jsonp,
+						forcePostmessage: !!opts.postmessage,
+						experimental: true,
+						corscreds: !!opts.corscreds
+					}), function (error, log) {
+						QUnit.equal(log.response.status, opts.status);
+						QUnit.equal(log.request.method, opts.method);
+						QUnit.equal(log.request.path, path);
+						QUnit.equal(log.request.query[querykey], queryvalue);
+						if (opts.method !== "GET")
+							QUnit.deepEqual(log.request.body[datakey], datavalue);
+						QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+					}, request);
+				}				
+			});
+			
+		});
 	}
-				
+					
 };

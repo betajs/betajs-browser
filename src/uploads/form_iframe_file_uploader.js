@@ -35,7 +35,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 					window.postMessage = null;
 				$(window).off("message." + self.cid());
 				if (oldParent)
-					oldParent.appendChild(this._options.source);
+					oldParent.appendChild(self._options.source);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
 				self._errorCallback();
@@ -47,7 +47,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 					window.postMessage = null;
 				$(window).off("message." + self.cid());
 				if (oldParent)
-					oldParent.appendChild(this._options.source);
+					oldParent.appendChild(self._options.source);
 				var data = JSON.parse(raw_data);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
