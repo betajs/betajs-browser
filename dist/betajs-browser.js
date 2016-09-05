@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.35 - 2016-09-03
+betajs-browser - v1.0.36 - 2016-09-05
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.35 - 2016-09-03
+betajs-browser - v1.0.36 - 2016-09-05
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "85.1472942269878"
+    "version": "86.1473091087321"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2549,8 +2549,10 @@ Scoped.define("module:Dom", [
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
-			for (var i = 0; i < node.attributes.length; ++i)
-				replacement.setAttribute(node.attributes[i].nodeName, node.attributes[i].nodeValue);
+			for (var i = 0; i < node.attributes.length; ++i) {
+				var attr = node.attributes[i];
+				replacement.setAttribute(attr.nodeName, "value" in attr ? attr.value : attr.nodeValue);
+			}
 		    while (node.firstChild)
 		        replacement.appendChild(node.firstChild);
 		    node.parentNode.replaceChild(replacement, node);

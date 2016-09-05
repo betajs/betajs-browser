@@ -14,8 +14,10 @@ Scoped.define("module:Dom", [
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
-			for (var i = 0; i < node.attributes.length; ++i)
-				replacement.setAttribute(node.attributes[i].nodeName, node.attributes[i].nodeValue);
+			for (var i = 0; i < node.attributes.length; ++i) {
+				var attr = node.attributes[i];
+				replacement.setAttribute(attr.nodeName, "value" in attr ? attr.value : attr.nodeValue);
+			}
 		    while (node.firstChild)
 		        replacement.appendChild(node.firstChild);
 		    node.parentNode.replaceChild(replacement, node);
