@@ -66,8 +66,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    	iframe.style.display = "none";
 		    }
 		    var loaded = function () {
-		    	var body = iframe.contentDocument ? iframe.contentDocument.body : null;
-		        callback.call(context || this, body ? body.textContent || body.innerText : null, body, iframe);
+		    	var body = null;
+		    	var content = null;
+		    	try {
+		    		body = iframe.contentDocument.body;
+		    		content = body.textContent || body.innerText;
+		    	} catch (e) {}
+		        callback.call(context || this, content, body, iframe);
 		        if (options.remove)
 		        	document.body.removeChild(iframe);
 		    };

@@ -162,7 +162,12 @@ window.Helper = {
 						QUnit.equal(log.request.query[querykey], queryvalue);
 						if (opts.method !== "GET")
 							QUnit.deepEqual(log.request.body[datakey], datavalue);
-						QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+						if (opts.cookie !== "crossornone")
+							QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+						else if (log.request.cookies[cookiekey] === undefined)
+							QUnit.equal(log.request.cookies[cookiekey], undefined);
+						else
+							QUnit.equal(log.request.cookies[cookiekey], crosscookievalue);
 						QUnit.deepEqual(value, log);
 					}, request);
 				} else {
@@ -177,13 +182,22 @@ window.Helper = {
 						experimental: true,
 						corscreds: !!opts.corscreds
 					}), function (error, log) {
-						QUnit.equal(log.response.status, opts.status);
-						QUnit.equal(log.request.method, opts.method);
-						QUnit.equal(log.request.path, path);
-						QUnit.equal(log.request.query[querykey], queryvalue);
-						if (opts.method !== "GET")
-							QUnit.deepEqual(log.request.body[datakey], datavalue);
-						QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+						if (BetaJS.Types.is_empty(log)) {
+							QUnit.equal(opts.allowsilent, true);
+						} else { 
+							QUnit.equal(log.response.status, opts.status);
+							QUnit.equal(log.request.method, opts.method);
+							QUnit.equal(log.request.path, path);
+							QUnit.equal(log.request.query[querykey], queryvalue);
+							if (opts.method !== "GET")
+								QUnit.deepEqual(log.request.body[datakey], datavalue);
+							if (opts.cookie !== "crossornone")
+								QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
+							else if (log.request.cookies[cookiekey] === undefined)
+								QUnit.equal(log.request.cookies[cookiekey], undefined);
+							else
+								QUnit.equal(log.request.cookies[cookiekey], crosscookievalue);
+						}
 					}, request);
 				}				
 			});

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.36 - 2016-09-05
+betajs-browser - v1.0.37 - 2016-09-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.36 - 2016-09-05
+betajs-browser - v1.0.37 - 2016-09-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "86.1473091087321"
+    "version": "87.1473192061013"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2437,8 +2437,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		    	iframe.style.display = "none";
 		    }
 		    var loaded = function () {
-		    	var body = iframe.contentDocument ? iframe.contentDocument.body : null;
-		        callback.call(context || this, body ? body.textContent || body.innerText : null, body, iframe);
+		    	var body = null;
+		    	var content = null;
+		    	try {
+		    		body = iframe.contentDocument.body;
+		    		content = body.textContent || body.innerText;
+		    	} catch (e) {}
+		        callback.call(context || this, content, body, iframe);
 		        if (options.remove)
 		        	document.body.removeChild(iframe);
 		    };
