@@ -1,8 +1,7 @@
 /*
  * Next
- *  - Test Android
- *  - WTest
- *  - REFACTOR
+ *  - Status Error
+ *  - Test + Fix 9 & 8
  */
 
 Helper.test({ method: "GET", origin: "same",

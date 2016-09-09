@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.37 - 2016-09-06
+betajs-browser - v1.0.38 - 2016-09-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.37 - 2016-09-06
+betajs-browser - v1.0.38 - 2016-09-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "87.1473192061013"
+    "version": "88.1473441170813"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1273,10 +1273,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			    }
 			};
 			
+			xmlhttp.open(options.method, uri, true);
+
 			if (options.corscreds)
 				xmlhttp.withCredentials = true;
 
-			xmlhttp.open(options.method, uri, true);
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
 				if (options.contentType === "json") {
 					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");

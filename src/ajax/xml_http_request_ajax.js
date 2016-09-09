@@ -39,10 +39,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			    }
 			};
 			
+			xmlhttp.open(options.method, uri, true);
+
 			if (options.corscreds)
 				xmlhttp.withCredentials = true;
 
-			xmlhttp.open(options.method, uri, true);
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
 				if (options.contentType === "json") {
 					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
