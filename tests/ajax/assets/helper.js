@@ -108,6 +108,8 @@ window.Helper = {
 			name.push("postmessage");
 		if (opts.corscreds)
 			name.push("cors credentials");
+		if (opts.wrapstatus)
+			name.push("wrap status");
 		name.push("status " + opts.status);
 		name.push("cookie expect " + opts.cookie);
 		name.push("should " + opts.should);
@@ -154,7 +156,9 @@ window.Helper = {
 						forceJsonp: !!opts.jsonp,
 						forcePostmessage: !!opts.postmessage,
 						experimental: true,
-						corscreds: !!opts.corscreds
+						corscreds: !!opts.corscreds,
+						wrapStatus: !!opts.wrapstatus,
+						wrapStatusParam: "wrapstatus"
 					}), function (value, log) {
 						QUnit.equal(log.response.status, opts.status);
 						QUnit.equal(log.request.method, opts.method);
@@ -180,7 +184,9 @@ window.Helper = {
 						forceJsonp: !!opts.jsonp,
 						forcePostmessage: !!opts.postmessage,
 						experimental: true,
-						corscreds: !!opts.corscreds
+						corscreds: !!opts.corscreds,
+						wrapStatus: !!opts.wrapstatus,
+						wrapStatusParam: "wrapstatus"
 					}), function (error, log) {
 						if (BetaJS.Types.is_empty(log)) {
 							QUnit.equal(opts.allowsilent, true);

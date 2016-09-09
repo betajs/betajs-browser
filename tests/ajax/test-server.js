@@ -80,16 +80,27 @@ ports.forEach(function (port) {
 			response.header("Access-Control-Allow-Methods", "*");
 			response.header("Access-Control-Allow-Credentials", options.corscreds ? "true" : "false");
 		}
+		
+		var status = log.response.status;
+		var responseJSON = log;
+		
+		if (log.request.query.wrapstatus) {
+			responseJSON = {
+				status: log.response.status,
+				responseText: responseJSON
+			};
+			status = 200;
+		}
 
 		if (log.options.jsonp) {
 			response.header('Content-Type', 'text/html');
-			response.status(log.response.status).send(log.request.query.jsonp + "(" + JSON.stringify(log) + ");");
+			response.status(status).send(log.request.query.jsonp + "(" + JSON.stringify(responseJSON) + ");");
 		} else if (log.options.postmessage) {
 			response.header('Content-Type', 'text/html');
-			response.status(log.response.status).send("<!DOCTYPE html><script>parent.postMessage({'" + log.request.query.postmessage + "' : " + JSON.stringify(log) + " }, '*');</script>");
+			response.status(status).send("<!DOCTYPE html><script>parent.postMessage({'" + log.request.query.postmessage + "' : " + JSON.stringify(responseJSON) + " }, '*');</script>");
 		} else {
 			response.header('Content-Type', 'application/json');
-			response.status(log.response.status).send(log);
+			response.status(status).send(responseJSON);
 		}
 	});
 

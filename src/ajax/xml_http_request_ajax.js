@@ -32,7 +32,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			    if (xmlhttp.readyState === 4) {
 			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
 				    	// TODO: Figure out response type.
-				    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, "json"); //options.decodeType);
+				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
 			    	} else {
 			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			    	}

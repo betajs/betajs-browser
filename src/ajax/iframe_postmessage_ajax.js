@@ -66,7 +66,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				$(window).off("message." + postmessageName);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);				
-				AjaxSupport.promiseReturnData(promise, raw_data, "json"); //options.decodeType);
+				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
 			};
 			$(window).on("message." + postmessageName, function (event) {
 				handle_success(event.originalEvent.data);

@@ -55,7 +55,16 @@ Scoped.define("module:JQueryAjax", [
 			return true;
 		},
 		execute: function (options) {
-			return (new Cls()).asyncCall(options);
+			return (new Cls()).asyncCall(options).mapSuccess(function (data) {
+				if (options && options.wrapStatus) {
+					try {
+						data = AjaxSupport.unwrapStatus(data, options.decodeType);
+					} catch (e) {
+						return Promise.error(e);
+					}
+				}
+				return data;
+			});
 		}
 	}, 1);
 	

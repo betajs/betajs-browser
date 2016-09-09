@@ -13,7 +13,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "88.1473441170813"
+    "version": "89.1473463292747"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -74,7 +74,16 @@ Scoped.define("module:JQueryAjax", [
 			return true;
 		},
 		execute: function (options) {
-			return (new Cls()).asyncCall(options);
+			return (new Cls()).asyncCall(options).mapSuccess(function (data) {
+				if (options && options.wrapStatus) {
+					try {
+						data = AjaxSupport.unwrapStatus(data, options.decodeType);
+					} catch (e) {
+						return Promise.error(e);
+					}
+				}
+				return data;
+			});
 		}
 	}, 1);
 	
@@ -149,7 +158,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				$(window).off("message." + postmessageName);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);				
-				AjaxSupport.promiseReturnData(promise, raw_data, "json"); //options.decodeType);
+				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
 			};
 			$(window).on("message." + postmessageName, function (event) {
 				handle_success(event.originalEvent.data);
@@ -202,7 +211,7 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			
 			window[callbackName] = function (data) {
 				delete window[callbackName];
-				AjaxSupport.promiseReturnData(promise, data, "json"); //options.decodeType);
+				AjaxSupport.promiseReturnData(promise, options, data, "json"); //options.decodeType);
 			};
 			
 			var promise = Promise.create();
@@ -269,7 +278,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			    if (xmlhttp.readyState === 4) {
 			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
 				    	// TODO: Figure out response type.
-				    	AjaxSupport.promiseReturnData(promise, xmlhttp.responseText, "json"); //options.decodeType);
+				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
 			    	} else {
 			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			    	}

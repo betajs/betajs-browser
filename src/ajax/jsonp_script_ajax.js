@@ -32,7 +32,7 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			
 			window[callbackName] = function (data) {
 				delete window[callbackName];
-				AjaxSupport.promiseReturnData(promise, data, "json"); //options.decodeType);
+				AjaxSupport.promiseReturnData(promise, options, data, "json"); //options.decodeType);
 			};
 			
 			var promise = Promise.create();
