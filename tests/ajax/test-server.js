@@ -13,6 +13,19 @@ ports.forEach(function (port) {
 	var express = Express();
 
 	express.use(require("cookie-parser")());
+	express.use(function (req, res, next) {
+        var useragentString = req.headers['user-agent'];
+        var contentType = req.headers['content-type'] || '';
+        var ua = require("useragent").lookup(useragentString);
+        if (ua && ua.family === 'IE' && (ua.major === '8' || ua.major === '9')) {
+            if (req.headers.accept === '*/*') {
+                if (!contentType.length || contentType === 'text/plain') {
+                    req.headers['content-type'] = "application/x-www-form-urlencoded";
+                }
+            }
+        }
+        next();
+    });
 	express.use(require("body-parser")());
 
 	express.use("/static", Express["static"](__dirname + '/../..'));
@@ -97,7 +110,7 @@ ports.forEach(function (port) {
 			response.status(status).send(log.request.query.jsonp + "(" + JSON.stringify(responseJSON) + ");");
 		} else if (log.options.postmessage) {
 			response.header('Content-Type', 'text/html');
-			response.status(status).send("<!DOCTYPE html><script>parent.postMessage({'" + log.request.query.postmessage + "' : " + JSON.stringify(responseJSON) + " }, '*');</script>");
+			response.status(status).send("<!DOCTYPE html><script>parent.postMessage(JSON.stringify({'" + log.request.query.postmessage + "' : " + JSON.stringify(responseJSON) + " }), '*');</script>");
 		} else {
 			response.header('Content-Type', 'application/json');
 			response.status(status).send(responseJSON);

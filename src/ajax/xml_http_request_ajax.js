@@ -4,17 +4,18 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Net.HttpHeader",
     "base:Promise",
     "base:Types",
-    "base:Ajax.RequestException"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException) {
+    "base:Ajax.RequestException",
+    "module:Info"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info) {
 	
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!window.XMLHttpRequest)
 				return false;
 			if (options.forceJsonp || options.forcePostmessage)
+				return false;
+			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
 			// TODO: Check Data
 			return true;

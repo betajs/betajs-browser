@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.38 - 2016-09-09
+betajs-browser - v1.0.39 - 2016-09-18
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -13,83 +13,10 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "89.1473463292747"
+    "version": "90.1474230024783"
 };
 });
 Scoped.assumeVersion('base:version', 531);
-Scoped.define("module:JQueryAjax", [
-    "base:Net.Ajax",
-    "base:Ajax.Support",
-    "base:Net.AjaxException",
-    "base:Promise",
-    "module:Info",
-    "jquery:"
-], function (Ajax, AjaxSupport, AjaxException, Promise, BrowserInfo, $, scoped) {
-	var Cls = Ajax.extend({scoped: scoped},  {
-		
-		_asyncCall: function (options) {
-			var promise = Promise.create();
-			if (BrowserInfo.isInternetExplorer() && BrowserInfo.internetExplorerVersion() <= 9)
-				$.support.cors = true;
-			$.ajax({
-				type: options.method,
-				cache: false,
-				async: true,
-				url: options.uri,
-				jsonp: options.jsonp,
-				dataType: options.jsonp ? "jsonp" : (options.decodeType ? options.decodeType : null), 
-				data: options.encodeType && options.encodeType == "json" ? JSON.stringify(options.data) : options.data,
-				success: function (response) {
-					promise.asyncSuccess(response);
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					var err = "";
-					try {
-						err = JSON.parse(jqXHR.responseText);
-					} catch (e) {
-						try {
-							err = JSON.parse('"' + jqXHR.responseText + '"');
-						} catch (e2) {
-							err = {};
-						}
-					}
-					promise.asyncError(new AjaxException(jqXHR.status, errorThrown, err));
-				}
-			});
-			return promise;
-		}
-			
-	}, {
-		
-		supported: function (options) {
-			return true;
-		}
-		
-	});
-	
-	Ajax.register(Cls, 1);
-	
-	AjaxSupport.register({
-		supports: function () {
-			return true;
-		},
-		execute: function (options) {
-			return (new Cls()).asyncCall(options).mapSuccess(function (data) {
-				if (options && options.wrapStatus) {
-					try {
-						data = AjaxSupport.unwrapStatus(data, options.decodeType);
-					} catch (e) {
-						return Promise.error(e);
-					}
-				}
-				return data;
-			});
-		}
-	}, 1);
-	
-	return Cls;
-});
-	
 Scoped.define("module:Ajax.IframePostmessageAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
@@ -107,8 +34,6 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!options.postmessage)
 				return false;
 			return true;
@@ -150,6 +75,8 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			};				
 			var handle_success = function (raw_data) {
+				if (typeof raw_data === "string")
+					raw_data = JSON.parse(raw_data);
 				if (!(postmessageName in raw_data))
 					return;
 				raw_data = raw_data[postmessageName];
@@ -160,6 +87,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				document.body.removeChild(iframe);				
 				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
 			};
+
 			$(window).on("message." + postmessageName, function (event) {
 				handle_success(event.originalEvent.data);
 			});
@@ -185,16 +113,16 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
     "base:Types",
     "base:Ajax.RequestException",
     "base:Tokens",
-    "base:Objs"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs) {
+    "base:Objs",
+    "base:Async",
+    "module:Info"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs, Async, Info) {
 	
 	var id = 1;
 	
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!options.jsonp)
 				return false;
 			if (options.method !== "GET")
@@ -208,9 +136,17 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			params = Objs.extend(params, options.query);
 			params = Objs.extend(params, options.data);
 			var uri = Uri.appendUriParams(options.uri, params);
+			var hasResult = false;
 			
 			window[callbackName] = function (data) {
-				delete window[callbackName];
+				if (hasResult)
+					return;
+				hasResult = true;
+				try {
+					delete window[callbackName];
+				} catch (e) {
+					window[callbackName] = undefined;
+				}
 				AjaxSupport.promiseReturnData(promise, options, data, "json"); //options.decodeType);
 			};
 			
@@ -220,6 +156,9 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			var script = document.createElement("script");
 			var executed = false; 
 			script.onerror = function () {
+				if (hasResult)
+					return;
+				hasResult = true;
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
 			};			
 			script.onload = script.onreadystatechange = function() {
@@ -227,6 +166,12 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 					executed = true;
 					script.onload = script.onreadystatechange = null;
 					head.removeChild(script);
+					if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 9) {
+						Async.eventually(function () {
+							if (!hasResult)
+								script.onerror();
+						});
+					}
 				}
 			};
 
@@ -244,23 +189,95 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 });
 
 
+Scoped.define("module:Ajax.XDomainRequestAjax", [
+    "base:Ajax.Support",
+    "base:Net.Uri",
+    "base:Net.HttpHeader",
+    "base:Promise",
+    "base:Types",
+    "base:Ajax.RequestException",
+    "module:Info",
+    "base:Async"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info, Async) {
+	
+	var Module = {
+		
+		supports: function (options) {
+			if (!window.XDomainRequest)
+				return false;
+			if (options.forceJsonp || options.forcePostmessage)
+				return false;
+			if (!options.isCorsRequest)
+				return false;
+			if (!Info.isInternetExplorer() || Info.internetExplorerVersion() > 9)
+				return false;
+			// TODO: Check Data
+			return true;
+		},
+		
+		execute: function (options) {
+			var uri = Uri.appendUriParams(options.uri, options.query || {});
+			if (uri.method === "GET")
+				uri = Uri.appendUriParams(uri, options.data || {});
+			var promise = Promise.create();
+			
+			var xdomreq = new XDomainRequest();
+
+			xdomreq.onload = function () {
+		    	// TODO: Figure out response type.
+		    	AjaxSupport.promiseReturnData(promise, options, xdomreq.responseText, "json"); //options.decodeType);
+			};
+			
+			xdomreq.ontimeout = function () {
+				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT, HttpHeader.format(HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT), null, "json"); //options.decodeType);)
+			};
+			
+			xdomreq.onerror = function () {
+				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
+			};
+			
+			xdomreq.open(options.method, uri);
+			
+			Async.eventually(function () {
+				if (options.method !== "GET" && !Types.is_empty(options.data)) {
+					if (options.contentType === "json")
+						xdomreq.send(JSON.stringify(options.data));
+					else {
+						xdomreq.send(Uri.encodeUriParams(options.data));
+					}
+				} else
+					xdomreq.send();
+			}, this);
+			
+			return promise;
+		}
+			
+	};
+	
+	AjaxSupport.register(Module, 9);
+	
+	return Module;
+});
+
+
 Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
     "base:Net.HttpHeader",
     "base:Promise",
     "base:Types",
-    "base:Ajax.RequestException"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException) {
+    "base:Ajax.RequestException",
+    "module:Info"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info) {
 	
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!window.XMLHttpRequest)
 				return false;
 			if (options.forceJsonp || options.forcePostmessage)
+				return false;
+			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
 			// TODO: Check Data
 			return true;

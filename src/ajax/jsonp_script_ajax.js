@@ -6,16 +6,16 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
     "base:Types",
     "base:Ajax.RequestException",
     "base:Tokens",
-    "base:Objs"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs) {
+    "base:Objs",
+    "base:Async",
+    "module:Info"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs, Async, Info) {
 	
 	var id = 1;
 	
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!options.jsonp)
 				return false;
 			if (options.method !== "GET")
@@ -29,9 +29,17 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			params = Objs.extend(params, options.query);
 			params = Objs.extend(params, options.data);
 			var uri = Uri.appendUriParams(options.uri, params);
+			var hasResult = false;
 			
 			window[callbackName] = function (data) {
-				delete window[callbackName];
+				if (hasResult)
+					return;
+				hasResult = true;
+				try {
+					delete window[callbackName];
+				} catch (e) {
+					window[callbackName] = undefined;
+				}
 				AjaxSupport.promiseReturnData(promise, options, data, "json"); //options.decodeType);
 			};
 			
@@ -41,6 +49,9 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			var script = document.createElement("script");
 			var executed = false; 
 			script.onerror = function () {
+				if (hasResult)
+					return;
+				hasResult = true;
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
 			};			
 			script.onload = script.onreadystatechange = function() {
@@ -48,6 +59,12 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 					executed = true;
 					script.onload = script.onreadystatechange = null;
 					head.removeChild(script);
+					if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 9) {
+						Async.eventually(function () {
+							if (!hasResult)
+								script.onerror();
+						});
+					}
 				}
 			};
 

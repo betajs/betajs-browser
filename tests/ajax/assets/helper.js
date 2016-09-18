@@ -140,6 +140,8 @@ window.Helper = {
 				postmessage: !!opts.postmessage
 			});
 
+			QUnit.equal(BetaJS.Ajax.Support.preprocess({uri: request.uri}).isCorsRequest, opts.origin === "cross");
+
 			stop();
 			Helper.createCrossCookie(cookiekey, crosscookievalue).error(function () {
 				ok(false, "Setting cross cookie failed");
@@ -155,7 +157,6 @@ window.Helper = {
 						postmessage: "postmessage",
 						forceJsonp: !!opts.jsonp,
 						forcePostmessage: !!opts.postmessage,
-						experimental: true,
 						corscreds: !!opts.corscreds,
 						wrapStatus: !!opts.wrapstatus,
 						wrapStatusParam: "wrapstatus"
@@ -163,9 +164,9 @@ window.Helper = {
 						QUnit.equal(log.response.status, opts.status);
 						QUnit.equal(log.request.method, opts.method);
 						QUnit.equal(log.request.path, path);
-						QUnit.equal(log.request.query[querykey], queryvalue);
+						QUnit.equal(log.request.query[querykey], queryvalue, "Query Value");
 						if (opts.method !== "GET")
-							QUnit.deepEqual(log.request.body[datakey], datavalue);
+							QUnit.deepEqual(log.request.body[datakey], datavalue, "Data Value");
 						if (opts.cookie !== "crossornone")
 							QUnit.equal(log.request.cookies[cookiekey], opts.cookie === "same" ? cookievalue : (opts.cookie === "cross" ? crosscookievalue : undefined));
 						else if (log.request.cookies[cookiekey] === undefined)
@@ -183,7 +184,6 @@ window.Helper = {
 						postmessage: "postmessage",
 						forceJsonp: !!opts.jsonp,
 						forcePostmessage: !!opts.postmessage,
-						experimental: true,
 						corscreds: !!opts.corscreds,
 						wrapStatus: !!opts.wrapstatus,
 						wrapStatusParam: "wrapstatus"

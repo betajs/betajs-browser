@@ -15,8 +15,6 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 	var Module = {
 		
 		supports: function (options) {
-			if (!options.experimental)
-				return false;
 			if (!options.postmessage)
 				return false;
 			return true;
@@ -58,6 +56,8 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			};				
 			var handle_success = function (raw_data) {
+				if (typeof raw_data === "string")
+					raw_data = JSON.parse(raw_data);
 				if (!(postmessageName in raw_data))
 					return;
 				raw_data = raw_data[postmessageName];
@@ -68,6 +68,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				document.body.removeChild(iframe);				
 				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
 			};
+
 			$(window).on("message." + postmessageName, function (event) {
 				handle_success(event.originalEvent.data);
 			});
