@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.39 - 2016-09-18
+betajs-browser - v1.0.40 - 2016-09-27
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -996,7 +996,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.39 - 2016-09-18
+betajs-browser - v1.0.40 - 2016-09-27
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "90.1474230024783"
+    "version": "91.1475007821144"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1214,7 +1214,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 		
 		execute: function (options) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
-			if (uri.method === "GET")
+			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
 			var promise = Promise.create();
 			
@@ -1240,7 +1240,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 					if (options.contentType === "json")
 						xdomreq.send(JSON.stringify(options.data));
 					else {
-						xdomreq.send(Uri.encodeUriParams(options.data));
+						xdomreq.send(Uri.encodeUriParams(options.data, undefined, true));
 					}
 				} else
 					xdomreq.send();
@@ -1282,7 +1282,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 		
 		execute: function (options) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
-			if (uri.method === "GET")
+			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
 			var promise = Promise.create();
 			
@@ -1290,7 +1290,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status)) {
 				    	// TODO: Figure out response type.
 				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
 			    	} else {
@@ -1306,11 +1306,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
 				if (options.contentType === "json") {
-					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					if (options.sendContentType)
+						xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xmlhttp.send(JSON.stringify(options.data));
 				} else {
-					xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					xmlhttp.send(Uri.encodeUriParams(options.data));
+					if (options.sendContentType)
+						xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xmlhttp.send(Uri.encodeUriParams(options.data, undefined, true));
 				}
 			} else
 				xmlhttp.send();

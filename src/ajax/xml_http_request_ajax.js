@@ -23,7 +23,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 		
 		execute: function (options) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
-			if (uri.method === "GET")
+			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
 			var promise = Promise.create();
 			
@@ -31,7 +31,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (xmlhttp.status == HttpHeader.HTTP_STATUS_OK) {
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status)) {
 				    	// TODO: Figure out response type.
 				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
 			    	} else {
@@ -47,11 +47,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
 				if (options.contentType === "json") {
-					xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					if (options.sendContentType)
+						xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xmlhttp.send(JSON.stringify(options.data));
 				} else {
-					xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					xmlhttp.send(Uri.encodeUriParams(options.data));
+					if (options.sendContentType)
+						xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xmlhttp.send(Uri.encodeUriParams(options.data, undefined, true));
 				}
 			} else
 				xmlhttp.send();

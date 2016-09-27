@@ -26,7 +26,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 		
 		execute: function (options) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
-			if (uri.method === "GET")
+			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
 			var promise = Promise.create();
 			
@@ -52,7 +52,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 					if (options.contentType === "json")
 						xdomreq.send(JSON.stringify(options.data));
 					else {
-						xdomreq.send(Uri.encodeUriParams(options.data));
+						xdomreq.send(Uri.encodeUriParams(options.data, undefined, true));
 					}
 				} else
 					xdomreq.send();
