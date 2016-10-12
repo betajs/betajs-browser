@@ -1,10 +1,9 @@
 
 Scoped.define("module:Upload.FormIframeFileUploader", [
      "module:Upload.FileUploader",
-     "jquery:",
      "base:Net.Uri",
      "base:Objs"
-], function (FileUploader, $, Uri, Objs, scoped) {
+], function (FileUploader, Uri, Objs, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -30,10 +29,14 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 				form.appendChild(input);				
 			}, this);
 			var post_message_fallback = !("postMessage" in window);
+			var handle_success = null;
+			var message_event_handler = function (event) {
+				handle_success(event.data);
+			};
 			iframe.onerror = function () {
 				if (post_message_fallback)
 					window.postMessage = null;
-				$(window).off("message." + self.cid());
+				window.removeEventListener("message", message_event_handler);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
 				document.body.removeChild(form);
@@ -42,10 +45,10 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			};				
 			form.action = Uri.appendUriParams(this._options.url, {"_postmessage": true});
 			form.encoding = form.enctype = "multipart/form-data";
-			var handle_success = function (raw_data) {
+			handle_success = function (raw_data) {
 				if (post_message_fallback)
 					window.postMessage = null;
-				$(window).off("message." + self.cid());
+				window.removeEventListener("message", message_event_handler);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
 				var data = JSON.parse(raw_data);
@@ -53,9 +56,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 				document.body.removeChild(iframe);
 				self._successCallback(data);
 			};
-			$(window).on("message." + this.cid(), function (event) {
-				handle_success(event.originalEvent.data);
-			});
+			window.addEventListener("message", message_event_handler);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();

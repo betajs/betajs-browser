@@ -6,9 +6,8 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
     "base:Types",
     "base:Ajax.RequestException",
     "base:Tokens",
-    "base:Objs",
-    "jquery:"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs, $) {
+    "base:Objs"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Tokens, Objs) {
 	
 	var id = 1;
 	
@@ -46,16 +45,11 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 			}, this);
 			var post_message_fallback = !("postMessage" in window);
 			var self = this;
-			iframe.onerror = function () {
-				if (post_message_fallback)
-					window.postMessage = null;
-				$(window).off("message." + postmessageName);
-				document.body.removeChild(form);
-				document.body.removeChild(iframe);
-				// TODO
-				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
-			};				
-			var handle_success = function (raw_data) {
+			var handle_success = null;
+			var message_event_handler = function (event) {
+				handle_success(event.data);
+			};
+			handle_success = function (raw_data) {
 				if (typeof raw_data === "string")
 					raw_data = JSON.parse(raw_data);
 				if (!(postmessageName in raw_data))
@@ -63,15 +57,21 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				raw_data = raw_data[postmessageName];
 				if (post_message_fallback)
 					window.postMessage = null;
-				$(window).off("message." + postmessageName);
+				window.removeEventListener("message", message_event_handler);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);				
 				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
 			};
-
-			$(window).on("message." + postmessageName, function (event) {
-				handle_success(event.originalEvent.data);
-			});
+			iframe.onerror = function () {
+				if (post_message_fallback)
+					window.postMessage = null;
+				window.removeEventListener("message", message_event_handler);
+				document.body.removeChild(form);
+				document.body.removeChild(iframe);
+				// TODO
+				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			};				
+			window.addEventListener("message", message_event_handler);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();			
