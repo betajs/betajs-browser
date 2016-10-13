@@ -1010,7 +1010,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "92.1476297912483"
+    "version": "93.1476330251439"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2437,7 +2437,11 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		},
 	
 		inlineStyles: function (styles) {
-			return $('<style>' + styles + "</style>").appendTo("head");
+			var head = document.getElementsByTagName("head")[0];
+			var style = document.createElement("style");
+			style.textContent = styles;
+			head.appendChild(style);
+			return style;
 		},
 		
 		loadHtml: function (url, callback, context) {

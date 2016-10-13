@@ -37,7 +37,11 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 		},
 	
 		inlineStyles: function (styles) {
-			return $('<style>' + styles + "</style>").appendTo("head");
+			var head = document.getElementsByTagName("head")[0];
+			var style = document.createElement("style");
+			style.textContent = styles;
+			head.appendChild(style);
+			return style;
 		},
 		
 		loadHtml: function (url, callback, context) {
