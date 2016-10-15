@@ -4,9 +4,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Net.HttpHeader",
     "base:Promise",
     "base:Types",
+    "base:Objs",
     "base:Ajax.RequestException",
     "module:Info"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info) {
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, Objs, RequestException, Info) {
 	
 	var Module = {
 		
@@ -17,11 +18,21 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
-			// TODO: Check Data
+			Objs.iter(options.data, function (value) {
+				if (value instanceof Blob || value instanceof File)
+					options.requireFormData = true;
+			});
+			if (options.requireFormData) {
+				try {
+					new FormData();
+				} catch (e) {
+					options.requireFormData = false;
+				}
+			}
 			return true;
 		},
 		
-		execute: function (options) {
+		execute: function (options, progress, progressCtx) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
 			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
@@ -31,14 +42,20 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (HttpHeader.isSuccessStatus(xmlhttp.status)) {
-				    	// TODO: Figure out response type.
-				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || xmlhttp.status === 0) {
+				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, options.decodeType || "json");
 			    	} else {
-			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
 			    	}
 			    }
 			};
+			
+			if (progress) {				
+				(xmlhttp.upload || xmlhttp).onprogress = function (e) {
+					if (e.lengthComputable)
+						progress.call(progressCtx || this, e.loaded, e.total);
+				};
+			}
 			
 			xmlhttp.open(options.method, uri, true);
 
@@ -46,7 +63,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				xmlhttp.withCredentials = true;
 
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
-				if (options.contentType === "json") {
+				if (options.requireFormData) {
+					var formData = new FormData();
+					Objs.iter(options.data, function (value, key) {
+						formData.append(key, value);
+					}, this);
+					xmlhttp.send(formData);
+				} else if (options.contentType === "json") {
 					if (options.sendContentType)
 						xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xmlhttp.send(JSON.stringify(options.data));

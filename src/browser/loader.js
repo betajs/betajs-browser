@@ -1,4 +1,6 @@
-Scoped.define("module:Loader", ["jquery:"], function ($) {
+Scoped.define("module:Loader", [
+    "base:Ajax.Support"
+], function (AjaxSupport) {
 	return {				
 		
 		loadScript: function (url, callback, context) {
@@ -44,13 +46,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 			return style;
 		},
 		
-		loadHtml: function (url, callback, context) {
-			$.ajax({
-				url: url,
-				dataType: "html"
-			}).done(function(content) {
-				callback.call(context || this, content, url);
-			});
+		loadHtml: function (uri, callback, context) {
+			AjaxSupport.execute({
+				uri: uri,
+				decodeType: "html"
+			}).success(function (content) {
+				callback.call(this, content, uri);
+			}, context);
 		},
 		
 		findScript: function (substr) {

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.41 - 2016-10-12
+betajs-browser - v1.0.43 - 2016-10-15
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -13,7 +13,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "93.1476330251439"
+    "version": "94.1476572905943"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -266,9 +266,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     "base:Net.HttpHeader",
     "base:Promise",
     "base:Types",
+    "base:Objs",
     "base:Ajax.RequestException",
     "module:Info"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info) {
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, Objs, RequestException, Info) {
 	
 	var Module = {
 		
@@ -279,11 +280,21 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
-			// TODO: Check Data
+			Objs.iter(options.data, function (value) {
+				if (value instanceof Blob || value instanceof File)
+					options.requireFormData = true;
+			});
+			if (options.requireFormData) {
+				try {
+					new FormData();
+				} catch (e) {
+					options.requireFormData = false;
+				}
+			}
 			return true;
 		},
 		
-		execute: function (options) {
+		execute: function (options, progress, progressCtx) {
 			var uri = Uri.appendUriParams(options.uri, options.query || {});
 			if (options.method === "GET")
 				uri = Uri.appendUriParams(uri, options.data || {});
@@ -293,14 +304,20 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (HttpHeader.isSuccessStatus(xmlhttp.status)) {
-				    	// TODO: Figure out response type.
-				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, "json"); //options.decodeType);
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || xmlhttp.status === 0) {
+				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, options.decodeType || "json");
 			    	} else {
-			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
+			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
 			    	}
 			    }
 			};
+			
+			if (progress) {				
+				(xmlhttp.upload || xmlhttp).onprogress = function (e) {
+					if (e.lengthComputable)
+						progress.call(progressCtx || this, e.loaded, e.total);
+				};
+			}
 			
 			xmlhttp.open(options.method, uri, true);
 
@@ -308,7 +325,13 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				xmlhttp.withCredentials = true;
 
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
-				if (options.contentType === "json") {
+				if (options.requireFormData) {
+					var formData = new FormData();
+					Objs.iter(options.data, function (value, key) {
+						formData.append(key, value);
+					}, this);
+					xmlhttp.send(formData);
+				} else if (options.contentType === "json") {
 					if (options.sendContentType)
 						xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xmlhttp.send(JSON.stringify(options.data));
@@ -1401,7 +1424,9 @@ Scoped.define("module:Info", [
 	};
 });	
 
-Scoped.define("module:Loader", ["jquery:"], function ($) {
+Scoped.define("module:Loader", [
+    "base:Ajax.Support"
+], function (AjaxSupport) {
 	return {				
 		
 		loadScript: function (url, callback, context) {
@@ -1447,13 +1472,13 @@ Scoped.define("module:Loader", ["jquery:"], function ($) {
 			return style;
 		},
 		
-		loadHtml: function (url, callback, context) {
-			$.ajax({
-				url: url,
-				dataType: "html"
-			}).done(function(content) {
-				callback.call(context || this, content, url);
-			});
+		loadHtml: function (uri, callback, context) {
+			AjaxSupport.execute({
+				uri: uri,
+				decodeType: "html"
+			}).success(function (content) {
+				callback.call(this, content, uri);
+			}, context);
 		},
 		
 		findScript: function (substr) {
@@ -2487,41 +2512,20 @@ Scoped.define("module:Upload.CustomUploader", [
 Scoped.define("module:Upload.FormDataFileUploader", [
     "module:Upload.FileUploader",
     "module:Info",
-    "jquery:",
+    "base:Ajax.Support:",
     "base:Objs"
-], function (FileUploader, Info, $, Objs, scoped) {
+], function (FileUploader, Info, AjaxSupport, Objs, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
-			var self = this;
-			var formData = new FormData();
-        	formData.append("file", this._options.isBlob ? this._options.source : this._options.source.files[0]);
-        	Objs.iter(this._options.data, function (value, key) {
-        		formData.append(key, value);
-        	}, this);
-			$.ajax({
-				type: "POST",
-				async: true,
-				url: this._options.url,
-				data: formData,
-    			cache: false,
-    			contentType: false,
-				processData: false,				
-				xhr: function() {
-		            var myXhr = $.ajaxSettings.xhr();
-		            if (myXhr.upload) {
-		                myXhr.upload.addEventListener('progress', function (e) {
-							if (e.lengthComputable)
-			                	self._progressCallback(e.loaded, e.total);
-		                }, false);
-		            }
-		            return myXhr;
-		        }
-			}).success(function (data) {
-				self._successCallback(data);
-			}).error(function (data) {
-				self._errorCallback(data);
-			});
+			return AjaxSupport.execute({
+				method: "POST",
+				uri: this._options.url,
+				decodeType: "text",
+				data: Objs.extend({
+					file: this._options.isBlob ? this._options.source : this._options.source.files[0]
+				}, this._options.data)
+			}, this._progressCallback, this).success(this._successCallback, this).error(this._errorCallback, this);
 		}
 		
 	}, {
