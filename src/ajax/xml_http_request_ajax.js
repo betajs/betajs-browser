@@ -18,16 +18,15 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
-			Objs.iter(options.data, function (value) {
-				if (value instanceof Blob || value instanceof File)
-					options.requireFormData = true;
-			});
-			if (options.requireFormData) {
-				try {
+			try {
+				Objs.iter(options.data, function (value) {
+					if ((typeof Blob !== "undefined" && value instanceof Blob) || (typeof File !== "undefined" && value instanceof File))
+						options.requireFormData = true;
+				});
+				if (options.requireFormData)
 					new FormData();
-				} catch (e) {
-					options.requireFormData = false;
-				}
+			} catch (e) {
+				options.requireFormData = false;
 			}
 			return true;
 		},

@@ -1,6 +1,7 @@
 Scoped.define("module:Loader", [
-    "base:Ajax.Support"
-], function (AjaxSupport) {
+    "base:Ajax.Support",
+    "module:Info"
+], function (AjaxSupport, Info) {
 	return {				
 		
 		loadScript: function (url, callback, context) {
@@ -41,7 +42,11 @@ Scoped.define("module:Loader", [
 		inlineStyles: function (styles) {
 			var head = document.getElementsByTagName("head")[0];
 			var style = document.createElement("style");
-			style.textContent = styles;
+			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 9) {
+				style.setAttribute('type', 'text/css');
+				style.styleSheet.cssText = styles;
+			} else
+				style.textContent = styles;
 			head.appendChild(style);
 			return style;
 		},

@@ -1,10 +1,10 @@
 /*!
-betajs-browser - v1.0.43 - 2016-10-15
+betajs-browser - v1.0.44 - 2016-10-17
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
 /** @flow **//*!
-betajs-scoped - v0.0.11 - 2016-06-28
+betajs-scoped - v0.0.12 - 2016-10-02
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -29,6 +29,8 @@ return {
 			return window[key];
 		if (typeof global !== "undefined")
 			return global[key];
+		if (typeof self !== "undefined")
+			return self[key];
 		return undefined;
 	},
 
@@ -45,6 +47,8 @@ return {
 			window[key] = value;
 		if (typeof global !== "undefined")
 			global[key] = value;
+		if (typeof self !== "undefined")
+			self[key] = value;
 		return value;
 	},
 	
@@ -360,6 +364,10 @@ function newNamespace (opts/* : {tree ?: boolean, global ?: boolean, root ?: Obj
 			try {
 				if (global)
 					nsRoot.data = global;
+			} catch (e) { }
+			try {
+				if (self)
+					nsRoot.data = self;
 			} catch (e) { }
 		} else
 			nsRoot.data = options.root;
@@ -954,7 +962,7 @@ var Public = Helper.extend(rootScope, (function () {
 return {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '48.1467144390733',
+	version: '49.1475462345450',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -996,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.43 - 2016-10-15
+betajs-browser - v1.0.44 - 2016-10-17
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1010,7 +1018,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "94.1476572905943"
+    "version": "95.1476760520688"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1194,11 +1202,15 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
     "base:Types",
     "base:Ajax.RequestException",
     "module:Info",
-    "base:Async"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info, Async) {
+    "base:Async",
+    "base:Ids"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info, Async, Ids) {
 	
 	var Module = {
 		
+		// IE Garbage Collection for XDomainRequest is broken
+		__requests: {},
+			
 		supports: function (options) {
 			if (!window.XDomainRequest)
 				return false;
@@ -1219,20 +1231,24 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 			var promise = Promise.create();
 			
 			var xdomreq = new XDomainRequest();
+			Module.__requests[Ids.objectId(xdomreq)] = xdomreq;
 
 			xdomreq.onload = function () {
 		    	// TODO: Figure out response type.
 		    	AjaxSupport.promiseReturnData(promise, options, xdomreq.responseText, "json"); //options.decodeType);
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
 			
 			xdomreq.ontimeout = function () {
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT, HttpHeader.format(HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT), null, "json"); //options.decodeType);)
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
 			
 			xdomreq.onerror = function () {
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
-			
+
 			xdomreq.open(options.method, uri);
 			
 			Async.eventually(function () {
@@ -1277,16 +1293,15 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 				return false;
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 10 && options.isCorsRequest)
 				return false;
-			Objs.iter(options.data, function (value) {
-				if (value instanceof Blob || value instanceof File)
-					options.requireFormData = true;
-			});
-			if (options.requireFormData) {
-				try {
+			try {
+				Objs.iter(options.data, function (value) {
+					if ((typeof Blob !== "undefined" && value instanceof Blob) || (typeof File !== "undefined" && value instanceof File))
+						options.requireFormData = true;
+				});
+				if (options.requireFormData)
 					new FormData();
-				} catch (e) {
-					options.requireFormData = false;
-				}
+			} catch (e) {
+				options.requireFormData = false;
 			}
 			return true;
 		},
@@ -2422,8 +2437,9 @@ Scoped.define("module:Info", [
 });	
 
 Scoped.define("module:Loader", [
-    "base:Ajax.Support"
-], function (AjaxSupport) {
+    "base:Ajax.Support",
+    "module:Info"
+], function (AjaxSupport, Info) {
 	return {				
 		
 		loadScript: function (url, callback, context) {
@@ -2464,7 +2480,11 @@ Scoped.define("module:Loader", [
 		inlineStyles: function (styles) {
 			var head = document.getElementsByTagName("head")[0];
 			var style = document.createElement("style");
-			style.textContent = styles;
+			if (Info.isInternetExplorer() && Info.internetExplorerVersion() < 9) {
+				style.setAttribute('type', 'text/css');
+				style.styleSheet.cssText = styles;
+			} else
+				style.textContent = styles;
 			head.appendChild(style);
 			return style;
 		},
@@ -3544,11 +3564,13 @@ Scoped.define("module:Upload.FormDataFileUploader", [
 
 
 
+
 Scoped.define("module:Upload.FormIframeFileUploader", [
      "module:Upload.FileUploader",
      "base:Net.Uri",
-     "base:Objs"
-], function (FileUploader, Uri, Objs, scoped) {
+     "base:Objs",
+     "base:Async"
+], function (FileUploader, Uri, Objs, Async, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -3566,6 +3588,8 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			document.body.appendChild(form);
 			var oldParent = this._options.source.parent;
 			form.appendChild(this._options.source);
+			if (!this._options.source.name)
+				this._options.source.name = "file";
 			Objs.iter(this._options.data, function (value, key) {
 				var input = document.createElement("input");
 				input.type = "hidden";
@@ -3593,13 +3617,15 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			handle_success = function (raw_data) {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
-				var data = JSON.parse(raw_data);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
+				var data = JSON.parse(raw_data);
 				self._successCallback(data);
+				Async.eventually(function () {
+					window.removeEventListener("message", message_event_handler);
+				});
 			};
 			window.addEventListener("message", message_event_handler);
 			if (post_message_fallback) 
@@ -3619,6 +3645,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 
 
 
+
 Scoped.extend("module:Upload.FileUploader", [
 	"module:Upload.FileUploader",
 	"module:Upload.FormDataFileUploader",
@@ -3630,6 +3657,7 @@ Scoped.extend("module:Upload.FileUploader", [
 	FileUploader.register(CordovaFileUploader, 4);
 	return {};
 });
+
 
 
 

@@ -1,9 +1,11 @@
 
+
 Scoped.define("module:Upload.FormIframeFileUploader", [
      "module:Upload.FileUploader",
      "base:Net.Uri",
-     "base:Objs"
-], function (FileUploader, Uri, Objs, scoped) {
+     "base:Objs",
+     "base:Async"
+], function (FileUploader, Uri, Objs, Async, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -21,6 +23,8 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			document.body.appendChild(form);
 			var oldParent = this._options.source.parent;
 			form.appendChild(this._options.source);
+			if (!this._options.source.name)
+				this._options.source.name = "file";
 			Objs.iter(this._options.data, function (value, key) {
 				var input = document.createElement("input");
 				input.type = "hidden";
@@ -48,13 +52,15 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			handle_success = function (raw_data) {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
-				var data = JSON.parse(raw_data);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
+				var data = JSON.parse(raw_data);
 				self._successCallback(data);
+				Async.eventually(function () {
+					window.removeEventListener("message", message_event_handler);
+				});
 			};
 			window.addEventListener("message", message_event_handler);
 			if (post_message_fallback) 
@@ -74,6 +80,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 
 
 
+
 Scoped.extend("module:Upload.FileUploader", [
 	"module:Upload.FileUploader",
 	"module:Upload.FormDataFileUploader",
@@ -85,4 +92,5 @@ Scoped.extend("module:Upload.FileUploader", [
 	FileUploader.register(CordovaFileUploader, 4);
 	return {};
 });
+
 

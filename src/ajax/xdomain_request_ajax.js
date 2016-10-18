@@ -6,11 +6,15 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
     "base:Types",
     "base:Ajax.RequestException",
     "module:Info",
-    "base:Async"
-], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info, Async) {
+    "base:Async",
+    "base:Ids"
+], function (AjaxSupport, Uri, HttpHeader, Promise, Types, RequestException, Info, Async, Ids) {
 	
 	var Module = {
 		
+		// IE Garbage Collection for XDomainRequest is broken
+		__requests: {},
+			
 		supports: function (options) {
 			if (!window.XDomainRequest)
 				return false;
@@ -31,20 +35,24 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
 			var promise = Promise.create();
 			
 			var xdomreq = new XDomainRequest();
+			Module.__requests[Ids.objectId(xdomreq)] = xdomreq;
 
 			xdomreq.onload = function () {
 		    	// TODO: Figure out response type.
 		    	AjaxSupport.promiseReturnData(promise, options, xdomreq.responseText, "json"); //options.decodeType);
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
 			
 			xdomreq.ontimeout = function () {
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT, HttpHeader.format(HttpHeader.HTTP_STATUS_GATEWAY_TIMEOUT), null, "json"); //options.decodeType);)
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
 			
 			xdomreq.onerror = function () {
 				AjaxSupport.promiseRequestException(promise, HttpHeader.HTTP_STATUS_BAD_REQUEST, HttpHeader.format(HttpHeader.HTTP_STATUS_BAD_REQUEST), null, "json"); //options.decodeType);)
+				delete Module.__requests[Ids.objectId(xdomreq)];
 			};
-			
+
 			xdomreq.open(options.method, uri);
 			
 			Async.eventually(function () {
