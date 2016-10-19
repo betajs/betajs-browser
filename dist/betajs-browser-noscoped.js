@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.44 - 2016-10-17
+betajs-browser - v1.0.45 - 2016-10-19
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -13,7 +13,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "95.1476760520688"
+    "version": "96.1476903217418"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -555,6 +555,63 @@ Scoped.define("module:Cookies", ["base:Objs", "base:Types"], function (Objs, Typ
 	};
 });
 
+Scoped.define("module:Events", [
+    "base:Class",
+    "base:Objs",
+    "base:Functions"
+], function (Class, Objs, Functions, scoped) {
+	return Class.extend({scoped: scoped}, function (inherited) {
+		return {
+			
+			constructor: function () {
+				inherited.constructor.call(this);
+				this.__callbacks = {};
+			},
+			
+			destroy: function () {
+				Objs.iter(this.__callbacks, function (entries, event) {
+					entries.each(function () {
+						this.element.removeEventListener(event, this.callback_function);
+					});
+				});
+				inherited.destroy.call(this);
+			},
+			
+			on: function (element, event, callback, context) {
+				var callback_function = callback;
+				if (context)
+					callback_function = Functions.as_method(callback, context);
+				element.addEventListener(event, callback_function);
+				this.__callbacks[event] = this.__callbacks[event] || [];
+				this.__callbacks[event].push({
+					element: element,
+					callback_function: callback_function,
+					callback: callback,
+					context: context
+				});
+				return this;
+			},
+			
+			off: function (element, event, callback, context) {
+				var entries = this.__callbacks[event];
+				if (entries) {
+					var i = 0;
+					while (i < entries.length) {
+						var entry = entries[i];
+						if ((!element || element == entry.element) && (!callback || callback == entry.callback) && (!context || context == entry.context)) {
+							entry.element.removeEventListener(event, entry.callback_function);
+							entries[i] = entries[entries.length - 1];
+							entries.pop();
+						} else
+							++i;
+					}
+				}
+				return this;
+			}
+			
+		};
+	});	
+})
 /*
 Copyright (c) Copyright (c) 2007, Carl S. Yestrau All rights reserved.
 Code licensed under the BSD License: http://www.featureblend.com/license.txt
@@ -1530,21 +1587,19 @@ Scoped.define("module:Loader", [
 
 	};
 });
-Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], function (RouteBinder, $, scoped) {
+Scoped.define("module:HashRouteBinder", [
+    "base:Router.RouteBinder",
+    "module:Events"
+], function (RouteBinder, Events, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
 			constructor: function (router) {
 				inherited.constructor.call(this, router);
-				var self = this;
-				$(window).on("hashchange.events" + this.cid(), function () {
-					self._localRouteChanged();
-				});
-			},
-			
-			destroy: function () {				
-				$(window).off("hashchange.events" + this.cid());
-				inherited.destroy.call(this);
+				var events = this.auto_destroy(new Events());
+				events.on(window, "hashchange", function () {
+					this._localRouteChanged();
+				}, this);
 			},
 			
 			_getLocalRoute: function () {
@@ -1561,25 +1616,24 @@ Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], 
 });
 
 
-Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"], function (RouteBinder, $, scoped) {
+Scoped.define("module:HistoryRouteBinder", [
+    "base:Router.RouteBinder",
+    "module:Events"
+], function (RouteBinder, Events, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
+			__used: false,
+			
 			constructor: function (router) {
 				inherited.constructor.call(this, router);
-				var self = this;
-				this.__used = false;
-				$(window).on("popstate.events" + this.cid(), function () {
-					if (self.__used)
-						self._localRouteChanged();
-				});
+				var events = this.auto_destroy(new Events());
+				events.on(window, "hashchange", function () {
+					if (this.__used)
+						this._localRouteChanged();
+				}, this);
 			},
 			
-			destroy: function () {
-				$(window).off("popstate.events" + this.cid());
-				inherited.destroy.call(this);
-			},
-		
 			_getLocalRoute: function () {
 				return window.location.pathname;
 			},
@@ -1588,6 +1642,7 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 				window.history.pushState({}, document.title, currentRoute.route);
 				this.__used = true;
 			}
+			
 		};
 	}, {
 		supported: function () {
@@ -1597,7 +1652,9 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 });
 
 
-Scoped.define("module:LocationRouteBinder", ["base:Router.RouteBinder"], function (RouteBinder, scoped) {
+Scoped.define("module:LocationRouteBinder", [
+    "base:Router.RouteBinder"
+], function (RouteBinder, scoped) {
 	return RouteBinder.extend({scoped: scoped}, {
 		
 		_getLocalRoute: function () {

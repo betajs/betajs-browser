@@ -1,18 +1,16 @@
-Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], function (RouteBinder, $, scoped) {
+Scoped.define("module:HashRouteBinder", [
+    "base:Router.RouteBinder",
+    "module:Events"
+], function (RouteBinder, Events, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
 			constructor: function (router) {
 				inherited.constructor.call(this, router);
-				var self = this;
-				$(window).on("hashchange.events" + this.cid(), function () {
-					self._localRouteChanged();
-				});
-			},
-			
-			destroy: function () {				
-				$(window).off("hashchange.events" + this.cid());
-				inherited.destroy.call(this);
+				var events = this.auto_destroy(new Events());
+				events.on(window, "hashchange", function () {
+					this._localRouteChanged();
+				}, this);
 			},
 			
 			_getLocalRoute: function () {
@@ -29,25 +27,24 @@ Scoped.define("module:HashRouteBinder", ["base:Router.RouteBinder", "jquery:"], 
 });
 
 
-Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"], function (RouteBinder, $, scoped) {
+Scoped.define("module:HistoryRouteBinder", [
+    "base:Router.RouteBinder",
+    "module:Events"
+], function (RouteBinder, Events, scoped) {
 	return RouteBinder.extend({scoped: scoped}, function (inherited) {
 		return {
 
+			__used: false,
+			
 			constructor: function (router) {
 				inherited.constructor.call(this, router);
-				var self = this;
-				this.__used = false;
-				$(window).on("popstate.events" + this.cid(), function () {
-					if (self.__used)
-						self._localRouteChanged();
-				});
+				var events = this.auto_destroy(new Events());
+				events.on(window, "hashchange", function () {
+					if (this.__used)
+						this._localRouteChanged();
+				}, this);
 			},
 			
-			destroy: function () {
-				$(window).off("popstate.events" + this.cid());
-				inherited.destroy.call(this);
-			},
-		
 			_getLocalRoute: function () {
 				return window.location.pathname;
 			},
@@ -56,6 +53,7 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 				window.history.pushState({}, document.title, currentRoute.route);
 				this.__used = true;
 			}
+			
 		};
 	}, {
 		supported: function () {
@@ -65,7 +63,9 @@ Scoped.define("module:HistoryRouteBinder", ["base:Router.RouteBinder", "jquery:"
 });
 
 
-Scoped.define("module:LocationRouteBinder", ["base:Router.RouteBinder"], function (RouteBinder, scoped) {
+Scoped.define("module:LocationRouteBinder", [
+    "base:Router.RouteBinder"
+], function (RouteBinder, scoped) {
 	return RouteBinder.extend({scoped: scoped}, {
 		
 		_getLocalRoute: function () {
