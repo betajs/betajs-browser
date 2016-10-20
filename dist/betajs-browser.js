@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.45 - 2016-10-19
+betajs-browser - v1.0.46 - 2016-10-20
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.45 - 2016-10-19
+betajs-browser - v1.0.46 - 2016-10-20
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,7 +1018,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "96.1476903217418"
+    "version": "97.1476986148247"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1575,8 +1575,8 @@ Scoped.define("module:Events", [
 			
 			destroy: function () {
 				Objs.iter(this.__callbacks, function (entries, event) {
-					entries.each(function () {
-						this.element.removeEventListener(event, this.callback_function);
+					entries.forEach(function (entry) {
+						entry.element.removeEventListener(event, entry.callback_function);
 					});
 				});
 				inherited.destroy.call(this);
@@ -1616,7 +1616,7 @@ Scoped.define("module:Events", [
 			
 		};
 	});	
-})
+});
 /*
 Copyright (c) Copyright (c) 2007, Carl S. Yestrau All rights reserved.
 Code licensed under the BSD License: http://www.featureblend.com/license.txt
@@ -3184,22 +3184,17 @@ Scoped.define("module:DomMutation.MutationObserverNodeRemoveObserver", [
 Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 	"module:DomMutation.NodeRemoveObserver",
 	"module:Info",
-	"jquery:"
-], function (Observer, Info, $, scoped) {
+	"module:Events"
+], function (Observer, Info, Events, scoped) {
 	return Observer.extend({scoped: scoped}, function (inherited) {
 		return {
 			
 			constructor: function (node) {
 				inherited.constructor.call(this, node);
-				var self = this;
-				$(document).on("DOMNodeRemoved." + this.cid(), function (event) {
-					self._nodeRemoved(event.target);
-				});
-			},
-			
-			destroy: function () {
-				$(document).off("DOMNodeRemoved." + this.cid());
-				inherited.destroy.call(this);
+				var events = this.auto_destroy(new Events());
+				events.on(document, "DOMNodeRemoved", function (event) {
+					this._nodeRemoved(event.target);
+				}, this);
 			}
 			
 		};
@@ -3217,9 +3212,8 @@ Scoped.define("module:DomMutation.DOMNodeRemovedNodeRemoveObserver", [
 
 Scoped.define("module:DomMutation.TimerNodeRemoveObserver", [
   	"module:DomMutation.NodeRemoveObserver",
-  	"base:Timers.Timer",
-  	"jquery:"
-], function (Observer, Timer, $, scoped) {
+  	"base:Timers.Timer"
+], function (Observer, Timer, scoped) {
 	return Observer.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -3271,22 +3265,17 @@ Scoped.extend("module:DomMutation.NodeRemoveObserver", [
 Scoped.define("module:DomMutation.NodeResizeObserver", [
     "base:Class",
     "base:Events.EventsMixin",
-    "jquery:"
-], function (Class, EventsMixin, $, scoped) {
+    "module:Events"
+], function (Class, EventsMixin, Events, scoped) {
 	return Class.extend({scoped: scoped}, [EventsMixin, function (inherited) {
 		return {
 			
 			constructor: function (node) {
 				inherited.constructor.call(this);
-				var self = this;
-				$(window).on("resize." + this.cid(), function () {
-					self._resized();
-				});
-			},
-			
-			destroy: function () {
-				$(window).off("." + this.cid());
-				inherited.destroy.call(this);
+				var events = this.auto_destroy(new Events());
+				events.on(window, "resize", function (event) {
+					this._resized();
+				}, this);
 			},
 			
 			_resized: function () {
@@ -3370,23 +3359,17 @@ Scoped.define("module:DomMutation.MutationObserverNodeInsertObserver", [
 
 Scoped.define("module:DomMutation.DOMNodeInsertedNodeInsertObserver", [
 	"module:DomMutation.NodeInsertObserver",
-	"jquery:"
-], function (Observer, $, scoped) {
+	"module:Events"
+], function (Observer, Events, scoped) {
 	return Observer.extend({scoped: scoped}, function (inherited) {
 		return {
 			
 			constructor: function (options) {
-				options = options || {};
 				inherited.constructor.call(this, options);
-				var self = this;
-				$(document).on("DOMNodeInserted." + this.cid(), function (event) {
-					self._nodeInserted(event.target);
-				});
-			},
-			
-			destroy: function () {
-				$(document).off("DOMNodeInserted." + this.cid());
-				inherited.destroy.call(this);
+				var events = this.auto_destroy(new Events());
+				events.on(document, "DOMNodeInserted", function (event) {
+					this._nodeInserted(event.target);
+				}, this);
 			}
 			
 		};

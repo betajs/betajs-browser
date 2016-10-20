@@ -13,8 +13,8 @@ Scoped.define("module:Events", [
 			
 			destroy: function () {
 				Objs.iter(this.__callbacks, function (entries, event) {
-					entries.each(function () {
-						this.element.removeEventListener(event, this.callback_function);
+					entries.forEach(function (entry) {
+						entry.element.removeEventListener(event, entry.callback_function);
 					});
 				});
 				inherited.destroy.call(this);
@@ -54,4 +54,4 @@ Scoped.define("module:Events", [
 			
 		};
 	});	
-})
+});
