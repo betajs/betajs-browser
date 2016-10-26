@@ -1,13 +1,12 @@
 Scoped.define("module:DomExtend.DomExtension", [
     "base:Class",
-    "jquery:",
     "base:Objs",
     "base:Functions",
     "base:Async",
+    "module:Dom",
     "module:DomMutation.NodeRemoveObserver",
-    "module:DomMutation.NodeResizeObserver",
-    "jquery:"
-], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, $, scoped) {
+    "module:DomMutation.NodeResizeObserver"
+], function (Class, Objs, Functions, Async, Dom, NodeRemoveObserver, NodeResizeObserver, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -16,9 +15,8 @@ Scoped.define("module:DomExtend.DomExtension", [
 			
 			constructor: function (element, attrs) {
 				inherited.constructor.call(this);
-				this._element = element;
-				this._$element = $(element);
-				element.domExtension = this;
+				this._element = Dom.unbox(element);
+				this._element.domExtension = this;
 				this._actualBB = null;
 				this._idealBB = null;
 				this._attrs = attrs || {};
@@ -29,20 +27,20 @@ Scoped.define("module:DomExtend.DomExtension", [
 					this._element[method] = Functions.as_method(this[method], this);
 				}, this);
 				Async.eventually(function () {
-					this._nodeRemoveObserver = this.auto_destroy(new NodeRemoveObserver(element));
+					this._nodeRemoveObserver = this.auto_destroy(new NodeRemoveObserver(this._element));
 					this._nodeRemoveObserver.on("node-removed", this.weakDestroy, this);
-					this._nodeResizeObserver = this.auto_destroy(new NodeResizeObserver(element));
+					this._nodeResizeObserver = this.auto_destroy(new NodeResizeObserver(this._element));
 					this._nodeResizeObserver.on("node-resized", function () {
 						this.recomputeBB();
 						this._notify("resized");
 					}, this);
 				}, this);
-				if (!this._$element.css("display") || this._$element.css("display") == "inline")
-					this._$element.css("display", "inline-block");
+				if (!this._element.style.display || this._element.style.display == "inline")
+					this._element.style.display = "inline-block";
 			},
 			
 			domEvent: function (eventName) {
-				this._$element.trigger(eventName);
+				Dom.triggerDomEvent(this._element, eventName);
 			},
 			
 			readAttr: function (key) {
@@ -85,26 +83,26 @@ Scoped.define("module:DomExtend.DomExtension", [
 			},
 			
 			computeActualBB: function (idealBB) {
-				var width = this._$element.width();
-				//var height = this._$element.height();
-				if (this._$element.width() < idealBB.width && !this._element.style.width) {
+				var width = Dom.elementDimensions(this._element).width;
+				//var height = Dom.elementDimensions(this._element).height;
+				if (width < idealBB.width && !this._element.style.width) {
 					this._element.style.width = idealBB.width + "px";
-					width = this._$element.width();
-					var current = this._$element;
-					while (current.get(0) != document) {
-						current = current.parent();
-						width = Math.min(width, current.width());
+					width = Dom.elementDimensions(this._element).width;
+					var current = this._element;
+					while (current != document) {
+						current = current.parentNode;
+						width = Math.min(width, Dom.elementDimensions(current).width);
 					}
 					this._element.style.width = null;
 				}
 				/*
-				if (this._$element.height() < idealBB.height && !this._element.style.height) {
+				if (height < idealBB.height && !this._element.style.height) {
 					this._element.style.height = idealBB.height + "px";
-					height = this._$element.height();
-					var current = this._$element;
-					while (current.get(0) != document) {
-						current = current.parent();
-						height = Math.min(height, current.height());
+					height = Dom.elementDimensions(this._element).height;
+					var current = this._element;
+					while (current != document) {
+						current = current.parentNode;
+						height = Math.min(height, Dom.elementDimensions(current).height);
 					}
 					this._element.style.height = null;
 				}

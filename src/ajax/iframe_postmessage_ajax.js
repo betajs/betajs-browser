@@ -57,7 +57,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				raw_data = raw_data[postmessageName];
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);				
 				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
@@ -65,13 +65,13 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 			iframe.onerror = function () {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
 				// TODO
 				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			};				
-			window.addEventListener("message", message_event_handler);
+			window.addEventListener("message", message_event_handler, false);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();			

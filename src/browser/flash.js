@@ -131,22 +131,22 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 
 
 Scoped.define("module:FlashHelper", [
-    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "jquery:"
-], function (Time, Objs, Types, Uri, Ids, Info, $) {
+    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "module:Dom"
+], function (Time, Objs, Types, Uri, Ids, Info, Dom) {
 	return {
 		
 		getFlashObject: function (container) {
-			var embed = $(container).find("embed").get(0);
+			container = Dom.unbox(container);
+			var embed = container.getElementsByTagName("EMBED")[0];
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 10)
 				embed = null;
 			if (!embed)
-				embed = $(container).find("object").get(0);
+				embed = container.getElementsByTagName("OBJECT")[0];
 			if (!embed) {
-				var objs = $("object");
-				for (var i = 0; i < objs.length; ++i) {
-					if ($(objs[i]).closest(container).length > 0)
-						embed = $(objs[i]).get(0);
-				}
+				var objs = document.getElementsByTagName("OBJECT");
+				for (var i = 0; i < objs.length; ++i)
+					if (container.contains(objs[i]))
+						embed = objs[i];
 			}
 			return embed;
 		},
@@ -249,11 +249,11 @@ Scoped.define("module:FlashHelper", [
 		},
 		
 		embedFlashObject: function (container, options) {
+			container = Dom.unbox(container);
 			options = options || {};
-			var $container = $(container);
 			if (options.parentBgcolor) {
 				try {
-					var hex = $container.css("background-color");
+					var hex = container.style.backgroundColor || "";
 					if (hex.indexOf("rgb") >= 0) {
 						var rgb = hex.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
 					    var convert = function (x) {
@@ -267,14 +267,14 @@ Scoped.define("module:FlashHelper", [
 			}
 			if (options.fixHalfPixels) {
 				try {
-					var offset = $container.offset();
+					var offset = Dom.elementOffset(container);
 					if (offset.top % 1 !== 0)
-						$container.css("margin-top", (Math.round(offset.top) - offset.top) + "px");
+						container.style.marginTop = (Math.round(offset.top) - offset.top) + "px";
 					if (offset.left % 1 !== 0)
-						$container.css("margin-left", (Math.round(offset.left) - offset.left) + "px");
+						container.style.marginLeft = (Math.round(offset.left) - offset.left) + "px";
 				} catch (e) {}
 			}
-			$container.html(this.embedTemplate(options));
+			container.innerHTML = this.embedTemplate(options);
 			return this.getFlashObject(container);
 		}
 		

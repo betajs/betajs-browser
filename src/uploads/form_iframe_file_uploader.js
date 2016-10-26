@@ -40,7 +40,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			iframe.onerror = function () {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
 				document.body.removeChild(form);
@@ -59,10 +59,10 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 				var data = JSON.parse(raw_data);
 				self._successCallback(data);
 				Async.eventually(function () {
-					window.removeEventListener("message", message_event_handler);
+					window.removeEventListener("message", message_event_handler, false);
 				});
 			};
-			window.addEventListener("message", message_event_handler);
+			window.addEventListener("message", message_event_handler, false);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();

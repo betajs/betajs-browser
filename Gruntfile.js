@@ -36,7 +36,7 @@ module.exports = function(grunt) {
     .packageTask()
     
     /* Dependencies */
-    .dependenciesTask(null, { github: ['betajs/betajs-scoped/dist/scoped.js', 'betajs/betajs/dist/beta-noscoped.js'] })
+    .dependenciesTask(null, { github: ['betajs/betajs-scoped/dist/scoped.js', 'betajs/betajs/dist/beta-noscoped.js', 'betajs/betajs-shims/dist/betajs-shims.js'] })
 
     /* Markdown Files */
 	.readmeTask()

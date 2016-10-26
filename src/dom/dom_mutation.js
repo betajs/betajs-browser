@@ -246,10 +246,11 @@ Scoped.define("module:DomMutation.DOMNodeInsertedNodeInsertObserver", [
 		return {
 			
 			constructor: function (options) {
+				options = options || {};
 				inherited.constructor.call(this, options);
 				var events = this.auto_destroy(new Events());
 				events.on(document, "DOMNodeInserted", function (event) {
-					this._nodeInserted(event.target);
+					this._nodeInserted(event.target, true);
 				}, this);
 			}
 			

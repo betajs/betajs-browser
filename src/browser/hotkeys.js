@@ -7,7 +7,9 @@
  * License : BSD
  */
 
-Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
+Scoped.define("module:Hotkeys", [
+	"base:Objs"
+], function (Objs) {
 	return {		
 		
 		SHIFT_NUMS: {
@@ -105,7 +107,6 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 				"target": document,
 				"keycode": false
 			}, options);
-			options.target = $(options.target);
 			var keys = hotkey.toLowerCase().split("+");
 			var func = function (e) {
 				if (options.disable_in_input) {
@@ -145,7 +146,7 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 						e.preventDefault();
 				}
 			};
-			options.target.on(options.type, func);
+			options.target.addEventListener(options.type, func, false);
 			return {
 				target: options.target,
 				type: options.type,
@@ -154,7 +155,7 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 		},
 		
 		unregister: function (handle) {
-			handle.target.off(handle.type, handle.func);
+			handle.target.removeEventListener(handle.type, handle.func, false);
 		} 
 		
 	};

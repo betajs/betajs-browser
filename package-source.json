@@ -1,6 +1,6 @@
 {
 	"name": "betajs-browser",
-	"version": "1.0.46",
+	"version": "1.0.47",
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
 	"contributors": ["Oliver Friedmann"],
 	"devDependencies": {
@@ -59,7 +59,8 @@
 			"Android": "4.0 - Latest" 
 		},
 		"weakDependencies": {
-			"betajs-scoped": "https://github.com/betajs/betajs-scoped"
+			"betajs-scoped": "https://github.com/betajs/betajs-scoped",
+			"betajs-shims": "https://github.com/betajs/betajs-shims"
 		},
 		"dependencies": {
 			"betajs": "https://github.com/betajs/betajs"

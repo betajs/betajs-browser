@@ -80,6 +80,10 @@ Scoped.define("module:Upload.FileUploader", [
 					this.__upload();
 					return;
 				}
+				if (!this._options.essential) {
+					this._successCallback({});
+					return;
+				}
 				this._data = data;
 				this._setState("error", data);
 			}
@@ -96,6 +100,7 @@ Scoped.define("module:Upload.FileUploader", [
 				serverSupportPostMessage: false,
 				isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
 				resilience: 1,
+				essential: true,
 				data: {}
 			}, options);
 		}

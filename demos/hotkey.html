@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hotkey</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="../vendors/scoped.js"></script>
+        <script src="../vendors/beta-noscoped.js"></script>
+        <script src="../dist/betajs-browser-noscoped.js"></script>
+	</head>
+	<body>
+		<input />
+		<script>		
+			BetaJS.Browser.Hotkeys.register("Ctrl+T", function () {
+				alert("Test");
+			}, this, {
+				disable_in_input: true
+			});
+		</script>
+	</body>
+</html>

@@ -14,7 +14,7 @@ Scoped.define("module:Events", [
 			destroy: function () {
 				Objs.iter(this.__callbacks, function (entries, event) {
 					entries.forEach(function (entry) {
-						entry.element.removeEventListener(event, entry.callback_function);
+						entry.element.removeEventListener(event, entry.callback_function, false);
 					});
 				});
 				inherited.destroy.call(this);
@@ -24,7 +24,7 @@ Scoped.define("module:Events", [
 				var callback_function = callback;
 				if (context)
 					callback_function = Functions.as_method(callback, context);
-				element.addEventListener(event, callback_function);
+				element.addEventListener(event, callback_function, false);
 				this.__callbacks[event] = this.__callbacks[event] || [];
 				this.__callbacks[event].push({
 					element: element,
@@ -42,7 +42,7 @@ Scoped.define("module:Events", [
 					while (i < entries.length) {
 						var entry = entries[i];
 						if ((!element || element == entry.element) && (!callback || callback == entry.callback) && (!context || context == entry.context)) {
-							entry.element.removeEventListener(event, entry.callback_function);
+							entry.element.removeEventListener(event, entry.callback_function, false);
 							entries[i] = entries[entries.length - 1];
 							entries.pop();
 						} else

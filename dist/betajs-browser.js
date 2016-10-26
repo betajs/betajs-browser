@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.46 - 2016-10-20
+betajs-browser - v1.0.47 - 2016-10-24
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.46 - 2016-10-20
+betajs-browser - v1.0.47 - 2016-10-24
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,7 +1018,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "97.1476986148247"
+    "version": "98.1477334995947"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1081,7 +1081,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 				raw_data = raw_data[postmessageName];
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);				
 				AjaxSupport.promiseReturnData(promise, options, raw_data, "json"); //options.decodeType);
@@ -1089,13 +1089,13 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
 			iframe.onerror = function () {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				document.body.removeChild(form);
 				document.body.removeChild(iframe);
 				// TODO
 				//AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, "json"); //options.decodeType);)
 			};				
-			window.addEventListener("message", message_event_handler);
+			window.addEventListener("message", message_event_handler, false);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();			
@@ -1576,7 +1576,7 @@ Scoped.define("module:Events", [
 			destroy: function () {
 				Objs.iter(this.__callbacks, function (entries, event) {
 					entries.forEach(function (entry) {
-						entry.element.removeEventListener(event, entry.callback_function);
+						entry.element.removeEventListener(event, entry.callback_function, false);
 					});
 				});
 				inherited.destroy.call(this);
@@ -1586,7 +1586,7 @@ Scoped.define("module:Events", [
 				var callback_function = callback;
 				if (context)
 					callback_function = Functions.as_method(callback, context);
-				element.addEventListener(event, callback_function);
+				element.addEventListener(event, callback_function, false);
 				this.__callbacks[event] = this.__callbacks[event] || [];
 				this.__callbacks[event].push({
 					element: element,
@@ -1604,7 +1604,7 @@ Scoped.define("module:Events", [
 					while (i < entries.length) {
 						var entry = entries[i];
 						if ((!element || element == entry.element) && (!callback || callback == entry.callback) && (!context || context == entry.context)) {
-							entry.element.removeEventListener(event, entry.callback_function);
+							entry.element.removeEventListener(event, entry.callback_function, false);
 							entries[i] = entries[entries.length - 1];
 							entries.pop();
 						} else
@@ -1750,22 +1750,22 @@ Scoped.define("module:FlashDetect", ["base:Class"], function (Class, scoped) {
 
 
 Scoped.define("module:FlashHelper", [
-    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "jquery:"
-], function (Time, Objs, Types, Uri, Ids, Info, $) {
+    "base:Time", "base:Objs", "base:Types", "base:Net.Uri", "base:Ids", "module:Info", "module:Dom"
+], function (Time, Objs, Types, Uri, Ids, Info, Dom) {
 	return {
 		
 		getFlashObject: function (container) {
-			var embed = $(container).find("embed").get(0);
+			container = Dom.unbox(container);
+			var embed = container.getElementsByTagName("EMBED")[0];
 			if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 10)
 				embed = null;
 			if (!embed)
-				embed = $(container).find("object").get(0);
+				embed = container.getElementsByTagName("OBJECT")[0];
 			if (!embed) {
-				var objs = $("object");
-				for (var i = 0; i < objs.length; ++i) {
-					if ($(objs[i]).closest(container).length > 0)
-						embed = $(objs[i]).get(0);
-				}
+				var objs = document.getElementsByTagName("OBJECT");
+				for (var i = 0; i < objs.length; ++i)
+					if (container.contains(objs[i]))
+						embed = objs[i];
 			}
 			return embed;
 		},
@@ -1868,11 +1868,11 @@ Scoped.define("module:FlashHelper", [
 		},
 		
 		embedFlashObject: function (container, options) {
+			container = Dom.unbox(container);
 			options = options || {};
-			var $container = $(container);
 			if (options.parentBgcolor) {
 				try {
-					var hex = $container.css("background-color");
+					var hex = container.style.backgroundColor || "";
 					if (hex.indexOf("rgb") >= 0) {
 						var rgb = hex.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
 					    var convert = function (x) {
@@ -1886,14 +1886,14 @@ Scoped.define("module:FlashHelper", [
 			}
 			if (options.fixHalfPixels) {
 				try {
-					var offset = $container.offset();
+					var offset = Dom.elementOffset(container);
 					if (offset.top % 1 !== 0)
-						$container.css("margin-top", (Math.round(offset.top) - offset.top) + "px");
+						container.style.marginTop = (Math.round(offset.top) - offset.top) + "px";
 					if (offset.left % 1 !== 0)
-						$container.css("margin-left", (Math.round(offset.left) - offset.left) + "px");
+						container.style.marginLeft = (Math.round(offset.left) - offset.left) + "px";
 				} catch (e) {}
 			}
-			$container.html(this.embedTemplate(options));
+			container.innerHTML = this.embedTemplate(options);
 			return this.getFlashObject(container);
 		}
 		
@@ -1909,7 +1909,9 @@ Scoped.define("module:FlashHelper", [
  * License : BSD
  */
 
-Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
+Scoped.define("module:Hotkeys", [
+	"base:Objs"
+], function (Objs) {
 	return {		
 		
 		SHIFT_NUMS: {
@@ -2007,7 +2009,6 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 				"target": document,
 				"keycode": false
 			}, options);
-			options.target = $(options.target);
 			var keys = hotkey.toLowerCase().split("+");
 			var func = function (e) {
 				if (options.disable_in_input) {
@@ -2047,7 +2048,7 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 						e.preventDefault();
 				}
 			};
-			options.target.on(options.type, func);
+			options.target.addEventListener(options.type, func, false);
 			return {
 				target: options.target,
 				type: options.type,
@@ -2056,7 +2057,7 @@ Scoped.define("module:Hotkeys", ["base:Objs", "jquery:"], function (Objs, $) {
 		},
 		
 		unregister: function (handle) {
-			handle.target.off(handle.type, handle.func);
+			handle.target.removeEventListener(handle.type, handle.func, false);
 		} 
 		
 	};
@@ -2674,18 +2675,11 @@ Scoped.define("module:LocationRouteBinder", [
 });
 
 Scoped.define("module:Dom", [
-    "base:Objs",
     "jquery:",
     "base:Types",
     "module:Info"
-], function (Objs, $, Types, Info) {
+], function ($, Types, Info) {
 	return {
-		
-		outerHTML: function (element) {
-			if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
-				return element.outerHTML;
-			return $('<div>').append($(element).clone()).html();
-		},
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
@@ -2700,138 +2694,95 @@ Scoped.define("module:Dom", [
 		},		
 		
 		traverseNext: function (node, skip_children) {
-			if ("get" in node)
-				node = node.get(0);
+			node = this.unbox(node);
 			if (node.firstChild && !skip_children)
-				return $(node.firstChild);
+				return node.firstChild;
 			if (!node.parentNode)
 				return null;
 			if (node.nextSibling)
-				return $(node.nextSibling);
+				return node.nextSibling;
 			return this.traverseNext(node.parentNode, true);
 		},
-		
-		/** @suppress {checkTypes} */
-		selectNode : function(node, offset) {
-			node = $(node).get(0);
-			var selection = null;
-			var range = null;
-			if (window.getSelection) {
-				selection = window.getSelection();
-				selection.removeAllRanges();
-				range = document.createRange();
-			} else if (document.selection) {
-				selection = document.selection;
-				range = selection.createRange();
-			}
-			if (offset) {
-				range.setStart(node, offset);
-				range.setEnd(node, offset);
-				selection.addRange(range);
-			} else {
-				range.selectNode(node);
-				selection.addRange(range);
-			}
-		},
-	
-		/** @suppress {checkTypes} */
-		selectionStartNode : function() {
-			if (window.getSelection)
-				return $(window.getSelection().getRangeAt(0).startContainer);
-			else if (document.selection)
-				return $(document.selection.createRange().startContainer);
-			return null;
+				
+		splitNode: function (node, start_offset, end_offset) {
+			start_offset = start_offset || 0;
+			end_offset = end_offset || (node.wholeText ? node.wholeText.length : 0);
+			if (end_offset < (node.wholeText ? node.wholeText.length : 0))
+				node.splitText(end_offset);
+			if (start_offset > 0) 
+				node = node.splitText(start_offset);
+			return node;
 		},
 		
-		/** @suppress {checkTypes} */
-		selectedHtml : function() {
-			if (window.getSelection)
-				return window.getSelection().toString();
-			else if (document.selection)
-				return document.selection.createRange().htmlText;
-			return "";
-		},
+		__FULLSCREEN_EVENTS: ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"],
+		__FULLSCREEN_METHODS: ["requestFullscreen", "webkitRequestFullscreen", "mozRequestFullScreen", "msRequestFullscreen"],
+		__FULLSCREEN_ATTRS: ["fullscreenElement", "webkitFullscreenElement", "mozFullScreenElement", "msFullscreenElement"],
 		
-		/** @suppress {checkTypes} */
-		selectionAncestor : function() {
-			if (window.getSelection)
-				return $(window.getSelection().getRangeAt(0).commonAncestorContainer);
-			else if (document.selection)
-				return $(document.selection.createRange().parentElement());
-			return null;
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionStartOffset: function () {
-			if (window.getSelection)
-				return window.getSelection().getRangeAt(0).startOffset;
-			else if (document.selection)
-				return document.selection.createRange().startOffset;
-			return null;
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionEndOffset: function () {
-			if (window.getSelection)
-				return window.getSelection().getRangeAt(0).endOffset;
-			else if (document.selection)
-				return document.selection.createRange().endOffset;
-			return null;
-		},
-	
-		/** @suppress {checkTypes} */
-		selectionStart : function() {
-			if (window.getSelection)
-				return $(window.getSelection().getRangeAt(0).startContainer);
-			else if (document.selection)
-				return $(document.selection.createRange().startContainer);
-			return null;
-		},
-	
-		/** @suppress {checkTypes} */
-		selectionEnd : function() {
-			if (window.getSelection)
-				return $(window.getSelection().getRangeAt(0).endContainer);
-			else if (document.selection)
-				return $(document.selection.createRange().endContainer);
-			return null;
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionNonEmpty: function () {
-			var start = this.selectionStart();
-			var end = this.selectionEnd();
-			return start && end && start.get(0) && end.get(0) && (start.get(0) != end.get(0) || this.selectionStartOffset() != this.selectionEndOffset());
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionContained: function (node) {
-			return node.has(this.selectionStart()).length > 0 && node.has(this.selectionEnd()).length > 0;
-		},
-	
-		/** @suppress {checkTypes} */
-		selectionNodes: function () {
-			var result = [];
-			var start = this.selectionStart();
-			var end = this.selectionEnd();
-			result.push(start);
-			var current = start;
-			while (current.get(0) != end.get(0)) {
-				current = this.traverseNext(current);
-				result.push(current);
-			}
-			return result;
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionLeaves: function () {
-			return Objs.filter(this.selectionNodes(), function (node) { return node.children().length === 0; });
-		},
-		
-		contentSiblings: function (node) {
-			return node.parent().contents().filter(function () {
-				return this != node.get(0);
+		elementSupportsFullscreen: function (element) {
+			return this.__FULLSCREEN_METHODS.some(function (key) {
+				return key in element;
 			});
+		},
+		
+		elementEnterFullscreen: function (element) {
+			var done = false;
+			this.__FULLSCREEN_METHODS.forEach(function (key) {
+				if (!done && (key in element)) {
+					element[key].call(element);
+					done = true;
+				}
+			});
+		},
+		
+		elementIsFullscreen: function (element) {
+			return this.__FULLSCREEN_ATTRS.some(function (key) {
+				return document[key] === element;
+			});
+		},
+		
+		elementOnFullscreenChange: function (element, callback, context) {
+			var self = this;
+			var listener = function () {
+				callback.call(context || this, element, self.elementIsFullscreen(element));
+			};
+			this.__FULLSCREEN_EVENTS.forEach(function (event) {
+				element.addEventListener(event, listener, false);
+			});
+			return listener;
+		},
+		
+		elementOffFullscreenChange: function (element, listener) {
+			this.__FULLSCREEN_EVENTS.forEach(function (event) {
+				element.removeEventListener(event, listener, false);
+			});
+		},
+
+		
+		/* Rest depends on jQuery */
+		
+		outerHTML: function (element) {
+           if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
+               return element.outerHTML;
+           return $('<div>').append($(element).clone()).html();
+        },
+			              
+		unbox: function (element) {
+			return $(element).get(0);
+		},
+		
+		elementOffset: function (element) {
+			return $(element).offset();
+		},
+		
+		elementDimensions: function (element) {
+			return {
+				width: $(element).width(),
+				height: $(element).height()
+			};
+		},
+		
+		triggerDomEvent: function (element, eventName) {
+			$(element).trigger(eventName);
 		},
 		
 		remove_tag_from_parent_path: function (node, tag, context) {	
@@ -2842,66 +2793,11 @@ Scoped.define("module:Dom", [
 				var parent = parents.get(i);
 				parent = $(parent);
 				while (node.get(0) != parent.get(0)) {
-					this.contentSiblings(node).wrap("<" + tag + "></" + tag + ">");
+					this.contentSiblings(node.get(0)).wrap("<" + tag + "></" + tag + ">");
 					node = node.parent();
 				}
 				parent.contents().unwrap();
 			}
-		},
-		
-		/** @suppress {checkTypes} */
-		selectionSplitOffsets: function () {
-			var startOffset = this.selectionStartOffset();
-			var endOffset = this.selectionEndOffset();
-			var start = this.selectionStart();
-			var end = this.selectionEnd();
-			var single = start.get(0) == end.get(0);
-			if (endOffset < end.get(0).wholeText.length) {
-				var endElem = end.get(0);
-				endElem.splitText(endOffset);
-				end = $(endElem);
-				if (single)
-					start = end;
-			}
-			if (startOffset > 0) {
-				start = $(start.get(0).splitText(startOffset));
-				if (single)
-					end = start;
-			}
-			this.selectRange(start, end);
-		},
-		
-		/** @suppress {checkTypes} */
-		selectRange: function (start_node, end_node, start_offset, end_offset) {
-			start_node = $(start_node);
-			end_node = $(end_node);
-			var selection = null;
-			var range = null;
-			if (window.getSelection) {
-				selection = window.getSelection();
-				selection.removeAllRanges();
-				range = document.createRange();
-			} else if (document.selection) {
-				selection = document.selection;
-				range = selection.createRange();
-			}
-			range.setStart(start_node.get(0), start_offset || 0);
-			range.setEnd(end_node.get(0), end_offset || end_node.get(0).data.length);
-			selection.addRange(range);
-		},
-		
-		splitNode: function (node, start_offset, end_offset) {
-			node = $(node);
-			start_offset = start_offset || 0;
-			end_offset = end_offset || node.get(0).data.length;
-			if (end_offset < node.get(0).data.length) {
-				var elem = node.get(0);
-				elem.splitText(end_offset);
-				node = $(elem);
-			}
-			if (start_offset > 0) 
-				node = $(node.get(0).splitText(start_offset));
-			return node;
 		},
 		
 		entitiesToUnicode: function (s) {
@@ -2915,60 +2811,10 @@ Scoped.define("module:Dom", [
 			return s;
 		},
 		
-		elementSupportsFullscreen: function (element) {
-			return [
-			    "requestFullscreen",
-			    "webkitRequestFullscreen",
-			    "mozRequestFullScreen",
-			    "msRequestFullscreen"
-			].some(function (key) {
-				return key in element;
+		contentSiblings: function (node) {
+			return $(node.parentNode).contents().filter(function () {
+				return this != node.get(0);
 			});
-		},
-		
-		elementEnterFullscreen: function (element) {
-			Objs.iter([
-			    "requestFullscreen",
-			    "webkitRequestFullscreen",
-			    "mozRequestFullScreen",
-			    "msRequestFullscreen"
-			], function (key) {
-				if (key in element)
-					element[key].call(element);
-				return !(key in element);
-			});
-		},
-		
-		elementIsFullscreen: function (element) {
-			return [
-			    "fullscreenElement",
-			    "webkitFullscreenElement",
-			    "mozFullScreenElement",
-			    "msFullscreenElement"
-			].some(function (key) {
-				return document[key] === element;
-			});
-		},
-		
-		elementOnFullscreenChange: function (element, callback, context) {
-			var self = this;
-			$(element).on([
-			    "fullscreenchange",
-			    "webkitfullscreenchange",
-			    "mozfullscreenchange",
-			    "MSFullscreenChange"
-            ].join(" "), function () {
-				callback.call(context || this, element, self.elementIsFullscreen(element));
-			});
-		},
-		
-		elementOffFullscreenChange: function (element) {
-			$(element).off([
-			    "fullscreenchange",
-			    "webkitfullscreenchange",
-			    "mozfullscreenchange",
-			    "MSFullscreenChange"
-            ].join(" "));
 		}
 		
 				
@@ -2976,14 +2822,13 @@ Scoped.define("module:Dom", [
 });
 Scoped.define("module:DomExtend.DomExtension", [
     "base:Class",
-    "jquery:",
     "base:Objs",
     "base:Functions",
     "base:Async",
+    "module:Dom",
     "module:DomMutation.NodeRemoveObserver",
-    "module:DomMutation.NodeResizeObserver",
-    "jquery:"
-], function (Class, jquery, Objs, Functions, Async, NodeRemoveObserver, NodeResizeObserver, $, scoped) {
+    "module:DomMutation.NodeResizeObserver"
+], function (Class, Objs, Functions, Async, Dom, NodeRemoveObserver, NodeResizeObserver, scoped) {
 	return Class.extend({scoped: scoped}, function (inherited) {
 		return {
 			
@@ -2992,9 +2837,8 @@ Scoped.define("module:DomExtend.DomExtension", [
 			
 			constructor: function (element, attrs) {
 				inherited.constructor.call(this);
-				this._element = element;
-				this._$element = $(element);
-				element.domExtension = this;
+				this._element = Dom.unbox(element);
+				this._element.domExtension = this;
 				this._actualBB = null;
 				this._idealBB = null;
 				this._attrs = attrs || {};
@@ -3005,20 +2849,20 @@ Scoped.define("module:DomExtend.DomExtension", [
 					this._element[method] = Functions.as_method(this[method], this);
 				}, this);
 				Async.eventually(function () {
-					this._nodeRemoveObserver = this.auto_destroy(new NodeRemoveObserver(element));
+					this._nodeRemoveObserver = this.auto_destroy(new NodeRemoveObserver(this._element));
 					this._nodeRemoveObserver.on("node-removed", this.weakDestroy, this);
-					this._nodeResizeObserver = this.auto_destroy(new NodeResizeObserver(element));
+					this._nodeResizeObserver = this.auto_destroy(new NodeResizeObserver(this._element));
 					this._nodeResizeObserver.on("node-resized", function () {
 						this.recomputeBB();
 						this._notify("resized");
 					}, this);
 				}, this);
-				if (!this._$element.css("display") || this._$element.css("display") == "inline")
-					this._$element.css("display", "inline-block");
+				if (!this._element.style.display || this._element.style.display == "inline")
+					this._element.style.display = "inline-block";
 			},
 			
 			domEvent: function (eventName) {
-				this._$element.trigger(eventName);
+				Dom.triggerDomEvent(this._element, eventName);
 			},
 			
 			readAttr: function (key) {
@@ -3061,26 +2905,26 @@ Scoped.define("module:DomExtend.DomExtension", [
 			},
 			
 			computeActualBB: function (idealBB) {
-				var width = this._$element.width();
-				//var height = this._$element.height();
-				if (this._$element.width() < idealBB.width && !this._element.style.width) {
+				var width = Dom.elementDimensions(this._element).width;
+				//var height = Dom.elementDimensions(this._element).height;
+				if (width < idealBB.width && !this._element.style.width) {
 					this._element.style.width = idealBB.width + "px";
-					width = this._$element.width();
-					var current = this._$element;
-					while (current.get(0) != document) {
-						current = current.parent();
-						width = Math.min(width, current.width());
+					width = Dom.elementDimensions(this._element).width;
+					var current = this._element;
+					while (current != document) {
+						current = current.parentNode;
+						width = Math.min(width, Dom.elementDimensions(current).width);
 					}
 					this._element.style.width = null;
 				}
 				/*
-				if (this._$element.height() < idealBB.height && !this._element.style.height) {
+				if (height < idealBB.height && !this._element.style.height) {
 					this._element.style.height = idealBB.height + "px";
-					height = this._$element.height();
-					var current = this._$element;
-					while (current.get(0) != document) {
-						current = current.parent();
-						height = Math.min(height, current.height());
+					height = Dom.elementDimensions(this._element).height;
+					var current = this._element;
+					while (current != document) {
+						current = current.parentNode;
+						height = Math.min(height, Dom.elementDimensions(current).height);
 					}
 					this._element.style.height = null;
 				}
@@ -3365,10 +3209,11 @@ Scoped.define("module:DomMutation.DOMNodeInsertedNodeInsertObserver", [
 		return {
 			
 			constructor: function (options) {
+				options = options || {};
 				inherited.constructor.call(this, options);
 				var events = this.auto_destroy(new Events());
 				events.on(document, "DOMNodeInserted", function (event) {
-					this._nodeInserted(event.target);
+					this._nodeInserted(event.target, true);
 				}, this);
 			}
 			
@@ -3393,6 +3238,168 @@ Scoped.extend("module:DomMutation.NodeInsertObserver", [
 	return {};
 });
 
+Scoped.define("module:Selection", [
+    "module:Dom"
+], function (Dom) {
+	return {
+		
+		/** @suppress {checkTypes} */
+		selectNode : function(node, offset) {
+			var selection = null;
+			var range = null;
+			if (window.getSelection) {
+				selection = window.getSelection();
+				selection.removeAllRanges();
+				range = document.createRange();
+			} else if (document.selection) {
+				selection = document.selection;
+				range = selection.createRange();
+			}
+			if (offset) {
+				range.setStart(node, offset);
+				range.setEnd(node, offset);
+				selection.addRange(range);
+			} else {
+				range.selectNode(node);
+				selection.addRange(range);
+			}
+		},
+	
+		/** @suppress {checkTypes} */
+		selectedHtml : function() {
+			if (window.getSelection)
+				return window.getSelection().toString();
+			else if (document.selection)
+				return document.selection.createRange().htmlText;
+			return "";
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionStartOffset: function () {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).startOffset;
+			else if (document.selection)
+				return document.selection.createRange().startOffset;
+			return null;
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionEndOffset: function () {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).endOffset;
+			else if (document.selection)
+				return document.selection.createRange().endOffset;
+			return null;
+		},
+	
+		/** @suppress {checkTypes} */
+		selectionNonEmpty: function () {
+			var start = this.selectionStart();
+			var end = this.selectionEnd();
+			return start && end && start && end && (start != end || this.selectionStartOffset() != this.selectionEndOffset());
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionContained: function (node) {
+			return node.contains(this.selectionStart()) && node.contains(this.selectionEnd());
+		},
+	
+		/** @suppress {checkTypes} */
+		selectionNodes: function () {
+			var result = [];
+			var start = this.selectionStart();
+			var end = this.selectionEnd();
+			result.push(start);
+			var current = start;
+			while (current != end) {
+				current = Dom.traverseNext(current);
+				result.push(current);
+			}
+			return result;
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionLeaves: function () {
+			return this.selectionNodes().filter(function (node) {
+				return !node.hasChildNodes();
+			});
+		},
+				
+		/** @suppress {checkTypes} */
+		selectionStartNode : function() {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).startContainer;
+			else if (document.selection)
+				return document.selection.createRange().startContainer;
+			return null;
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionAncestor : function() {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).commonAncestorContainer;
+			else if (document.selection)
+				return document.selection.createRange().parentElement();
+			return null;
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionStart : function() {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).startContainer;
+			else if (document.selection)
+				return document.selection.createRange().startContainer;
+			return null;
+		},
+	
+		/** @suppress {checkTypes} */
+		selectionEnd : function() {
+			if (window.getSelection)
+				return window.getSelection().getRangeAt(0).endContainer;
+			else if (document.selection)
+				return document.selection.createRange().endContainer;
+			return null;
+		},
+		
+		/** @suppress {checkTypes} */
+		selectionSplitOffsets: function () {
+			var startOffset = this.selectionStartOffset();
+			var endOffset = this.selectionEndOffset();
+			var start = this.selectionStart();
+			var end = this.selectionEnd();
+			var single = start == end;
+			if (endOffset < end.wholeText.length) {
+				end.splitText(endOffset);
+				if (single)
+					start = end;
+			}
+			if (startOffset > 0) {
+				start = start.splitText(startOffset);
+				if (single)
+					end = start;
+			}
+			this.selectRange(start, end);
+		},
+		
+		/** @suppress {checkTypes} */
+		selectRange: function (start_node, end_node, start_offset, end_offset) {
+			var selection = null;
+			var range = null;
+			if (window.getSelection) {
+				selection = window.getSelection();
+				selection.removeAllRanges();
+				range = document.createRange();
+			} else if (document.selection) {
+				selection = document.selection;
+				range = selection.createRange();
+			}
+			range.setStart(start_node, start_offset || 0);
+			range.setEnd(end_node, end_offset || end_node.data.length);
+			selection.addRange(range);
+		}
+						
+	};
+});
 
 
 Scoped.define("module:Upload.CordovaFileUploader", [
@@ -3518,6 +3525,10 @@ Scoped.define("module:Upload.FileUploader", [
 					this.__upload();
 					return;
 				}
+				if (!this._options.essential) {
+					this._successCallback({});
+					return;
+				}
 				this._data = data;
 				this._setState("error", data);
 			}
@@ -3534,6 +3545,7 @@ Scoped.define("module:Upload.FileUploader", [
 				serverSupportPostMessage: false,
 				isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
 				resilience: 1,
+				essential: true,
 				data: {}
 			}, options);
 		}
@@ -3645,7 +3657,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 			iframe.onerror = function () {
 				if (post_message_fallback)
 					window.postMessage = null;
-				window.removeEventListener("message", message_event_handler);
+				window.removeEventListener("message", message_event_handler, false);
 				if (oldParent)
 					oldParent.appendChild(self._options.source);
 				document.body.removeChild(form);
@@ -3664,10 +3676,10 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 				var data = JSON.parse(raw_data);
 				self._successCallback(data);
 				Async.eventually(function () {
-					window.removeEventListener("message", message_event_handler);
+					window.removeEventListener("message", message_event_handler, false);
 				});
 			};
-			window.addEventListener("message", message_event_handler);
+			window.addEventListener("message", message_event_handler, false);
 			if (post_message_fallback) 
 				window.postMessage = handle_success;
 			form.submit();
