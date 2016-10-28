@@ -25,8 +25,8 @@ Scoped.define("module:Info", [
 		
 		__cache: {},
 		
-		__cached: function (key, value_func) {
-			if (!(key in this.__cache)) {
+		__cached: function (key, value_func, force) {
+			if (!(key in this.__cache) || force) {
 				var n = this.getNavigator();
 				this.__cache[key] = value_func.call(this, n, n.userAgent, n.userAgent.toLowerCase());
 			}
@@ -44,10 +44,10 @@ Scoped.define("module:Info", [
 			});
 		},
 	
-		flash: function () {
+		flash: function (force) {
 			return this.__cached("flash", function () {
 				return new FlashDetect();
-			});
+			}, force);
 		},
 		
 		isiOS: function () {
