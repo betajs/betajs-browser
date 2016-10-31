@@ -84,12 +84,6 @@ Scoped.define("module:Dom", [
 		
 		/* Rest depends on jQuery */
 		
-		outerHTML: function (element) {
-           if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
-               return element.outerHTML;
-           return $('<div>').append($(element).clone()).html();
-        },
-			              
 		unbox: function (element) {
 			return $(element).get(0);
 		},

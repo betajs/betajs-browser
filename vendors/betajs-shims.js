@@ -1,5 +1,5 @@
 /*!
-betajs-shims - v0.0.7 - 2016-10-17
+betajs-shims - v0.0.8 - 2016-10-31
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -233,6 +233,27 @@ Apache-2.0 Software License.
 }).call((function () {
 	try {
 		return Window.prototype;
+	} catch (e) {
+		return null;
+	}
+}).call(this));
+
+(function() {
+	if (!this || !Object.defineProperty || !Object.getOwnPropertyDescriptor || Object.getOwnPropertyDescriptor(this, "outerHTML"))
+		return;
+    Object.defineProperty(this, "outerHTML", {
+       get: function() {
+    	   var temp = document.createElement("div");
+    	   temp.appendChild(this.cloneNode(true));
+    	   var result = temp.innerHTML;
+    	   if (temp.remove)
+    		   temp.remove();
+    	   return result;
+       }
+   });
+}).call((function () {
+	try {
+		return Element.prototype;
 	} catch (e) {
 		return null;
 	}

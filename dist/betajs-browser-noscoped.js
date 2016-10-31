@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.48 - 2016-10-28
+betajs-browser - v1.0.49 - 2016-10-31
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -13,7 +13,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "99.1477628702031"
+    "version": "100.1477956720020"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1755,12 +1755,6 @@ Scoped.define("module:Dom", [
 		
 		/* Rest depends on jQuery */
 		
-		outerHTML: function (element) {
-           if (!Info.isFirefox() || Info.firefoxVersion() >= 11)
-               return element.outerHTML;
-           return $('<div>').append($(element).clone()).html();
-        },
-			              
 		unbox: function (element) {
 			return $(element).get(0);
 		},
