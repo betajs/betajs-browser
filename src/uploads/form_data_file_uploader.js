@@ -2,7 +2,7 @@
 Scoped.define("module:Upload.FormDataFileUploader", [
     "module:Upload.FileUploader",
     "module:Info",
-    "base:Ajax.Support:",
+    "base:Ajax.Support",
     "base:Objs"
 ], function (FileUploader, Info, AjaxSupport, Objs, scoped) {
 	return FileUploader.extend({scoped: scoped}, {

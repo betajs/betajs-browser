@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.49 - 2016-10-31
+betajs-browser - v1.0.50 - 2016-11-01
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.49 - 2016-10-31
+betajs-browser - v1.0.50 - 2016-11-01
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,7 +1018,7 @@ Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "100.1477956720020"
+    "version": "101.1478008570733"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2757,6 +2757,17 @@ Scoped.define("module:Dom", [
 			});
 		},
 
+		entitiesToUnicode: function (s) {
+			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
+				return s;
+			var temp = document.createElement("span");
+			temp.innerHTML = s;
+			s = temp.textContent;
+			if (temp.remove)
+				temp.remove();
+			return s;
+		},
+		
 		
 		/* Rest depends on jQuery */
 		
@@ -2792,17 +2803,6 @@ Scoped.define("module:Dom", [
 				}
 				parent.contents().unwrap();
 			}
-		},
-		
-		entitiesToUnicode: function (s) {
-			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
-				return s;
-			var temp = document.createElement("span");
-			temp.innerHTML = s;
-			s = $(temp).text();
-			if (temp.remove)
-				temp.remove();
-			return s;
 		},
 		
 		contentSiblings: function (node) {
@@ -3575,7 +3575,7 @@ Scoped.define("module:Upload.CustomUploader", [
 Scoped.define("module:Upload.FormDataFileUploader", [
     "module:Upload.FileUploader",
     "module:Info",
-    "base:Ajax.Support:",
+    "base:Ajax.Support",
     "base:Objs"
 ], function (FileUploader, Info, AjaxSupport, Objs, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
@@ -3798,8 +3798,8 @@ Scoped.define("module:Upload.ResumableFileUploader", [
     "resumablejs:",
     "base:Async",
     "base:Objs",
-    "jquery:"
-], function (FileUploader, ResumableJS, Async, Objs, $, scoped) {
+    "base:Ajax.Support"
+], function (FileUploader, ResumableJS, Async, Objs, AjaxSupport, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -3830,31 +3830,26 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		_resumableSuccessCallback: function (file, message, resilience) {
 			if (resilience <= 0)
 				this._errorCallback(message);
-			var self = this;
-			$.ajax({
-				type: "POST",
-				async: true,
-				url: this._options.resumable.assembleUrl,
-				dataType: null, 
+			AjaxSupport.execute({
+				method: "POST",
+				uri: this._options.resumable.assembleUrl,
 				data: Objs.extend({
 					resumableIdentifier: file.file.uniqueIdentifier,
 					resumableFilename: file.file.fileName || file.file.name,
 					resumableTotalSize: file.file.size,
 					resumableType: file.file.type
-				}, this._options.data),
-				success: function (response) {
-					self._successCallback(message);
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					if (self._options.resumable.acceptedAssembleError && self._options.resumable.acceptedAssembleError == jqXHR.status) {
-						self._successCallback(message);
-						return;
-					}
-					Async.eventually(function () {
-						self._resumableSuccessCallback(file, message, resilience - 1);
-					}, self._options.resumable.assembleResilienceTimeout || 0);
+				}, this._options.data)
+			}).success(function () {
+				this._successCallback(message);
+			}, this).error(function (e) {
+				if (this._options.resumable.acceptedAssembleError && this._options.resumable.acceptedAssembleError == e.status_code()) {
+					this._successCallback(message);
+					return;
 				}
-			});
+				Async.eventually(function () {
+					this._resumableSuccessCallback(file, message, resilience - 1);
+				}, this, this._options.resumable.assembleResilienceTimeout || 0);
+			}, this);
 		}
 		
 	}, {

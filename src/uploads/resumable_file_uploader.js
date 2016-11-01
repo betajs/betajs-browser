@@ -4,8 +4,8 @@ Scoped.define("module:Upload.ResumableFileUploader", [
     "resumablejs:",
     "base:Async",
     "base:Objs",
-    "jquery:"
-], function (FileUploader, ResumableJS, Async, Objs, $, scoped) {
+    "base:Ajax.Support"
+], function (FileUploader, ResumableJS, Async, Objs, AjaxSupport, scoped) {
 	return FileUploader.extend({scoped: scoped}, {
 		
 		_upload: function () {
@@ -36,31 +36,26 @@ Scoped.define("module:Upload.ResumableFileUploader", [
 		_resumableSuccessCallback: function (file, message, resilience) {
 			if (resilience <= 0)
 				this._errorCallback(message);
-			var self = this;
-			$.ajax({
-				type: "POST",
-				async: true,
-				url: this._options.resumable.assembleUrl,
-				dataType: null, 
+			AjaxSupport.execute({
+				method: "POST",
+				uri: this._options.resumable.assembleUrl,
 				data: Objs.extend({
 					resumableIdentifier: file.file.uniqueIdentifier,
 					resumableFilename: file.file.fileName || file.file.name,
 					resumableTotalSize: file.file.size,
 					resumableType: file.file.type
-				}, this._options.data),
-				success: function (response) {
-					self._successCallback(message);
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					if (self._options.resumable.acceptedAssembleError && self._options.resumable.acceptedAssembleError == jqXHR.status) {
-						self._successCallback(message);
-						return;
-					}
-					Async.eventually(function () {
-						self._resumableSuccessCallback(file, message, resilience - 1);
-					}, self._options.resumable.assembleResilienceTimeout || 0);
+				}, this._options.data)
+			}).success(function () {
+				this._successCallback(message);
+			}, this).error(function (e) {
+				if (this._options.resumable.acceptedAssembleError && this._options.resumable.acceptedAssembleError == e.status_code()) {
+					this._successCallback(message);
+					return;
 				}
-			});
+				Async.eventually(function () {
+					this._resumableSuccessCallback(file, message, resilience - 1);
+				}, this, this._options.resumable.assembleResilienceTimeout || 0);
+			}, this);
 		}
 		
 	}, {

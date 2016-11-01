@@ -81,6 +81,17 @@ Scoped.define("module:Dom", [
 			});
 		},
 
+		entitiesToUnicode: function (s) {
+			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
+				return s;
+			var temp = document.createElement("span");
+			temp.innerHTML = s;
+			s = temp.textContent;
+			if (temp.remove)
+				temp.remove();
+			return s;
+		},
+		
 		
 		/* Rest depends on jQuery */
 		
@@ -116,17 +127,6 @@ Scoped.define("module:Dom", [
 				}
 				parent.contents().unwrap();
 			}
-		},
-		
-		entitiesToUnicode: function (s) {
-			if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
-				return s;
-			var temp = document.createElement("span");
-			temp.innerHTML = s;
-			s = $(temp).text();
-			if (temp.remove)
-				temp.remove();
-			return s;
 		},
 		
 		contentSiblings: function (node) {
