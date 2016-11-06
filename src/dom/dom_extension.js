@@ -89,7 +89,7 @@ Scoped.define("module:DomExtend.DomExtension", [
 					this._element.style.width = idealBB.width + "px";
 					width = Dom.elementDimensions(this._element).width;
 					var current = this._element;
-					while (current != document) {
+					while (current != document.body) {
 						current = current.parentNode;
 						width = Math.min(width, Dom.elementDimensions(current).width);
 					}

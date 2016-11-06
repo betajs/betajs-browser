@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.50 - 2016-11-01
+betajs-browser - v1.0.50 - 2016-11-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -8,12 +8,11 @@ Apache-2.0 Software License.
 var Scoped = this.subScope();
 Scoped.binding('module', 'global:BetaJS.Browser');
 Scoped.binding('base', 'global:BetaJS');
-Scoped.binding('jquery', 'global:jQuery');
 Scoped.binding('resumablejs', 'global:Resumable');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "101.1478008570733"
+    "version": "102.1478470033492"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1670,10 +1669,9 @@ Scoped.define("module:LocationRouteBinder", [
 });
 
 Scoped.define("module:Dom", [
-    "jquery:",
     "base:Types",
     "module:Info"
-], function ($, Types, Info) {
+], function (Types, Info) {
 	return {
 		
 		changeTag: function (node, name) {
@@ -1757,56 +1755,113 @@ Scoped.define("module:Dom", [
 				return s;
 			var temp = document.createElement("span");
 			temp.innerHTML = s;
-			s = temp.textContent;
+			s = temp.textContent || temp.innerText;
 			if (temp.remove)
 				temp.remove();
 			return s;
 		},
 		
-		
-		/* Rest depends on jQuery */
-		
 		unbox: function (element) {
-			return $(element).get(0);
-		},
-		
-		elementOffset: function (element) {
-			return $(element).offset();
-		},
-		
-		elementDimensions: function (element) {
-			return {
-				width: $(element).width(),
-				height: $(element).height()
-			};
+			return !element || element.nodeType ? element : element.get(0);
 		},
 		
 		triggerDomEvent: function (element, eventName) {
-			$(element).trigger(eventName);
-		},
-		
-		remove_tag_from_parent_path: function (node, tag, context) {	
-			tag = tag.toLowerCase();
-			node = $(node);
-			var parents = node.parents(context ? context + " " + tag : tag);
-			for (var i = 0; i < parents.length; ++i) {
-				var parent = parents.get(i);
-				parent = $(parent);
-				while (node.get(0) != parent.get(0)) {
-					this.contentSiblings(node.get(0)).wrap("<" + tag + "></" + tag + ">");
-					node = node.parent();
+			element = this.unbox(element);
+			eventName = eventName.toLowerCase();
+			var onEvent = "on" + eventName;
+			var onEventHandler = null;
+			var onEventCalled = false;
+			if (element[onEvent]) {
+				onEventHandler = element[onEvent];
+				element[onEvent] = function () {
+					if (onEventCalled)
+						return;
+					onEventCalled = true;
+					onEventHandler.apply(this, arguments);
+				};
+			}
+			try {
+				var event;
+				try {
+					event = new Event(eventName);
+				} catch (e) {
+					try {
+						event = document.createEvent('Event');
+						event.initEvent(eventName, false, false);
+					} catch (e) {
+						event = document.createEventObject();
+						event.type = eventName;
+					}
 				}
-				parent.contents().unwrap();
+				element.dispatchEvent(event);
+				if (onEventHandler) {
+					if (!onEventCalled)
+						onEventHandler.call(element, event);
+					element[onEvent] = onEventHandler;
+				}
+			} catch (e) {
+				if (onEventHandler)
+					element[onEvent] = onEventHandler;
+				throw e;
 			}
 		},
 		
-		contentSiblings: function (node) {
-			return $(node.parentNode).contents().filter(function () {
-				return this != node.get(0);
-			});
+		elementOffset: function (element) {
+			element = this.unbox(element);
+			var top = 0;
+			var left = 0;
+			if (element.getBoundingClientRect) {
+				var box = element.getBoundingClientRect();
+				top = box.top;
+				left = box.left;
+			}
+			docElem = document.documentElement;
+			return {
+				top: top + (window.pageYOffset || docElem.scrollTop) - (docElem.clientTop || 0),
+				left: left + (window.pageXOffset || docElem.scrollLeft) - (docElem.clientLeft || 0)
+			};
+		},
+		
+		elementDimensions: function (element) {
+			element = this.unbox(element);
+			var cs, w, h;
+			if (window.getComputedStyle) {
+				cs = window.getComputedStyle(element);
+				w = parseInt(cs.width, 10);
+				h = parseInt(cs.height, 10);
+				if (w && h) {
+					return {
+						width: w,
+						height: h
+					};
+				}
+			}
+			if (element.currentStyle) {
+				cs = element.currentStyle;
+				w = element.clientWidth - parseInt(cs.paddingLeft || 0, 10) - parseInt(cs.paddingRight || 0, 10);
+				h = element.clientHeight - parseInt(cs.paddingTop || 0, 10) - parseInt(cs.paddingTop || 0, 10);
+				if (w && h) {
+					return {
+						width: w,
+						height: h
+					};
+				}
+			}
+			if (element.getBoundingClientRect) {
+				var box = element.getBoundingClientRect();
+				h = box.bottom - box.top;
+				w = box.right - box.left;
+				return {
+					width: w,
+					height: h
+				};
+			}
+			return {
+				width: 0,
+				height: 0
+			};
 		}
 		
-				
 	};
 });
 Scoped.define("module:DomExtend.DomExtension", [
@@ -1900,7 +1955,7 @@ Scoped.define("module:DomExtend.DomExtension", [
 					this._element.style.width = idealBB.width + "px";
 					width = Dom.elementDimensions(this._element).width;
 					var current = this._element;
-					while (current != document) {
+					while (current != document.body) {
 						current = current.parentNode;
 						width = Math.min(width, Dom.elementDimensions(current).width);
 					}

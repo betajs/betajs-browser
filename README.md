@@ -15,7 +15,6 @@ You can use the library in the browser and compile it as well.
 #### Browser
 
 ```javascript
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script src="betajs/dist/betajs.min.js"></script>
 	<script src="betajs-browser/dist/betajs-browser.min.js"></script>
 ``` 
@@ -61,11 +60,11 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 ## Compatability
 | Target | Versions |
 | :----- | -------: |
-| Firefox | 4 - Latest |
+| Firefox | 6 - Latest |
 | Chrome | 15 - Latest |
 | Safari | 4 - Latest |
 | Opera | 12 - Latest |
-| Internet Explorer | 6 - Latest |
+| Internet Explorer | 8 - Latest |
 | Edge | 12 - Latest |
 | iOS | 7.0 - Latest |
 | Android | 4.0 - Latest |
@@ -99,10 +98,9 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 | betajs-shims | [Open](https://github.com/betajs/betajs-shims) |
 
 
-## Contributors
+## Main Contributors
 
 - Oliver Friedmann
-
 
 ## License
 
@@ -114,3 +112,13 @@ Apache-2.0
 This software may include modified and unmodified portions of:
 - FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau
 - Keyboard Shortcuts, BSD Software License, (c) Binny V A
+
+
+
+
+## Sponsors
+
+- Ziggeo
+- Browserstack
+
+

@@ -1,5 +1,5 @@
 /*!
-betajs-shims - v0.0.8 - 2016-11-01
+betajs-shims - v0.0.10 - 2016-11-05
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -200,7 +200,23 @@ Apache-2.0 Software License.
 		}
 	};
 	this.dispatchEvent = this.dispatchEvent || function (eventObject) {
-		return this.fireEvent("on" + eventObject.type, eventObject);
+		var type = eventObject.type;
+		var onEvent = "on" + type;
+		try {
+			return this.fireEvent(onEvent, eventObject);
+		} catch (e) {
+			var E = Element;
+			try {
+				E = HTMLElement;
+			} catch (e) {}
+			if (onEvent in E.prototype)
+				throw e;
+			if (this.__eventlisteners && this.__eventlisteners[type]) {
+				for (var i = 0; i < this.__eventlisteners[type].length; ++i) {
+					this.__eventlisteners[type][i].wrapper.call(this, eventObject);
+				}
+			}
+		}
 	};
 }).call((function () {
 	try {
@@ -251,21 +267,6 @@ Apache-2.0 Software License.
     	   return result;
        }
    });
-}).call((function () {
-	try {
-		return Element.prototype;
-	} catch (e) {
-		return null;
-	}
-}).call(this));
-(function() {
-	if (!this || !Object.defineProperty || !Object.getOwnPropertyDescriptor || Object.getOwnPropertyDescriptor(this, "textContent"))
-		return;
-    Object.defineProperty(this, "textContent", {
-       get: function() {
-    	   return this.innerText;
-       }
-    });
 }).call((function () {
 	try {
 		return Element.prototype;

@@ -9,12 +9,6 @@ We assume that we already have created a router:
   var router = new BetaJS.Router.Router();
 ```
 
-To bind a hash location route binder, we need to include the following external dependency:
-
-```html
-<script src="http://cdn.rawgit.com/cowboy/jquery-hashchange/master/jquery.ba-hashchange.js"></script>
-```
-
 Then, we can add the location hash route binder as follows:
 
 ```js
