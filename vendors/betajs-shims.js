@@ -1,5 +1,5 @@
 /*!
-betajs-shims - v0.0.10 - 2016-11-05
+betajs-shims - v0.0.11 - 2016-11-12
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -184,20 +184,30 @@ Apache-2.0 Software License.
         if (eventMap[type])
         	wrapper = eventMap[type].wrapper(wrapper);
         this.attachEvent("on" + (eventMap[type] ? eventMap[type].event : type), wrapper);
-        this.__eventlisteners = this.__eventlisteners || {};
-        this.__eventlisteners[type] = this.__eventlisteners[type] || [];
-        this.__eventlisteners[type].push({listener:listener, wrapper:wrapper});
+        try {
+	        this.__eventlisteners = this.__eventlisteners || {};
+	        this.__eventlisteners[type] = this.__eventlisteners[type] || [];
+	        this.__eventlisteners[type].push({listener:listener, wrapper:wrapper});
+        } catch (e) {
+        	listener.__eventwrapper = wrapper;
+        }
 	};
 	this.removeEventListener = this.removeEventListener || function (type, listener, useCapture) {
-		if (this.__eventlisteners && this.__eventlisteners[type]) {
-			for (var i = 0; i < this.__eventlisteners[type].length; ++i) {
-				if (this.__eventlisteners[type][i].listener === listener) {
-		            this.detachEvent("on" + (eventMap[type] ? eventMap[type].event : type), this.__eventlisteners[type][i].wrapper);
-		            this.__eventlisteners[type].splice(i, 1);
-		            return;
+		try {
+			if (this.__eventlisteners && this.__eventlisteners[type]) {
+				for (var i = 0; i < this.__eventlisteners[type].length; ++i) {
+					if (this.__eventlisteners[type][i].listener === listener) {
+			            this.detachEvent("on" + (eventMap[type] ? eventMap[type].event : type), this.__eventlisteners[type][i].wrapper);
+			            this.__eventlisteners[type].splice(i, 1);
+			            return;
+					}
 				}
 			}
-		}
+		} catch (e) {}
+		try {
+			if (listener.__eventwrapper)
+				this.detachEvent("on" + (eventMap[type] ? eventMap[type].event : type), listener.__eventwrapper);
+		} catch (e) {}
 	};
 	this.dispatchEvent = this.dispatchEvent || function (eventObject) {
 		var type = eventObject.type;

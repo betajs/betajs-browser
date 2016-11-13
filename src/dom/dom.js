@@ -12,7 +12,8 @@ Scoped.define("module:Dom", [
 			}
 		    while (node.firstChild)
 		        replacement.appendChild(node.firstChild);
-		    node.parentNode.replaceChild(replacement, node);
+		    if (node.parentNode)
+		    	node.parentNode.replaceChild(replacement, node);
 			return replacement;
 		},		
 		

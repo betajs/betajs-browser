@@ -44,7 +44,9 @@ test("element offset", function () {
 	var roundOuter = BetaJS.Browser.Info.isInternetExplorer() && BetaJS.Browser.Info.internetExplorerVersion() <= 9;
 	var floorInner = (BetaJS.Browser.Info.isSafari() && BetaJS.Browser.Info.safariVersion() <= 4) ||
 	                 (BetaJS.Browser.Info.isOpera() && BetaJS.Browser.Info.operaVersion() < 13) ||
-	                 (BetaJS.Browser.Info.isChrome() && BetaJS.Browser.Info.chromeVersion() <= 15);
+	                 (BetaJS.Browser.Info.isChrome() && BetaJS.Browser.Info.chromeVersion() <= 15) ||
+	                 (BetaJS.Browser.Info.isiOS() && BetaJS.Browser.Info.iOSversion().major < 8) ||
+	                 (BetaJS.Browser.Info.isAndroid());
 	var roundIf = function (value, enable) { return enable ? Math.round(value) : value; };
 	var floorIf = function (value, enable) { return enable ? Math.floor(value) : value; };
 	QUnit.equal(offset.left, roundIf(floorIf(outerLeft, floorInner) + floorIf(innerLeft, floorInner), roundOuter));
