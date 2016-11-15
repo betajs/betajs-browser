@@ -15,7 +15,7 @@
         "url": "https://github.com/betajs/betajs-browser/issues"
     },
     "name": "betajs-browser",
-    "version": "1.0.51",
+    "version": "1.0.52",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
@@ -78,8 +78,8 @@
             "Opera": "12 - Latest",
             "Internet Explorer": "8 - Latest",
             "Edge": "12 - Latest",
-            "iOS": "7.0 - Latest",
-            "Android": "4.0 - Latest"
+            "iOS": "3.0 - Latest",
+            "Android": "2.2 - Latest"
         },
         "weakDependencies": {
             "betajs-scoped": "https://github.com/betajs/betajs-scoped",

@@ -1,4 +1,4 @@
-# betajs-browser 1.0.51
+# betajs-browser 1.0.52
 [![Build Status](https://api.travis-ci.org/betajs/betajs-browser.svg?branch=master)](https://travis-ci.org/betajs/betajs-browser)
 [![Code Climate](https://codeclimate.com/github/betajs/betajs-browser/badges/gpa.svg)](https://codeclimate.com/github/betajs/betajs-browser)
 
@@ -66,8 +66,8 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 | Opera | 12 - Latest |
 | Internet Explorer | 8 - Latest |
 | Edge | 12 - Latest |
-| iOS | 7.0 - Latest |
-| Android | 4.0 - Latest |
+| iOS | 3.0 - Latest |
+| Android | 2.2 - Latest |
 
 
 ## CDN

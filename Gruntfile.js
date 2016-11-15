@@ -25,8 +25,7 @@ module.exports = function(grunt) {
     		         grunt.file.expand(["./tests/fragments/test-jsdom.js", "./tests/common/*.js"]),
     		         ['./tests/fragments/init-jsdom.js', './vendors/scoped.js', './vendors/beta-noscoped.js'])
     .closureTask(null, ["./vendors/scoped.js", "./vendors/beta-noscoped.js", "./dist/betajs-browser-noscoped.js"], null, { })
-    .browserstackTask(null, 'tests/tests.html', {desktop: true, mobile: false})
-    .browserstackTask(null, 'tests/tests.html', {desktop: false, mobile: true})
+    .browserstackTask(null, 'tests/tests.html', {desktop: true, mobile: true})
     .lintTask(null, ['./src/**/*.js', './dist/' + dist + '-noscoped.js', './dist/' + dist + '.js', './Gruntfile.js', './tests/**/*.js'])
     
     /* External Configurations */

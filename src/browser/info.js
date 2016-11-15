@@ -137,6 +137,19 @@ Scoped.define("module:Info", [
 			});
 		},
 		
+		androidVersion: function () {
+			return this.__cached("androidVersion", function (nav) {
+				if (!this.isAndroid())
+					return false;
+			    var v = (nav.userAgent).match(/Android (\d+)\.(\d+)\.?(\d+)?/);
+			    return {
+			    	major: parseInt(v[1], 10),
+			    	minor: parseInt(v[2], 10),
+			    	revision: parseInt(v[3] || 0, 10)
+			    };
+			});
+		},
+
 		isMobile: function () {
 			return this.__cached("isMobile", function () {
 				return this.isiOS() || this.isAndroid() || this.isWebOS() || this.isWindowsPhone() || this.isBlackberry();

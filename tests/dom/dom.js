@@ -32,7 +32,9 @@ test("trigger click dom event", function () {
 	document.body.removeChild(element);
 });
 
+if (!(BetaJS.Browser.Info.isiOS() && BetaJS.Browser.Info.iOSversion().major < 4)) {
 test("element offset", function () {
+	console.log(navigator.userAgent);
 	var outerLeft = 20.25;
 	var outerTop = 10.75;
 	var innerLeft = 42.5;
@@ -46,14 +48,14 @@ test("element offset", function () {
 	                 (BetaJS.Browser.Info.isOpera() && BetaJS.Browser.Info.operaVersion() < 13) ||
 	                 (BetaJS.Browser.Info.isChrome() && BetaJS.Browser.Info.chromeVersion() <= 15) ||
 	                 (BetaJS.Browser.Info.isiOS() && BetaJS.Browser.Info.iOSversion().major < 8) ||
-	                 (BetaJS.Browser.Info.isAndroid());
+	                 (BetaJS.Browser.Info.isAndroid()  && BetaJS.Browser.Info.androidVersion().major < 4);
 	var roundIf = function (value, enable) { return enable ? Math.round(value) : value; };
 	var floorIf = function (value, enable) { return enable ? Math.floor(value) : value; };
 	QUnit.equal(offset.left, roundIf(floorIf(outerLeft, floorInner) + floorIf(innerLeft, floorInner), roundOuter));
 	QUnit.equal(offset.top, roundIf(floorIf(outerTop, floorInner) + floorIf(innerTop, floorInner), roundOuter));
 	parent.remove();
 });
-
+}
 
 test("element width height", function () {
 	var parent = $("<div style='border:13px solid black;margin:17px;padding:19px;display:inline-block;box-sizing:content-box;background:green' id='inner'><div style='background:red;width:11px;height:11px;border:3px solid black;margin:5px;padding:7px;box-sizing:content-box'></div></div>");
