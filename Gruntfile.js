@@ -63,6 +63,7 @@ module.exports = function(grunt) {
 	grunt.initConfig(gruntHelper.config);
 	
 	grunt.registerTask("ajaxqunit", ["shell:ajaxqunit"]);
+	grunt.registerTask("filesqunit", ["shell:filesqunit"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
