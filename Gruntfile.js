@@ -20,6 +20,8 @@ module.exports = function(grunt) {
 
     /* Testing */
     .browserqunitTask(null, "tests/tests.html")
+    .browserqunitTask("ajax-browserstack", "tests/ajax/browserstack.html")
+    .browserqunitTask("files-browserstack", "tests/files/browserstack.html")
     .qunitTask(null, './dist/' + dist + '-noscoped.js',
     		         grunt.file.expand(["./tests/fragments/test-jsdom.js", "./tests/common/*.js"]),
     		         ['./tests/fragments/init-jsdom.js', './vendors/scoped.js', './vendors/beta-noscoped.js'])
