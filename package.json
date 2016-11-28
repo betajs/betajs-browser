@@ -15,7 +15,7 @@
         "url": "https://github.com/betajs/betajs-browser/issues"
     },
     "name": "betajs-browser",
-    "version": "1.0.52",
+    "version": "1.0.53",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
@@ -34,6 +34,7 @@
         "qunit": "",
         "express": "",
         "express-ie-cors": "",
+        "multer": "",
         "cookie-parser": "",
         "body-parser": "",
         "grunt-wget": "",
@@ -65,7 +66,8 @@
         "badges": {
             "codeclimate": true,
             "travis": true,
-            "npm": false
+            "npm": false,
+            "gitter": true
         },
         "credits": [
             "FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",

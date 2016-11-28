@@ -10,8 +10,7 @@ module.exports = function(grunt) {
     /* Compilation */   
 	.scopedclosurerevisionTask(null, "src/**/*.js", "dist/" + dist + "-noscoped.js", {
 		"module": "global:BetaJS.Browser",
-		"base": "global:BetaJS",
-		"resumablejs": "global:Resumable"
+		"base": "global:BetaJS"
     }, {
     	"base:version": 531
     })	
@@ -46,12 +45,19 @@ module.exports = function(grunt) {
 	
 	gruntHelper.config.shell.ajaxqunit = {
 		command: [
-		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/assets/index.html?cors=' + gruntHelper.myhostname() + ":5001",
-		    'open http://' + gruntHelper.myhostname() + ":5001/static/tests/ajax/assets/dummy.html",
-		    'node tests/ajax/test-server.js ' + [gruntHelper.myip(), gruntHelper.myhostname()].join(",") + " " + [5000, 5001].join(",")
+		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/index.html?cors=' + gruntHelper.myhostname() + ":5001",
+		    'open http://' + gruntHelper.myhostname() + ":5001/static/tests/ajax/dummy.html",
+		    'node node_modules/mock-ajax-server/server.js --staticserve .'
 		].join("&&")
 	};
 	
+	gruntHelper.config.shell.filesqunit = {
+		command: [
+		    'open http://' + gruntHelper.myip() + ':5000/static/tests/files/index.html',
+		    'node node_modules/mock-file-server/server.js --staticserve .'
+		].join("&&")
+	};
+
 	grunt.initConfig(gruntHelper.config);
 	
 	grunt.registerTask("ajaxqunit", ["shell:ajaxqunit"]);

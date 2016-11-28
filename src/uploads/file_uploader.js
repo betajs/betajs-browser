@@ -2,8 +2,10 @@ Scoped.define("module:Upload.FileUploader", [
     "base:Classes.ConditionalInstance",
     "base:Events.EventsMixin",
     "base:Objs",
-    "base:Types"
-], function (ConditionalInstance, EventsMixin, Objs, Types, scoped) {
+    "base:Types",
+    "base:Async",
+    "base:Promise"
+], function (ConditionalInstance, EventsMixin, Objs, Types, Async, Promise, scoped) {
 	return ConditionalInstance.extend({scoped: scoped}, [EventsMixin, function (inherited) {
 		return {
 			
@@ -77,7 +79,9 @@ Scoped.define("module:Upload.FileUploader", [
 				if (this.state() !== "uploading")
 					return;
 				if (this._options.resilience > 0) {
-					this.__upload();
+					Async.eventually(function () {
+						this.__upload();
+					}, this, this._options.resilience_delay);					
 					return;
 				}
 				if (!this._options.essential) {
@@ -86,7 +90,15 @@ Scoped.define("module:Upload.FileUploader", [
 				}
 				this._data = data;
 				this._setState("error", data);
-			}
+			},
+			
+			uploadedBytes: function () {
+				return this._uploaded;
+			},
+			
+			totalBytes: function () {
+				return this._total || (this._options.isBlob ? this._options.source : this._options.source.files[0]).size;
+			}			
 			
 		};
 	}], {
@@ -100,6 +112,7 @@ Scoped.define("module:Upload.FileUploader", [
 				serverSupportPostMessage: false,
 				isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
 				resilience: 1,
+				resilience_delay: 1000,
 				essential: true,
 				data: {}
 			}, options);
@@ -132,3 +145,21 @@ Scoped.define("module:Upload.CustomUploader", [
 	
 	});	
 });
+
+
+
+Scoped.extend("module:Upload.FileUploader", [
+	"module:Upload.FileUploader",
+	"module:Upload.FormDataFileUploader",
+	"module:Upload.FormIframeFileUploader",
+	"module:Upload.CordovaFileUploader",
+	"module:Upload.ChunkedFileUploader"
+], function (FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader, ChunkedFileUploader) {
+	FileUploader.register(FormDataFileUploader, 2);
+	FileUploader.register(FormIframeFileUploader, 1);
+	FileUploader.register(CordovaFileUploader, 4);
+	FileUploader.register(ChunkedFileUploader, 5);
+	return {};
+});
+
+

@@ -34,7 +34,6 @@ test("trigger click dom event", function () {
 
 if (!(BetaJS.Browser.Info.isiOS() && BetaJS.Browser.Info.iOSversion().major < 4)) {
 test("element offset", function () {
-	console.log(navigator.userAgent);
 	var outerLeft = 20.25;
 	var outerTop = 10.75;
 	var innerLeft = 42.5;

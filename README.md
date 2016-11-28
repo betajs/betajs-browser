@@ -1,4 +1,4 @@
-# betajs-browser 1.0.52
+# betajs-browser 1.0.53
 [![Build Status](https://api.travis-ci.org/betajs/betajs-browser.svg?branch=master)](https://travis-ci.org/betajs/betajs-browser)
 [![Code Climate](https://codeclimate.com/github/betajs/betajs-browser/badges/gpa.svg)](https://codeclimate.com/github/betajs/betajs-browser)
 
@@ -51,9 +51,10 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 | :--------- | --: |
 | Homepage   | [http://betajs.com](http://betajs.com) |
 | Git        | [git://github.com/betajs/betajs-browser.git](git://github.com/betajs/betajs-browser.git) |
-| Repository | [http://github.com/betajs/betajs-browser](http://github.com/betajs/betajs-browser) |
+| Repository | [https://github.com/betajs/betajs-browser](https://github.com/betajs/betajs-browser) |
 | Blog       | [http://blog.betajs.com](http://blog.betajs.com) | 
 | Twitter    | [http://twitter.com/thebetajs](http://twitter.com/thebetajs) | 
+ 
 
 
 

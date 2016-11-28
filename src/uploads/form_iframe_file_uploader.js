@@ -77,20 +77,3 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 	});	
 });
 
-
-
-
-
-Scoped.extend("module:Upload.FileUploader", [
-	"module:Upload.FileUploader",
-	"module:Upload.FormDataFileUploader",
-	"module:Upload.FormIframeFileUploader",
-	"module:Upload.CordovaFileUploader"
-], function (FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader) {
-	FileUploader.register(FormDataFileUploader, 2);
-	FileUploader.register(FormIframeFileUploader, 1);
-	FileUploader.register(CordovaFileUploader, 4);
-	return {};
-});
-
-

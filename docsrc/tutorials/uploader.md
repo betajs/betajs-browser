@@ -5,11 +5,7 @@ This library takes care of that.
     var uploader = BetaJS.Browser.Upload.FileUploader.create({
         url: "//.../post",
         source: file_object_or_blob,
-        serverSupportChunked: false, // server supports chunked traffic via ResumableJS?
-        serverSupportPostMessage: false, // server supports postMessage fallback for old browsers? 
-        resumable: {
-            // resumable options
-        }               
+        serverSupportPostMessage: false // server supports postMessage fallback for old browsers? 
     });
     uploader.on("success", function (data) {
         // success data from server

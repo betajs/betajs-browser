@@ -9,6 +9,14 @@ Scoped.define("module:Upload.MultiUploader", [
 			constructor: function (options) {
 				inherited.constructor.call(this, options);
 				this._uploaders = {};
+				this._uploadLimit = this._options.uploadLimit || 5;
+				this._uploadingCount = 0;
+				this._end = !this._options.manualEnd;
+			},
+			
+			end: function () {
+				this._end = true;
+				this._updateState();
 			},
 			
 			addUploader: function (uploader) {
@@ -18,8 +26,10 @@ Scoped.define("module:Upload.MultiUploader", [
 				if (this.state() === "uploading") {
 					if (uploader.state() === "error")
 						uploader.reset();
-					if (uploader.state() === "idle")
+					if (uploader.state() === "idle" && this._uploadingCount < this._uploadLimit) {
+						this._uploadingCount++;
 						uploader.upload();
+					}
 				}
 				return this;
 			},
@@ -28,8 +38,10 @@ Scoped.define("module:Upload.MultiUploader", [
 				Objs.iter(this._uploaders, function (uploader) {
 					if (uploader.state() === "error")
 						uploader.reset();
-					if (uploader.state() === "idle")
+					if (uploader.state() === "idle" && this._uploadingCount < this._uploadLimit) {
+						this._uploadingCount++;
 						uploader.upload();
+					}
 				}, this);
 				this._updateState();
 			},
@@ -37,21 +49,41 @@ Scoped.define("module:Upload.MultiUploader", [
 			_updateState: function () {
 				if (this.state() !== "uploading")
 					return;
-				var success = 0;
+				this._uploadingCount = 0;
 				var error = false;
-				var uploading = false;
+				var idleCount = 0;
 				Objs.iter(this._uploaders, function (uploader) {
-					uploading = uploading || uploader.state() === "uploading";
-					error = error || uploader.state() === "error";
+					switch (uploader.state()) {
+						case "uploading":
+							this._uploadingCount++;
+							break;
+						case "error":
+							error = true;
+							break;
+						case "idle":
+							idleCount++;
+							break;
+					}
 				}, this);
-				if (uploading)
+				if (idleCount > 0 && this._uploadingCount < this._uploadLimit) {
+					Objs.iter(this._uploaders, function (uploader) {
+						if (this._uploadingCount < this._uploadLimit && uploader.state() === "idle") {
+							uploader.upload();
+							idleCount--;
+							this._uploadingCount++;
+						}
+					}, this);
+				}
+				if (this._uploadingCount > 0)
+					return;
+				if (!this._end)
 					return;
 				var datas = [];
 				Objs.iter(this._uploaders, function (uploader) {
 					var result = (error && uploader.state() === "error") || (!error && uploader.state() === "success") ? uploader.data() : undefined;
 					datas.push(result);
 				}, this);
-				if (error)
+				if (error > 0)
 					this._errorCallback(datas);
 				else
 					this._successCallback(datas);
@@ -60,23 +92,23 @@ Scoped.define("module:Upload.MultiUploader", [
 			_updateProgress: function () {
 				if (this.state() !== "uploading")
 					return;
-				var total = 0;
+				this._progressCallback(this.uploadedBytes(), this.totalBytes());
+			},
+			
+			uploadedBytes: function () {
 				var uploaded = 0;
 				Objs.iter(this._uploaders, function (uploader) {
-					var state = uploader.state();
-					var progress = uploader.progress();
-					if (progress && progress.total) {
-						if (uploader.state() === "success") {
-							total += progress.total;
-							uploaded += progress.total;
-						}
-						if (uploader.state() === "uploading") {
-							total += progress.total;
-							uploaded += progress.uploaded;
-						}
-					}
+					uploaded += uploader.uploadedBytes();
 				}, this);
-				this._progressCallback(uploaded, total);
+				return uploaded;
+			},
+			
+			totalBytes: function () {
+				var total = 0;
+				Objs.iter(this._uploaders, function (uploader) {
+					total += uploader.totalBytes();
+				}, this);
+				return total;
 			}
 
 		};
