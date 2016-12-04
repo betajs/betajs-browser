@@ -60,10 +60,52 @@ module.exports = function(grunt) {
 		].join("&&")
 	};
 
+	gruntHelper.config.shell.chromeRecord = {
+		command: [
+      './node_modules/.bin/wdio browserstack/configurations/local/chrome/record.conf.js'
+		].join("&&")
+	};
+
+  gruntHelper.config.shell.chromeUpload = {
+    command: [
+      './node_modules/.bin/wdio browserstack/configurations/local/chrome/upload.conf.js'
+    ].join("&&")
+  };
+
+  gruntHelper.config.shell.firefoxRecord = {
+    command: [
+      './node_modules/.bin/wdio browserstack/configurations/local/firefox/record.conf.js',
+    ].join("&&")
+  };
+
+  gruntHelper.config.shell.firefoxUpload = {
+    command: [
+      './node_modules/.bin/wdio browserstack/configurations/local/firefox/upload.conf.js'
+    ].join("&&")
+  };
+
+  gruntHelper.config.shell.testReport = {
+    command: [
+      './node_modules/.bin/allure generate ./browserstack/reports/',
+			'./node_modules/.bin/allure report open'
+    ].join("&&")
+  };
+
 	grunt.initConfig(gruntHelper.config);
 	
 	grunt.registerTask("ajaxqunit", ["shell:ajaxqunit"]);
 	grunt.registerTask("filesqunit", ["shell:filesqunit"]);
+
+	// Chrome related reports
+  grunt.registerTask("chrome-record", ["shell:chromeRecord"]);
+  grunt.registerTask("chrome-upload", ["shell:chromeUpload"]);
+
+  // Firefox related scripts
+  grunt.registerTask("firefox-record", ["shell:firefoxRecord"]);
+  grunt.registerTask("firefox-upload", ["shell:firefoxUpload"]);
+
+	// Generate report an open UI in new window
+  grunt.registerTask("test-report", ["shell:testReport"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);

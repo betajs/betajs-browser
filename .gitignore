@@ -8,3 +8,14 @@ browserstack.json
 BrowserStackLocal
 jsdoc.conf.json
 browserstack-run.pid
+/browserstack/configurations/constants.js
+/browserstack/BrowserStackLocal
+.idea/
+/allure-results/
+/browserstack/errorShots/*
+/browserstack/reports/allure-results/*
+/browserstack/reports/firefox/allure-results/*
+!/node_modules/betajs/
+/allure-report/*
+/browserstack/reports/*
+/browserstack/tmp/
