@@ -84,7 +84,7 @@ module.exports = function(grunt) {
     ].join("&&")
   };
 
-  gruntHelper.config.shell.testReport = {
+  gruntHelper.config.shell.localReport = {
     command: [
       './node_modules/.bin/allure generate ./browserstack/reports/',
 			'./node_modules/.bin/allure report open'
@@ -105,7 +105,7 @@ module.exports = function(grunt) {
   grunt.registerTask("firefox-upload", ["shell:firefoxUpload"]);
 
 	// Generate report an open UI in new window
-  grunt.registerTask("test-report", ["shell:testReport"]);
+  grunt.registerTask("local-report", ["shell:testReport"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
