@@ -3,11 +3,12 @@
 Scoped.define("module:Upload.ChunkedFileUploader", [
      "module:Upload.FileUploader",
      "module:Upload.MultiUploader",
+     "module:Blobs",
      "base:Promise",
      "base:Objs",
      "base:Tokens",
      "base:Ajax.Support"
-], function (FileUploader, MultiUploader, Promise, Objs, Tokens, AjaxSupport, scoped) {
+], function (FileUploader, MultiUploader, Blobs, Promise, Objs, Tokens, AjaxSupport, scoped) {
 	
 	return FileUploader.extend({scoped: scoped}, function (inherited) {
 		return {
@@ -67,9 +68,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
 						var size = Math.min(this._options.chunks.size, file.size - offset);
 						this._multiUploader.addUploader(this._multiUploader.auto_destroy(FileUploader.create({
 							url: this._options.chunks.url || this._options.url,
-							source: new Blob([new DataView(arrayBuffer, offset, size)], {
-								type: file.type
-							}),
+							source: Blobs.createBlobByArrayBufferView(arrayBuffer, offset, size, file.type),
 							data: Objs.extend(data, this._options.data)
 						})));
 						chunkNumber++;

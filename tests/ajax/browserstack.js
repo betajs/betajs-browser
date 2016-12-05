@@ -15,4 +15,8 @@ MockAjax.loadScriptList([
 		if (results.failed === 0)
 			document.location.href = MockAjax.originUrl + "/browserstack_success.html" + document.location.search;
 	});
+	setTimeout(function () {
+		if (QUnit.config.semaphore === undefined)
+			QUnit.load();
+	}, 5000);
 });

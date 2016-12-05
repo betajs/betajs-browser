@@ -5,13 +5,13 @@
 	<body>
 		<script>
 			var Config = {
-				mock: "//mock-ajax-server.betajs.com",
-				cors: "//mock-ajax-server-2.betajs.com",
-				origin: "//" + document.location.host + document.location.pathname + "/..",
+				mock: "http://mock-ajax-server.betajs.com",
+				cors: "http://mock-ajax-server-2.betajs.com",
+				origin: "http://" + document.location.host + document.location.pathname + "/..",
 				script: "browserstack.js"
 			};
 			document.location =
-				"//" + Config.mock + "/proxy?" +
+				Config.mock + "/proxy?" +
 				"url=" + Config.origin + "/" + Config.script + "&" +
 				"origin=" + Config.origin + "&" +
 				"cors=" + Config.cors + "&" +

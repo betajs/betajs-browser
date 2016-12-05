@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.53 - 2016-11-26
+betajs-browser - v1.0.53 - 2016-12-04
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.53 - 2016-11-26
+betajs-browser - v1.0.53 - 2016-12-04
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1016,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "105.1480214686578"
+    "version": "108.1480901119997"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -1158,7 +1158,11 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
 			var head = document.getElementsByTagName("head")[0];
 			var script = document.createElement("script");
 			var executed = false; 
-			script.onerror = function () {
+			script.onerror = function (event) {
+				if (event.stopPropagation)
+					event.stopPropagation();
+				else
+					event.cancelBubble = true;
 				if (hasResult)
 					return;
 				hasResult = true;
@@ -1340,6 +1344,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 					Objs.iter(options.data, function (value, key) {
 						formData.append(key, value);
 					}, this);
+					// xmlhttp.setRequestHeader("Content-Type", "multipart/form-data");
 					xmlhttp.send(formData);
 				} else if (options.contentType === "json") {
 					if (options.sendContentType)
@@ -1489,6 +1494,24 @@ function tryIframeApproach() {
 }
 
  */
+Scoped.define("module:Blobs", [], function() {
+	return {
+
+		createBlobByArrayBufferView : function(arrayBuffer, offset, size, type) {
+			try {
+				return new Blob([ new DataView(arrayBuffer, offset,size) ], {
+					type : type
+				});
+			} catch (e) {
+				return new Blob([ new Uint8Array(arrayBuffer, offset,size) ], {
+					type : type
+				});
+			}
+
+		}
+
+	};
+});
 Scoped.define("module:Cookies", ["base:Objs", "base:Types"], function (Objs, Types) {
 	return {
 		
@@ -3478,11 +3501,12 @@ Scoped.define("module:Selection", [
 Scoped.define("module:Upload.ChunkedFileUploader", [
      "module:Upload.FileUploader",
      "module:Upload.MultiUploader",
+     "module:Blobs",
      "base:Promise",
      "base:Objs",
      "base:Tokens",
      "base:Ajax.Support"
-], function (FileUploader, MultiUploader, Promise, Objs, Tokens, AjaxSupport, scoped) {
+], function (FileUploader, MultiUploader, Blobs, Promise, Objs, Tokens, AjaxSupport, scoped) {
 	
 	return FileUploader.extend({scoped: scoped}, function (inherited) {
 		return {
@@ -3542,9 +3566,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
 						var size = Math.min(this._options.chunks.size, file.size - offset);
 						this._multiUploader.addUploader(this._multiUploader.auto_destroy(FileUploader.create({
 							url: this._options.chunks.url || this._options.url,
-							source: new Blob([new DataView(arrayBuffer, offset, size)], {
-								type: file.type
-							}),
+							source: Blobs.createBlobByArrayBufferView(arrayBuffer, offset, size, file.type),
 							data: Objs.extend(data, this._options.data)
 						})));
 						chunkNumber++;
@@ -4125,6 +4147,12 @@ Scoped.define("module:Upload.StreamingFileUploader", [
 			}
 			
 		};
+	}, {
+		
+		supported: function (options) {
+			return typeof Blob !== "undefined" && options.serverSupportsChunked;
+		}
+
 	});	
 
 });

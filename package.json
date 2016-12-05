@@ -32,11 +32,6 @@
         "grunt-closure-tools": "",
         "grunt-node-qunit": "",
         "qunit": "",
-        "express": "",
-        "express-ie-cors": "",
-        "multer": "",
-        "cookie-parser": "",
-        "body-parser": "",
         "grunt-wget": "",
         "grunt-jsdoc": "",
         "grunt-shell": "",
@@ -44,7 +39,9 @@
         "grunt-betajs-docs-compile": "",
         "jsdom": "",
         "betajs-scoped": "",
-        "betajs-compile": "betajs/betajs-compile"
+        "betajs-compile": "",
+        "mock-file-server": "",
+        "mock-ajax-server": ""
     },
     "repository": {
         "type": "git",

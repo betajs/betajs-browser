@@ -93,6 +93,12 @@ Scoped.define("module:Upload.StreamingFileUploader", [
 			}
 			
 		};
+	}, {
+		
+		supported: function (options) {
+			return typeof Blob !== "undefined" && options.serverSupportsChunked;
+		}
+
 	});	
 
 });

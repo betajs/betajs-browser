@@ -1,7 +1,7 @@
 # betajs-browser 1.0.53
 [![Build Status](https://api.travis-ci.org/betajs/betajs-browser.svg?branch=master)](https://travis-ci.org/betajs/betajs-browser)
 [![Code Climate](https://codeclimate.com/github/betajs/betajs-browser/badges/gpa.svg)](https://codeclimate.com/github/betajs/betajs-browser)
-
+[![Gitter Chat](https://badges.gitter.im/betajs/betajs-browser.svg)](https://gitter.im/betajs/betajs-browser)
 
 BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.
 
@@ -54,7 +54,7 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 | Repository | [https://github.com/betajs/betajs-browser](https://github.com/betajs/betajs-browser) |
 | Blog       | [http://blog.betajs.com](http://blog.betajs.com) | 
 | Twitter    | [http://twitter.com/thebetajs](http://twitter.com/thebetajs) | 
- 
+| Gitter     | [https://gitter.im/betajs/betajs-browser](https://gitter.im/betajs/betajs-browser) | 
 
 
 

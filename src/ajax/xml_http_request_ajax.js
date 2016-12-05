@@ -67,6 +67,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 					Objs.iter(options.data, function (value, key) {
 						formData.append(key, value);
 					}, this);
+					// xmlhttp.setRequestHeader("Content-Type", "multipart/form-data");
 					xmlhttp.send(formData);
 				} else if (options.contentType === "json") {
 					if (options.sendContentType)
