@@ -5,7 +5,7 @@
 - Require `betajs-media-components` to run server. After cloning and installing in any location in computer `node server.js` from *betajs-media-components* folder
 
 ### Run test
-After installing packages, run one of the tests `grunt firefox-record`, there are also available 
+After installing packages, configure your settings in file `./browserstack/configurations/constants-sample.js` especially require browserstack username and API key after rename file to `constants.js`. run one of the tests `grunt firefox-record`, there are also available 
 *chrome-record, chrome-upload, firefox-upload* but because require some changes in media-components, 
 especially adding ID selectors for good testing purposes.
 
