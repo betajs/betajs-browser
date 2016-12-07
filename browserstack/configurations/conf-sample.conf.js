@@ -1,4 +1,5 @@
 // https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities
+// https://www.browserstack.com/automate/capabilities
 
 var credentials = require('./constants').browserstack;
 

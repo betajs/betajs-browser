@@ -1,8 +1,8 @@
 test("standard file upload", function () {
 	stop();
-	$("#qunit-fixture-visible").html("<input type='file' name='file' />");
+	$("#qunit-fixture-visible").html("<input type='file' name='file' /> <button id='upload-button'>Upload</button>");
 	var file = $("#qunit-fixture-visible input");
-	file.on("change", function () {
+	$("#upload-button").on("click", function () {
 		var identifier = BetaJS.Time.now();
 		var uploader = BetaJS.Browser.Upload.FileUploader.create({
 			url: FileServerUrl + "files/" + identifier,

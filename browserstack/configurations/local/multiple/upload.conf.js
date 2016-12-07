@@ -16,54 +16,185 @@ exports.config = {
 
   commonCapabilities: {
     'build': 'webdriver-browserstack-upload',
-    'resolution' : '1024x768',
-    'os_version' : '7',
-    'os' : 'Windows',
+    // 'resolution' : '1024x768',
+    // 'os_version' : '7',
+    // 'os' : 'Windows',
     'browserstack.local': credentials.local_test,
     'acceptSslCerts' : credentials.acceptSslCerts,
     'browserstack.debug' : credentials.debug,
     'browserstack.video' : credentials.videoRecord // Record video in browserstack
   },
 
-  capabilities: [{
-    'name': 'firefox_upload_win7',
-    'browserName': 'firefox',
-    'resolution' : '1024x768',
-    'os_version' : '7',
-    'os' : 'Windows'
-  }, {
-    'name': 'chrome_upload_win7',
-    'browserName': 'chrome',
-    'resolution' : '1024x768',
-    'os_version' : '7',
-    'os' : 'Windows'
-  }, {
-    'name': 'ie11_upload_win7',
-    'version': '11',
-    'browserName': 'internet explorer',
-    'resolution' : '1024x768',
-    'os_version' : '7',
-    'os' : 'Windows'
-  }, {
-    'name': 'ie_8_upload_win7',
-    'browserName': 'internet explorer',
-    'version': '8',
-    'os' : 'Windows',
-    'os_version' : '7',
-    'resolution' : '1024x768'
-  }, {
-    'name': 'opera_upload_win7',
-    'browserName': 'opera',
-    'os' : 'Windows',
-    'os_version' : '7',
-    'resolution' : '1024x768'
-  }, {
-    'name': 'safari_upload_win7',
-    'browserName': 'safari',
-    'os' : 'Windows',
-    'os_version' : '7',
-    'resolution' : '1024x768'
-  }],
+  capabilities: [
+  //   {
+  //   'name': 'firefox_upload_win7',
+  //   'browserName': 'firefox',
+  //   'resolution' : '1024x768',
+  //   'os_version' : '7',
+  //   'os' : 'Windows'
+  // },
+  // {
+  //   'name': 'chrome_upload_win7',
+  //   'browserName': 'chrome',
+  //   'resolution' : '1024x768',
+  //   'os_version' : '7',
+  //   'os' : 'Windows'
+  // }, {
+  //   'name': 'ie11_upload_win7',
+  //   'version': '11',
+  //   'browserName': 'internet explorer',
+  //   'resolution' : '1024x768',
+  //   'os_version' : '7',
+  //   'os' : 'Windows'
+  // },
+  //   {
+  //   'name': 'ie_8_upload_win7',
+  //   'browserName': 'internet explorer',
+  //   'version': '8',
+  //   'os' : 'Windows',
+  //   'os_version' : '7',
+  //   'resolution' : '1024x768'
+  // }
+  // , {
+  //   'name': 'opera_upload_win7',
+  //   'browserName': 'opera',
+  //   'os' : 'Windows',
+  //   'os_version' : '7',
+  //   'resolution' : '1024x768'
+  // }, {
+  //   'name': 'safari_upload_win7',
+  //   'browserName': 'safari',
+  //   'os' : 'Windows',
+  //   'os_version' : '7',
+  //   'resolution' : '1024x768'
+  // },
+    // {
+    //   'name': 'edge_13_upload_win10',
+    //   'browserName': 'edge',
+    //   'version': 13,
+    //   'os' : 'Windows',
+    //   'os_version' : '10',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'ie_10_upload_win7',
+    //   'browserName': 'internet explorer',
+    //   'version': '10',
+    //   'os' : 'Windows',
+    //   'os_version' : '7',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'ie_10_upload_win10',
+    //   'browserName': 'safari',
+    //   'os' : 'Windows',
+    //   'os_version' : '10',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'ie_9_upload_win7',
+    //   'browserName': 'internet explorer',
+    //   'version': '9',
+    //   'os' : 'Windows',
+    //   'os_version' : '7',
+    //   'resolution' : '1024x768'
+    // },
+
+    // {
+    //   'name': 'safari_upload_mac_sierra',
+    //   'browserName': 'safari',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'Sierra',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'safari_upload_mac_el_capitan',
+    //   'browserName': 'safari',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'El Capitan',
+    //   'resolution' : '1024x768'
+    // }
+
+    // {
+    //   'name': 'safari_upload_mac_yosemite',
+    //   'browserName': 'safari',
+    //   'os' : 'OS X',
+    //   'os_version': 'Yosemite',
+    //   'resolution' : '1024x768'
+    // },
+
+    // {
+    //   'name': 'safari_upload_mac_mavericks',
+    //   'browserName': 'safari',
+    //   'os' : 'OS X',
+    //   'os_version': 'Mavericks',
+    //   'resolution' : '1024x768'
+    // },
+
+    {
+      'name': 'edge_14_upload_win10',
+      'browserName': 'edge',
+      'os' : 'Windows',
+      'version': '14',
+      'os_version' : '10',
+      'resolution' : '1024x768'
+    },
+
+    // {
+    //   'name': 'firefox_32_upload_win7',
+    //   'browserName': 'firefox',
+    //   'version': '32',
+    //   'os' : 'Windows',
+    //   'os_version' : '7',
+    //   'resolution' : '1024x768'
+    // },
+    //
+    // {
+    //   'name': 'chrome_31_upload_win7',
+    //   'browserName': 'chrome',
+    //   'version': '31',
+    //   'os' : 'Windows',
+    //   'os_version' : '7',
+    //   'resolution' : '1024x768'
+    // },
+
+    {
+      'name': 'opera_old_23_upload_mac',
+      'browserName': 'opera',
+      'version': '23',
+      'os' : 'Windows',
+      'os_version': 'Sierra',
+      'resolution' : '1024x768'
+    },
+
+    // {
+    //   'name': 'opera_upload_mac',
+    //   'browserName': 'opera',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'Sierra',
+    //   'resolution' : '1024x768'
+    // },
+
+    // Mobile Devices
+    // {
+    //   'name': 'android_upload_android',
+    //   'browserName': 'Android',
+    //   'os' : 'android'
+    // },
+
+    {
+      'name': 'iPhone_upload_ios',
+      'browserName': 'iPhone',
+      'os' : 'ios'
+    },
+
+    {
+      'name': 'iPad_14_upload_ios',
+      'browserName': 'iPad',
+      'os' : 'ios'
+    },
+
+  ],
 
   // Level of logging verbosity: silent | verbose | command | data | result | error
   logLevel: 'verbose',

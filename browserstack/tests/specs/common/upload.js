@@ -17,6 +17,8 @@ describe('Upload video with Several Browsers', function() {
   it('Run first upload test', function() {
     browser.waitForExist('#qunit');
     browser.chooseFile("#qunit-fixture-visible input[type=file]", test_file_path);
+    browser.click('button#upload-button');
+
     browser.waitForExist('#qunit-test-output0 ol.qunit-assert-list');
     browser.click('#qunit-test-output0 > strong');
 
