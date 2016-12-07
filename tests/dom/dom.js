@@ -1,3 +1,9 @@
+test("template to elements", function () {
+	var elements = BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>");
+	QUnit.ok(elements.length > 0);
+});
+
+
 test("trigger foobar dom event", function () {
 	var element = document.createElement("div");
 	document.body.appendChild(element);

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.53 - 2016-12-04
+betajs-browser - v1.0.54 - 2016-12-07
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.53 - 2016-12-04
+betajs-browser - v1.0.54 - 2016-12-07
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1016,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "108.1480901119997"
+    "version": "109.1481129465000"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -2724,6 +2724,22 @@ Scoped.define("module:Dom", [
     "module:Info"
 ], function (Types, Info) {
 	return {
+		
+		elementsByTemplate: function (template) {
+			template = template.trim();
+			var polyfill = Info.isInternetExplorer() && Info.internetExplorerVersion() < 9;
+			var element = document.createElement("div");
+			element.innerHTML = polyfill ? "<br/>" + template : template;
+			var result = [];
+			for (var i = polyfill ? 1 : 0; i < element.children.length; ++i)
+				result.push(element.children[i]);
+			return result;
+		},
+
+		elementByTemplate: function (template) {
+			var result = this.elementsByTemplate(template);
+			return result.length > 0 ? result[0] : null; 
+		},
 		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);

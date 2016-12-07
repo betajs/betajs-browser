@@ -4,6 +4,22 @@ Scoped.define("module:Dom", [
 ], function (Types, Info) {
 	return {
 		
+		elementsByTemplate: function (template) {
+			template = template.trim();
+			var polyfill = Info.isInternetExplorer() && Info.internetExplorerVersion() < 9;
+			var element = document.createElement("div");
+			element.innerHTML = polyfill ? "<br/>" + template : template;
+			var result = [];
+			for (var i = polyfill ? 1 : 0; i < element.children.length; ++i)
+				result.push(element.children[i]);
+			return result;
+		},
+
+		elementByTemplate: function (template) {
+			var result = this.elementsByTemplate(template);
+			return result.length > 0 ? result[0] : null; 
+		},
+		
 		changeTag: function (node, name) {
 			var replacement = document.createElement(name);
 			for (var i = 0; i < node.attributes.length; ++i) {
