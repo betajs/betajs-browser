@@ -1,35 +1,62 @@
 var expect = require('chai').expect;
 var fs     = require('fs');
 var path   = require('path');
-var test_file_path = path.join(__dirname, "..", "..", "..", "..", 'files/sample-video2.mp4');
+var test_file_path = path.join(__dirname, "..", "..", "..", 'files/sample-video2.mp4');
+const credentials = require('../../../configurations/constants').browserstack;
 
 // Context of recording video from camera
-describe('Upload video with Chrome Browser', function() {
+describe('Upload video with FireFox Browser', function() {
 
   it('check status of the link', function() {
-    browser.url('/static/space.html');
+    browser.url(credentials.upload.related_url);
     var status = browser.status();
     expect(status.state).to.eql('success');
   });
 
   // Will press button record video
-  it('click on "Upload Video"', function() {
-    browser.url('/static/space.html');
-    browser.chooseFile("input[class$=-chooser-file]", test_file_path);
-    //expect(/sample\-video\.mp4$/.test(val)).to.be.equal(true);
-    assert.equal(browser.getValue("div.ba-videorecorder-message-message"), 'Verifying...');
+  it('Run first upload test', function() {
+    browser.waitForExist('#qunit');
+    browser.chooseFile("#qunit-fixture-visible input[type=file]", test_file_path);
+    browser.waitForExist('#qunit-test-output0 ol.qunit-assert-list');
+    browser.click('#qunit-test-output0 > strong');
+
+    var firstTestBlock = browser.$('#qunit-test-output0');
+
+    var successMessage = firstTestBlock.$$('.test-message')[0].getText();
+    var fileSizeMessage = firstTestBlock.$$('.test-message')[1].getText();
+
+    expect(successMessage).to.contain('Upload Successful');
+    expect(fileSizeMessage).to.contain('size check');
   });
 
-  // Play button has to be visible
-  it('Play button has to be visible', function () {
-    browser.waitForExist('div[class$=-playbutton-container]');
-    assert(browser.isVisible('div[class$=-playbutton-container]'));
+  it('Run multiple file upload', function() {
+    // browser.url(credentials.upload.related_url + '?testNumber=2');
+    // browser.waitForExist('#qunit');
+
+    browser.chooseFile("#qunit-fixture-visible input[name=file0]", test_file_path);
+    browser.chooseFile("#qunit-fixture-visible input[name=file1]", test_file_path);
+    browser.chooseFile("#qunit-fixture-visible input[name=file2]", test_file_path);
+    browser.chooseFile("#qunit-fixture-visible input[name=file3]", test_file_path);
+
+    browser.click('button#upload-button');
+
+    browser.waitForExist('#qunit-test-output1 ol.qunit-assert-list');
+    browser.click('#qunit-test-output1 > strong');
+
+    var secondTestBlock = browser.$('#qunit-test-output1');
+
+    var failedResulst = +secondTestBlock.$('.counts > .failed').getText();
+    var successMessage = secondTestBlock.$$('.test-message')[0].getText();
+
+    expect(failedResulst).to.equal(0);
+
+    expect(successMessage).to.contain('Upload Successful');
+
+    for( var i = 1 ; i <= 4 ; i++ ) {
+      var fileSizeMessage = secondTestBlock.$$('.test-message')[i].getText();
+      expect(fileSizeMessage).to.contain('size check');
+    }
   });
 
-  // Click on play button to view video
-  it('Click on play button to show video', function () {
-    browser.click('div[class$=-playbutton-container]');
-    assert(browser.isVisible('div[class$=-playbutton-container]'));
-  });
 });
 

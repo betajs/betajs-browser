@@ -31,7 +31,7 @@ exports.config = {
 
   coloredLogs: true,
   screenshotPath: './browserstack/errorShots/firefox',
-  baseUrl: credentials.bas_url,
+  baseUrl: credentials.upload.bas_url,
   waitforTimeout: 30000,
   connectionRetryTimeout: 90000,
   connectionRetryCount: 3,
