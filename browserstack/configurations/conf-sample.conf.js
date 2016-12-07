@@ -1,3 +1,5 @@
+// https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities
+
 var credentials = require('./constants').browserstack;
 
 exports.config = {

@@ -14,12 +14,12 @@ exports.config = {
   ],
 
   capabilities: [{
-    'build': 'record-via-chrome',
+    'build': 'record-via-ie8',
+    'name': 'ie8_record_win7',
     'browser': 'chrome',
     'os' : 'Windows',
     'os_version' : '7',
     'resolution' : '1024x768',
-    'name': 'chrome_record_win7',
     'browserstack.local': true,
     'acceptSslCerts' : credentials.acceptSslCerts,
     'browserstack.debug' : credentials.debug,
