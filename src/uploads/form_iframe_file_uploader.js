@@ -47,20 +47,32 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
 				document.body.removeChild(iframe);
 				self._errorCallback();
 			};				
-			form.action = Uri.appendUriParams(this._options.url, {"_postmessage": true});
+			var post_message_key = this._options.serverPostMessageKey || "_postmessage";
+			var post_message_id_key = this._options.serverPostMessageIdKey || "_postmessageid";
+			var post_message_id_value = this.cid();
+			var support_id = this._options.serverSupportPostMessageId;
+			var query_params = {};
+			query_params[post_message_key] = true;
+			if (support_id) 
+				query_params[post_message_id_key] = post_message_id_value;
+			form.action = Uri.appendUriParams(this._options.url, query_params);
 			form.encoding = form.enctype = "multipart/form-data";
 			handle_success = function (raw_data) {
-				if (post_message_fallback)
-					window.postMessage = null;
-				if (oldParent)
-					oldParent.appendChild(self._options.source);
-				document.body.removeChild(form);
-				document.body.removeChild(iframe);
-				var data = JSON.parse(raw_data);
-				self._successCallback(data);
-				Async.eventually(function () {
-					window.removeEventListener("message", message_event_handler, false);
-				});
+				try {
+					var data = JSON.parse(raw_data);
+					if (support_id && data[post_message_id_key] !== post_message_id_value)
+						return;
+					if (post_message_fallback)
+						window.postMessage = null;
+					if (oldParent)
+						oldParent.appendChild(self._options.source);
+					document.body.removeChild(form);
+					document.body.removeChild(iframe);
+					self._successCallback(data);
+					Async.eventually(function () {
+						window.removeEventListener("message", message_event_handler, false);
+					});
+				} catch (e) {}
 			};
 			window.addEventListener("message", message_event_handler, false);
 			if (post_message_fallback) 
