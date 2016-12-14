@@ -8,14 +8,20 @@ exports.config = {
   user: credentials.user || 'BROWSERSTACK_USERNAME',
   key: credentials.key || 'BROWSERSTACK_ACCESS_KEY',
 
+  services: ['firefox-profile'],
+  firefoxProfile: {
+    'media.navigator.permission.disabled': true,
+    'media.navigator.streams.fake': true
+  },
+
   updateJob: false,
   specs: [
-    './browserstack/tests/specs/common/upload.js'
+    './browserstack/tests/specs/common/record.js'
   ],
   //exclude: [],
 
   commonCapabilities: {
-    'build': 'webdriver-browserstack-upload',
+    'build': 'webdriver-browserstack-record',
     // 'resolution' : '1024x768',
     // 'os_version' : '7',
     // 'os' : 'Windows',
@@ -26,21 +32,76 @@ exports.config = {
   },
 
   capabilities: [
-  //   {
-  //   'name': 'firefox_upload_win7',
-  //   'browserName': 'firefox',
-  //   'resolution' : '1024x768',
-  //   'os_version' : '7',
-  //   'os' : 'Windows'
-  // },
-  // {
-  //   'name': 'chrome_upload_win7',
-  //   'browserName': 'chrome',
-  //   'resolution' : '1024x768',
-  //   'os_version' : '7',
-  //   'os' : 'Windows'
-  // }, {
-  //   'name': 'ie11_upload_win7',
+    // WIN 7
+    // {
+    //   'name': 'firefox_record_win7',
+    //   'browserName': 'firefox',
+    //   'resolution' : '1024x768',
+    //   'os_version' : '7',
+    //   'os' : 'Windows',
+    //   'plugin.state.flash': 0
+    // },
+    // {
+    //   'name': 'chrome_record_win7',
+    //   'browserName': 'chrome',
+    //   'resolution' : '1024x768',
+    //   'os_version' : '7',
+    //   'os' : 'Windows',
+    //   'chromeOptions' : {
+    //     'args' : ["--use-fake-ui-for-media-stream",
+    //       'use-fake-device-for-media-stream',
+    //       'use-fake-ui-for-media-stream'
+    //       // --disable-user-media-security, --use-fake-ui-for-media-stream
+    //       // --disable-web-security, --reduce-security-for-testing
+    //     ]
+    //   }
+    // },
+    // // WIN 10
+    // {
+    //   'name': 'firefox_record_win10',
+    //   'browserName': 'firefox',
+    //   'resolution' : '1024x768',
+    //   'os_version' : '10',
+    //   'os' : 'Windows',
+    //   'plugin.state.flash': 0
+    // },
+    // {
+    //   'name': 'chrome_record_win10',
+    //   'browserName': 'chrome',
+    //   'resolution' : '1024x768',
+    //   'os_version' : '10',
+    //   'os' : 'Windows',
+    //   'chromeOptions' : {
+    //     'args' : ["--use-fake-ui-for-media-stream",
+    //       'use-fake-device-for-media-stream',
+    //       'use-fake-ui-for-media-stream'
+    //     ]
+    //   }
+    // },
+    // // Mac Sierra
+    {
+      'name': 'firefox_record_mac_sierra',
+      'browserName': 'firefox',
+      'resolution' : '1024x768',
+      'os_version' : 'Sierra',
+      'os' : 'OS X',
+      'plugin.state.flash': 0
+    }
+    // {
+    //   'name': 'chrome_record_mac_sierra',
+    //   'browserName': 'chrome',
+    //   'resolution' : '1024x768',
+    //   'os_version' : 'Sierra',
+    //   'os' : 'OS X',
+    //   'chromeOptions' : {
+    //     'args' : ["--use-fake-ui-for-media-stream",
+    //       'use-fake-device-for-media-stream',
+    //       'use-fake-ui-for-media-stream'
+    //     ]
+    //   }
+    // }
+  //  {
+  //   'name': 'ie11_record_win7',
   //   'version': '11',
   //   'browserName': 'internet explorer',
   //   'resolution' : '1024x768',
@@ -48,7 +109,7 @@ exports.config = {
   //   'os' : 'Windows'
   // },
   //   {
-  //   'name': 'ie_8_upload_win7',
+  //   'name': 'ie_8_record_win7',
   //   'browserName': 'internet explorer',
   //   'version': '8',
   //   'os' : 'Windows',
@@ -56,20 +117,20 @@ exports.config = {
   //   'resolution' : '1024x768'
   // }
   // , {
-  //   'name': 'opera_upload_win7',
+  //   'name': 'opera_record_win7',
   //   'browserName': 'opera',
   //   'os' : 'Windows',
   //   'os_version' : '7',
   //   'resolution' : '1024x768'
   // }, {
-  //   'name': 'safari_upload_win7',
+  //   'name': 'safari_record_win7',
   //   'browserName': 'safari',
   //   'os' : 'Windows',
   //   'os_version' : '7',
   //   'resolution' : '1024x768'
   // },
     // {
-    //   'name': 'ie_10_upload_win7',
+    //   'name': 'ie_10_record_win7',
     //   'browserName': 'internet explorer',
     //   'version': '10',
     //   'os' : 'Windows',
@@ -77,14 +138,14 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'ie_10_upload_win10',
+    //   'name': 'ie_10_record_win10',
     //   'browserName': 'safari',
     //   'os' : 'Windows',
     //   'os_version' : '10',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'ie_9_upload_win7',
+    //   'name': 'ie_9_record_win7',
     //   'browserName': 'internet explorer',
     //   'version': '9',
     //   'os' : 'Windows',
@@ -92,30 +153,30 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'firefox_32_upload_win7',
+    //   'name': 'firefox_32_record_win7',
     //   'browserName': 'firefox',
     //   'version': '32',
     //   'os' : 'Windows',
     //   'os_version' : '7',
     //   'resolution' : '1024x768'
     // },
-    {
-      'name': 'chrome_upload_mac_sierra',
-      'browserName': 'chrome',
-      'os' : 'OS X', // MAC
-      'os_version': 'Sierra',
-      'resolution' : '1024x768'
-    },
-    {
-      'name': 'firefox_upload_mac_el_capitan',
-      'browserName': 'firefox',
-      'os' : 'OS X', // MAC
-      'os_version': 'El Capitan',
-      'resolution' : '1024x768'
-    }
+    // {
+    //   'name': 'chrome_record_mac_sierra',
+    //   'browserName': 'chrome',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'Sierra',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'firefox_record_mac_el_capitan',
+    //   'browserName': 'firefox',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'El Capitan',
+    //   'resolution' : '1024x768'
+    // }
     //
     // {
-    //   'name': 'chrome_31_upload_win7',
+    //   'name': 'chrome_31_record_win7',
     //   'browserName': 'chrome',
     //   'version': '31',
     //   'os' : 'Windows',
@@ -123,7 +184,7 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'opera_upload_mac',
+    //   'name': 'opera_record_mac',
     //   'browserName': 'opera',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
@@ -133,7 +194,7 @@ exports.config = {
     // Facing with not selection issue
 
     // {
-    //   'name': 'edge_13_upload_win10',
+    //   'name': 'edge_13_record_win10',
     //   'browserName': 'edge',
     //   'version': 13,
     //   'os' : 'Windows',
@@ -142,7 +203,7 @@ exports.config = {
     // }
 
     // {
-    //   'name': 'edge_14_upload_win10',
+    //   'name': 'edge_14_record_win10',
     //   'browserName': 'edge',
     //   'os' : 'Windows',
     //   'version': '14',
@@ -150,21 +211,21 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_upload_mac_sierra',
+    //   'name': 'safari_record_mac_sierra',
     //   'browserName': 'safari',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_upload_mac_el_capitan',
+    //   'name': 'safari_record_mac_el_capitan',
     //   'browserName': 'safari',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'El Capitan',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'opera_old_23_upload_mac',
+    //   'name': 'opera_old_23_record_mac',
     //   'browserName': 'opera',
     //   'version': '23',
     //   'os' : 'Windows',
@@ -172,7 +233,7 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_upload_mac_yosemite',
+    //   'name': 'safari_record_mac_yosemite',
     //   'browserName': 'safari',
     //   'os' : 'OS X',
     //   'os_version': 'Yosemite',
@@ -180,7 +241,7 @@ exports.config = {
     // },
 
     // {
-    //   'name': 'safari_upload_mac_mavericks',
+    //   'name': 'safari_record_mac_mavericks',
     //   'browserName': 'safari',
     //   'os' : 'OS X',
     //   'os_version': 'Mavericks',
@@ -189,19 +250,19 @@ exports.config = {
 
     // Mobile Devices
     // {
-    //   'name': 'android_upload_android',
+    //   'name': 'android_record_android',
     //   'browserName': 'Android',
     //   'os' : 'android'
     // },
 
     // {
-    //   'name': 'iPhone_upload_ios',
+    //   'name': 'iPhone_record_ios',
     //   'browserName': 'iPhone',
     //   'os' : 'ios'
     // },
     //
     // {
-    //   'name': 'iPad_14_upload_ios',
+    //   'name': 'iPad_14_record_ios',
     //   'browserName': 'iPad',
     //   'os' : 'ios'
     // }
@@ -209,13 +270,13 @@ exports.config = {
   ],
 
   // Level of logging verbosity: silent | verbose | command | data | result | error
-  logLevel: 'verbose',
+  logLevel: 'silent',
 
   maxInstances: 1, // It's pointing how many spec files will run for several capabilites
 
   coloredLogs: true,
   screenshotPath: './browserstack/errorShots/common/',
-  baseUrl: credentials.upload.bas_url,
+  baseUrl: credentials.record.base_url,
   waitforTimeout: 30000,
   connectionRetryTimeout: 90000,
   connectionRetryCount: 3,
@@ -230,6 +291,7 @@ exports.config = {
   framework: 'mocha',
   mochaOpts: {
     ui: 'bdd',
+    colors: true,
     timeout: 10000 * 60 * 2  // 2 MINUTES
   },
 
@@ -244,12 +306,12 @@ exports.config = {
 
   //Code to start browserstack local before start of test
   onPrepare: function (config, capabilities) {
-    console.log("Connecting local uploading test");
+    console.log("Connecting local recording test");
     return new Promise(function(resolve, reject){
       exports.bs_local = new browserstack.Local();
       exports.bs_local.start({'key': exports.config.key }, function(error) {
         if (error) return reject(error);
-        console.log('Connected. Now testing chrome-upload...');
+        console.log('Connected. Now testing record video...');
 
         resolve();
       });

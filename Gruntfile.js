@@ -1,18 +1,22 @@
+var credentials = require('./browserstack/configurations/constants').browserstack;
+var path = require('path');
+var testing_folder = path.join(__dirname, "./browserstack/tests/webdriver");
+
 module.exports = function(grunt) {
 
-	var pkg = grunt.file.readJSON('package.json');
-	var gruntHelper = require('betajs-compile/grunt.js');
-	var dist = 'betajs-browser';
+  var pkg = grunt.file.readJSON('package.json');
+  var gruntHelper = require('betajs-compile/grunt.js');
+  var dist = 'betajs-browser';
 
-	gruntHelper.init(pkg, grunt)
+  gruntHelper.init(pkg, grunt)
 
 
     /* Compilation */
-	.scopedclosurerevisionTask(null, "src/**/*.js", "dist/" + dist + "-noscoped.js", {
-		"module": "global:BetaJS.Browser",
-		"base": "global:BetaJS"
+    .scopedclosurerevisionTask(null, "src/**/*.js", "dist/" + dist + "-noscoped.js", {
+      "module": "global:BetaJS.Browser",
+      "base": "global:BetaJS"
     }, {
-    	"base:version": 531
+      "base:version": 531
     })
     .concatTask('concat-scoped', ['vendors/scoped.js', 'dist/' + dist + '-noscoped.js'], 'dist/' + dist + '.js')
     .uglifyTask('uglify-noscoped', 'dist/' + dist + '-noscoped.js', 'dist/' + dist + '-noscoped.min.js')
@@ -90,6 +94,18 @@ module.exports = function(grunt) {
     ].join("&&")
   };
 
+  gruntHelper.config.shell.commonRecord = {
+    command: [
+      './node_modules/.bin/wdio ./browserstack/configurations/local/multiple/record.conf.js'
+    ].join("&&")
+  };
+
+  gruntHelper.config.shell.swUpload = {
+    command: [
+      './browserstack/BrowserStackLocal --key ' + credentials.key + ' --folder '+ testing_folder + ''
+    ].join("&&")
+  };
+
   gruntHelper.config.shell.localReport = {
     command: [
       './node_modules/.bin/allure generate ./browserstack/reports/',
@@ -113,7 +129,9 @@ module.exports = function(grunt) {
 	// Generate report an open UI in new window
 
   grunt.registerTask("test-upload", ["shell:commonUpload"]);
+  grunt.registerTask("test-record", ["shell:commonRecord"]);
   grunt.registerTask("local-report", ["shell:localReport"]);
+  grunt.registerTask("test-upload-sw", ["shell:swUpload"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
