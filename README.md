@@ -1,4 +1,4 @@
-# betajs-browser 1.0.56
+# betajs-browser 1.0.57
 [![Build Status](https://api.travis-ci.org/betajs/betajs-browser.svg?branch=master)](https://travis-ci.org/betajs/betajs-browser)
 [![Code Climate](https://codeclimate.com/github/betajs/betajs-browser/badges/gpa.svg)](https://codeclimate.com/github/betajs/betajs-browser)
 [![Gitter Chat](https://badges.gitter.im/betajs/betajs-browser.svg)](https://gitter.im/betajs/betajs-browser)

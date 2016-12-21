@@ -207,7 +207,50 @@ Scoped.define("module:Dom", [
 				width: 0,
 				height: 0
 			};
-		}
+		},
 		
+		childContainingElement: function (parent, element) {
+			parent = this.unbox(parent);
+			element = this.unbox(element);
+			while (element.parentNode != parent) {
+				if (element == document.body)
+					return null;
+				element = element.parentNode;
+			}
+			return element;
+		},
+		
+		elementBoundingBox : function(element) {
+			var offset = this.elementOffset(element);
+			var dimensions = this.elementDimensions(element);
+			return {
+				left : offset.left,
+				top : offset.top,
+				right : offset.left + dimensions.width - 1,
+				bottom : offset.top + dimensions.height - 1
+			};
+		},
+		
+		pointWithinElement : function(x, y, element) {
+			var bb = this.elementBoundingBox(element);
+			return bb.left <= x && x <= bb.right && bb.top <= y && y <= bb.bottom;
+		},
+		
+		elementFromPoint : function(x, y, disregarding) {
+			disregarding = disregarding || [];
+			if (!Types.is_array(disregarding))
+				disregarding = [ disregarding ];
+			var backup = [];
+			for (var i = 0; i < disregarding.length; ++i) {
+				disregarding[i] = this.unbox(disregarding[i]);
+				backup.push(disregarding[i].style.zIndex);
+				disregarding[i].style.zIndex = -1;
+			}
+			var element = document.elementFromPoint(x - window.pageXOffset, y - window.pageYOffset);
+			for (i = 0; i < disregarding.length; ++i)
+				disregarding[i].style.zIndex = backup[i];
+			return element;
+		}
+
 	};
 });
