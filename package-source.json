@@ -1,10 +1,12 @@
 {
 	"name": "betajs-browser",
-	"version": "1.0.55",
+	"version": "1.0.56",
 	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
-	"contributors": ["Oliver Friedmann"],
+	"contributors": [
+		"Oliver Friedmann"
+	],
 	"devDependencies": {
-        "lodash": "",
+		"lodash": "",
 		"grunt": "",
 		"grunt-contrib-jshint": "",
 		"grunt-contrib-concat": "",
@@ -19,7 +21,12 @@
 		"grunt-jsdoc": "",
 		"grunt-shell": "",
 		"grunt-template": "",
-		"grunt-betajs-docs-compile":"",
+		"grunt-betajs-docs-compile": "",
+		"selenium-webdriver": "",
+		"webdriverio": "",
+		"wdio-mocha-framework": "",
+		"chai": "",
+		"browserstack-local": "",
 		"jsdom": "",
 		"betajs-scoped": "",
 		"betajs-compile": "",
@@ -34,7 +41,10 @@
 		"test": "grunt check-node"
 	},
 	"meta": {
-		"sponsors": ["Ziggeo", "Browserstack"],
+		"sponsors": [
+			"Ziggeo",
+			"Browserstack"
+		],
 		"guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
 		"installdoc": "docsrc/common/install.md",
 		"summarydoc": "docsrc/common/summary.md",
@@ -44,7 +54,7 @@
 			"npm": false,
 			"gitter": true
 		},
-		"credits": [ 
+		"credits": [
 			"FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",
 			"Keyboard Shortcuts, BSD Software License, (c) Binny V A"
 		],
@@ -74,5 +84,5 @@
 			"betajs-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js",
 			"betajs-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js"
 		}
-	} 
+	}
 }

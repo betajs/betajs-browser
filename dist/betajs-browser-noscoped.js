@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.55 - 2016-12-08
+betajs-browser - v1.0.56 - 2016-12-20
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "110.1481215039448"
+    "version": "111.1482286497051"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -494,15 +494,21 @@ Scoped.define("module:Blobs", [], function() {
 
 		createBlobByArrayBufferView : function(arrayBuffer, offset, size, type) {
 			try {
-				return new Blob([ new DataView(arrayBuffer, offset,size) ], {
+				return new Blob([ new DataView(arrayBuffer, offset, size) ], {
 					type : type
 				});
 			} catch (e) {
-				return new Blob([ new Uint8Array(arrayBuffer, offset,size) ], {
-					type : type
-				});
+				try {
+					return new Blob([ new Uint8Array(arrayBuffer, offset, size) ], {
+						type : type
+					});
+				} catch (e) {
+					var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+					var bb = new BlobBuilder();
+			        bb.append(arrayBuffer.slice(offset, offset + size));
+			        return bb.getBlob(type);
+				}
 			}
-
 		}
 
 	};

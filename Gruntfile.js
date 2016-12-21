@@ -21,7 +21,6 @@ module.exports = function(grunt) {
     /* Testing */
     .browserqunitTask(null, "tests/tests.html")
     .browserqunitTask("ajax-browserstack", "tests/ajax/browserstack.html")
-    .browserqunitTask("files-browserstack", "tests/files/browserstack.html")
     .qunitTask(null, './dist/' + dist + '-noscoped.js',
     		         grunt.file.expand(["./tests/fragments/test-jsdom.js", "./tests/common/*.js"]),
     		         ['./tests/fragments/init-jsdom.js', './vendors/scoped.js', './vendors/beta-noscoped.js'])
@@ -60,10 +59,23 @@ module.exports = function(grunt) {
 		].join("&&")
 	};
 
+	gruntHelper.config.shell['files-browserstack'] = {
+		command: [
+		    './node_modules/.bin/wdio tests/files/selenium-config.js '
+		].join("&&")
+	};
+
+	gruntHelper.config.shell['files-selenium-local'] = {
+			command: [
+			    './node_modules/.bin/wdio tests/files/selenium-local.js '
+			].join("&&")
+		};
+
 	grunt.initConfig(gruntHelper.config);
 	
 	grunt.registerTask("ajaxqunit", ["shell:ajaxqunit"]);
 	grunt.registerTask("filesqunit", ["shell:filesqunit"]);
+	grunt.registerTask('files-browserstack', ['shell:files-browserstack']);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);

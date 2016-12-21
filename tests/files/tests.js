@@ -1,8 +1,8 @@
 test("standard file upload", function () {
 	stop();
-	$("#qunit-fixture-visible").html("<input type='file' name='file' />");
+	$("#qunit-fixture-visible").html("<input type='file' name='file' /> <button id='upload-button'>Upload</button>");
 	var file = $("#qunit-fixture-visible input");
-	file.on("change", function () {
+	$('#upload-button').on("click", function () {
 		var identifier = BetaJS.Time.now();
 		var uploader = BetaJS.Browser.Upload.FileUploader.create({
 			url: FileServerUrl + "files/" + identifier,
@@ -18,6 +18,8 @@ test("standard file upload", function () {
 			}).success(function (result) {
 				if (file.get(0).files)
 					QUnit.equal(file.get(0).files[0].size, result.size, "size check");
+				else
+					ok(true, "no size check");
 				$("#qunit-fixture-visible").html("");
 				start();
 			}).error(function (error) {
@@ -72,6 +74,8 @@ test("multi file upload", function () {
 				}).success(function (result) {
 					if (item.file.files)
 						QUnit.equal(item.file.files[0].size, result.size, "size check");
+					else
+						ok(true, "no size check");
 					doneCounter--;
 					if (doneCounter === 0)
 						start();
@@ -94,7 +98,8 @@ if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:t
 		stop();
 		$("#qunit-fixture-visible").html("<input type='file' name='file' />");
 		var file = $("#qunit-fixture-visible input");
-		file.on("change", function () {
+		$("#qunit-fixture-visible").append("<button id='upload-button'>Upload</button>");
+		$("#upload-button").on("click", function () {
 			var identifier = BetaJS.Time.now();
 			var uploader = BetaJS.Browser.Upload.FileUploader.create({
 				url: FileServerUrl + "chunk/" + identifier,
@@ -128,14 +133,51 @@ if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:t
 			uploader.upload();
 		});
 	});
+} else {
+	test("chunked file upload dummy", function () {
+		stop();
+		$("#qunit-fixture-visible").html("<input type='file' name='file' /> <button id='upload-button'>Upload</button>");
+		var file = $("#qunit-fixture-visible input");
+		$('#upload-button').on("click", function () {
+			var identifier = BetaJS.Time.now();
+			var uploader = BetaJS.Browser.Upload.FileUploader.create({
+				url: FileServerUrl + "files/" + identifier,
+				source: file.get(0),
+				serverSupportPostMessage: true,
+				serverSupportPostMessageId: true
+			});
+			uploader.on("success", function () {
+				ok(true, "Upload Successful");
+				BetaJS.Ajax.Support.execute({
+					uri: FileServerUrl + "files/" + identifier + "/size",
+					method: "GET"
+				}).success(function (result) {
+					if (file.get(0).files)
+						QUnit.equal(file.get(0).files[0].size, result.size, "size check");
+					else
+						ok(true, "no size check");
+					$("#qunit-fixture-visible").html("");
+					start();
+				}).error(function (error) {
+					ok(false, error);
+					start();
+				});
+			}).on("error", function (error) {
+				ok(false, error);
+				start();
+			});
+			uploader.upload();
+		});
+	});
 }
 
-if (BetaJS.Browser.Upload.StreamingFileUploader.supported({serverSupportsChunked:true})) {
+if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:true}) && BetaJS.Browser.Upload.StreamingFileUploader.supported({serverSupportsChunked:true})) {
 	test("streaming file upload", function () {
 		stop();
 		$("#qunit-fixture-visible").html("<input type='file' name='file' />");
 		var file = $("#qunit-fixture-visible input");
-		file.on("change", function () {
+		$("#qunit-fixture-visible").append("<button id='upload-button'>Upload</button>");
+		$("#upload-button").on("click", function () {
 			file = file.get(0).files[0];
 			var identifier = BetaJS.Time.now();
 			var uploader = new BetaJS.Browser.Upload.StreamingFileUploader({
@@ -177,6 +219,42 @@ if (BetaJS.Browser.Upload.StreamingFileUploader.supported({serverSupportsChunked
 				uploader.end();
 			};
 			fileReader.readAsArrayBuffer(file);
+		});
+	});
+} else {
+	test("streaming file upload dummy", function () {
+		stop();
+		$("#qunit-fixture-visible").html("<input type='file' name='file' /> <button id='upload-button'>Upload</button>");
+		var file = $("#qunit-fixture-visible input");
+		$('#upload-button').on("click", function () {
+			var identifier = BetaJS.Time.now();
+			var uploader = BetaJS.Browser.Upload.FileUploader.create({
+				url: FileServerUrl + "files/" + identifier,
+				source: file.get(0),
+				serverSupportPostMessage: true,
+				serverSupportPostMessageId: true
+			});
+			uploader.on("success", function () {
+				ok(true, "Upload Successful");
+				BetaJS.Ajax.Support.execute({
+					uri: FileServerUrl + "files/" + identifier + "/size",
+					method: "GET"
+				}).success(function (result) {
+					if (file.get(0).files)
+						QUnit.equal(file.get(0).files[0].size, result.size, "size check");
+					else
+						ok(true, "no size check");
+					$("#qunit-fixture-visible").html("");
+					start();
+				}).error(function (error) {
+					ok(false, error);
+					start();
+				});
+			}).on("error", function (error) {
+				ok(false, error);
+				start();
+			});
+			uploader.upload();
 		});
 	});
 }
