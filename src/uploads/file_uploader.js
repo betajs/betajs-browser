@@ -97,7 +97,7 @@ Scoped.define("module:Upload.FileUploader", [
 			},
 			
 			totalBytes: function () {
-				return this._total || (this._options.isBlob ? this._options.source : this._options.source.files[0]).size;
+				return this._total || this._options.source ? (this._options.isBlob ? this._options.source : this._options.source.files[0]).size : 0;
 			}			
 			
 		};
