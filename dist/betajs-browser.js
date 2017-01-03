@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.58 - 2016-12-30
+betajs-browser - v1.0.59 - 2017-01-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.58 - 2016-12-30
+betajs-browser - v1.0.59 - 2017-01-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1016,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "122.1483055709807"
+    "version": "123.1483482817309"
 };
 });
 Scoped.assumeVersion('base:version', 531);
@@ -3829,7 +3829,14 @@ Scoped.define("module:Upload.FileUploader", [
 			},
 			
 			totalBytes: function () {
-				return this._total || this._options.source ? (this._options.isBlob ? this._options.source : this._options.source.files[0]).size : 0;
+				if (this._total)
+					return this._total;
+				if (this._options.source) {
+					if (!this._options.isBlob && this._options.source.files && this._options.source.files[0])
+						return this._options.source.files[0].size;
+					return this._options.source.size || 0;
+				}
+				return 0;
 			}			
 			
 		};
