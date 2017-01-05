@@ -1,6 +1,6 @@
-var credentials = require('./browserstack/configurations/constants').browserstack;
+//var credentials = require('./browserstack/configurations/constants').browserstack;
+//var testing_folder = path.join(__dirname, "./browserstack/tests/webdriver");
 var path = require('path');
-var testing_folder = path.join(__dirname, "./browserstack/tests/webdriver");
 
 module.exports = function(grunt) {
 
@@ -100,11 +100,17 @@ module.exports = function(grunt) {
     ].join("&&")
   };
 
-  gruntHelper.config.shell.swUpload = {
+  gruntHelper.config.shell.commonFlashRecord = {
     command: [
-      './browserstack/BrowserStackLocal --key ' + credentials.key + ' --folder '+ testing_folder + ''
+      './node_modules/.bin/wdio ./browserstack/configurations/local/multiple/record-flash.conf.js'
     ].join("&&")
   };
+
+  // gruntHelper.config.shell.swUpload = {
+  //   command: [
+  //     './browserstack/BrowserStackLocal --key ' + credentials.key + ' --folder '+ testing_folder + ''
+  //   ].join("&&")
+  // };
 
   gruntHelper.config.shell.localReport = {
     command: [
@@ -130,8 +136,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask("test-upload", ["shell:commonUpload"]);
   grunt.registerTask("test-record", ["shell:commonRecord"]);
+  grunt.registerTask("test-flash-record", ["shell:commonFlashRecord"]);
   grunt.registerTask("local-report", ["shell:localReport"]);
-  grunt.registerTask("test-upload-sw", ["shell:swUpload"]);
+  //grunt.registerTask("test-upload-sw", ["shell:swUpload"]);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);

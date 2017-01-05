@@ -11,7 +11,7 @@ const credentials = require('../../../configurations/constants').browserstack;
 describe('Record with normal way', function() {
 
   it('url opens correct with success status code', function() {
-    browser.url(credentials.record.related_url);
+    browser.url(credentials.flash_record.related_url);
     var status = browser.status();
     expect(status.state).to.eql('success');
   });
@@ -21,11 +21,15 @@ describe('Record with normal way', function() {
 
   // Will press button record video
   it('open recording start page', function() {
+
+    // moveto(x,y) and buttonDown
+
+    browser.click('#chooser-primary-button', function(err) {
+      console.log('chooser-primary-button was clicked.');
+    });
     browser.waitForVisible('#recorder-overlay', function(err){
       assert.isNull(err, "Error getting main page, it's not visible");
     });
-
-    //if(browser.isVisible()) // if alert that video not supporting appears
 
     browser.click("#player-submit-button", function (err) {
       assert.isNull(err, "Error, during pressing Record Your Video");
@@ -171,21 +175,21 @@ describe('Record with normal way', function() {
 
   });
 
-  after(function(done){console.log('Record from normal way has been completed');});
+  after(function(done){console.log('\nRecord from normal way has been completed');});
 
 });
 
 describe('Upload video', function() {
   before(function(){});
   it('re-open choose page', function(){
-    browser.url(credentials.record.related_url);
+    browser.url(credentials.flash_record.related_url);
     var status = browser.status();
     expect(status.state).to.eql('success');
   });
 
   // Will press button record video
   it('click on "Upload Video"', function() {
-    browser.url('/static/space.html');
+    browser.url(credentials.flash_record.related_url);
     browser.chooseFile("input[class$=-chooser-file]", test_file_path);
     //expect(/sample\-video\.mp4$/.test(test_file_path)).to.eql(true);
     expect(true).to.be.equal(true);

@@ -11,54 +11,84 @@ exports.config = {
   services: ['firefox-profile'],
   firefoxProfile: {
     'media.navigator.permission.disabled': true,
-    'media.navigator.streams.fake': true
+    'media.navigator.streams.fake': true,
+    'plugin.state.flash': true
   },
 
   updateJob: false,
   specs: [
-    './browserstack/tests/specs/common/record.js'
+    './browserstack/tests/specs/common/record-flash.js'
   ],
   //exclude: [],
 
   commonCapabilities: {
-    'build': 'webdriver-browserstack-record',
+    'build': 'webdriver-browserstack-flash-record',
     // 'resolution' : '1024x768',
     // 'os_version' : '7',
     // 'os' : 'Windows',
     'browserstack.local': credentials.local_test,
     'acceptSslCerts' : credentials.acceptSslCerts,
     'browserstack.debug' : credentials.debug,
-    'browserstack.video' : credentials.videoRecord // Record video in browserstack
+    'browserstack.video' : credentials.videoRecord, // Record video in browserstack
+    'browserstack.ie.noFlash': false
   },
 
   capabilities: [
     // WIN 7
     // {
-    //   'name': 'firefox_record_win7',
+    //   'name': 'firefox_flash_record_win7',
     //   'browserName': 'firefox',
     //   'resolution' : '1024x768',
     //   'os_version' : '7',
     //   'os' : 'Windows',
     //   'plugin.state.flash': 0
     // },
+    {
+      'name': 'chrome_flash_record_win7',
+      'browserName': 'chrome',
+      'resolution' : '1024x768',
+      'os_version' : '7',
+      'os' : 'Windows',
+      'chromeOptions' : {
+        'args' : [
+          "use-fake-ui-for-media-stream",
+          'use-fake-device-for-media-stream'
+          // 'disable-plugins-discovery',
+          // 'disable-internal-flash'
+          // --allow-file-access-from-files // allows getUserMedia() to be called from file:// URLs.
+          // --disable-gesture-requirement-for-media-playback // removes the need to tap a <video> element to start it playing on Android.
+          // --use-file-for-fake-video-capture=path/to/file.y4m // feeds a Y4M test file to getUserMedia() instead of live camera input.
+          // --use-file-for-fake-audio-capture=path_to_fake_file // Example: http://www.signalogic.com/melp/EngSamples/Orig/female.wav
+          // --disable-user-media-security
+          // --disable-web-security, --reduce-security-for-testing
+        ]
+      }
+    }
     // {
-    //   'name': 'chrome_record_win7',
+    //   'name': 'chrome_flash_record_mac_el_capitan',
     //   'browserName': 'chrome',
     //   'resolution' : '1024x768',
-    //   'os_version' : '7',
-    //   'os' : 'Windows',
+    //   'os_version' : 'El Capitan',
+    //   'os' : 'OS X',
     //   'chromeOptions' : {
-    //     'args' : ["--use-fake-ui-for-media-stream",
-    //       'use-fake-device-for-media-stream',
-    //       'use-fake-ui-for-media-stream'
-    //       // --disable-user-media-security, --use-fake-ui-for-media-stream
+    //     'args' : [
+    //       "use-fake-ui-for-media-stream",
+    //       'use-fake-device-for-media-stream'
+    //       //'disable-plugins-discovery',
+    //       //'disable-internal-flash'
+    //       //"load-extension=" + __dirname + "/extensoins/"
+    //       // --allow-file-access-from-files // allows getUserMedia() to be called from file:// URLs.
+    //       // --disable-gesture-requirement-for-media-playback // removes the need to tap a <video> element to start it playing on Android.
+    //       // --use-file-for-fake-video-capture=path/to/file.y4m // feeds a Y4M test file to getUserMedia() instead of live camera input.
+    //       // --use-file-for-fake-audio-capture=path_to_fake_file // Example: http://www.signalogic.com/melp/EngSamples/Orig/female.wav
+    //       // --disable-user-media-security
     //       // --disable-web-security, --reduce-security-for-testing
     //     ]
     //   }
-    // },
+    // }
     // // WIN 10
     // {
-    //   'name': 'firefox_record_win10',
+    //   'name': 'firefox_flash_record_win10',
     //   'browserName': 'firefox',
     //   'resolution' : '1024x768',
     //   'os_version' : '10',
@@ -66,7 +96,7 @@ exports.config = {
     //   'plugin.state.flash': 0
     // },
     // {
-    //   'name': 'chrome_record_win10',
+    //   'name': 'chrome_flash_record_win10',
     //   'browserName': 'chrome',
     //   'resolution' : '1024x768',
     //   'os_version' : '10',
@@ -79,16 +109,16 @@ exports.config = {
     //   }
     // },
     // // Mac Sierra
-    {
-      'name': 'firefox_record_mac_sierra',
-      'browserName': 'firefox',
-      'resolution' : '1024x768',
-      'os_version' : 'Sierra',
-      'os' : 'OS X',
-      'plugin.state.flash': 0
-    }
     // {
-    //   'name': 'chrome_record_mac_sierra',
+    //   'name': 'firefox_flash_record_mac_sierra',
+    //   'browserName': 'firefox',
+    //   'resolution' : '1024x768',
+    //   'os_version' : 'Sierra',
+    //   'os' : 'OS X',
+    //   'plugin.state.flash': 0
+    // },
+    // {
+    //   'name': 'chrome_flash_record_mac_sierra',
     //   'browserName': 'chrome',
     //   'resolution' : '1024x768',
     //   'os_version' : 'Sierra',
@@ -101,7 +131,7 @@ exports.config = {
     //   }
     // }
   //  {
-  //   'name': 'ie11_record_win7',
+  //   'name': 'ie11_flash_record_win7',
   //   'version': '11',
   //   'browserName': 'internet explorer',
   //   'resolution' : '1024x768',
@@ -109,7 +139,7 @@ exports.config = {
   //   'os' : 'Windows'
   // },
   //   {
-  //   'name': 'ie_8_record_win7',
+  //   'name': 'ie_8_flash_record_win7',
   //   'browserName': 'internet explorer',
   //   'version': '8',
   //   'os' : 'Windows',
@@ -117,20 +147,20 @@ exports.config = {
   //   'resolution' : '1024x768'
   // }
   // , {
-  //   'name': 'opera_record_win7',
+  //   'name': 'opera_flash_record_win7',
   //   'browserName': 'opera',
   //   'os' : 'Windows',
   //   'os_version' : '7',
   //   'resolution' : '1024x768'
   // }, {
-  //   'name': 'safari_record_win7',
+  //   'name': 'safari_flash_record_win7',
   //   'browserName': 'safari',
   //   'os' : 'Windows',
   //   'os_version' : '7',
   //   'resolution' : '1024x768'
   // },
     // {
-    //   'name': 'ie_10_record_win7',
+    //   'name': 'ie_10_flash_record_win7',
     //   'browserName': 'internet explorer',
     //   'version': '10',
     //   'os' : 'Windows',
@@ -138,14 +168,14 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'ie_10_record_win10',
+    //   'name': 'ie_10_flash_record_win10',
     //   'browserName': 'safari',
     //   'os' : 'Windows',
     //   'os_version' : '10',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'ie_9_record_win7',
+    //   'name': 'ie_9_flash_record_win7',
     //   'browserName': 'internet explorer',
     //   'version': '9',
     //   'os' : 'Windows',
@@ -153,7 +183,7 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'firefox_32_record_win7',
+    //   'name': 'firefox_32_flash_record_win7',
     //   'browserName': 'firefox',
     //   'version': '32',
     //   'os' : 'Windows',
@@ -161,14 +191,14 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'chrome_record_mac_sierra',
+    //   'name': 'chrome_flash_record_mac_sierra',
     //   'browserName': 'chrome',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'firefox_record_mac_el_capitan',
+    //   'name': 'firefox_flash_record_mac_el_capitan',
     //   'browserName': 'firefox',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'El Capitan',
@@ -176,7 +206,7 @@ exports.config = {
     // }
     //
     // {
-    //   'name': 'chrome_31_record_win7',
+    //   'name': 'chrome_31_flash_record_win7',
     //   'browserName': 'chrome',
     //   'version': '31',
     //   'os' : 'Windows',
@@ -184,7 +214,7 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'opera_record_mac',
+    //   'name': 'opera_flash_record_mac',
     //   'browserName': 'opera',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
@@ -194,7 +224,7 @@ exports.config = {
     // Facing with not selection issue
 
     // {
-    //   'name': 'edge_13_record_win10',
+    //   'name': 'edge_13_flash_record_win10',
     //   'browserName': 'edge',
     //   'version': 13,
     //   'os' : 'Windows',
@@ -203,7 +233,7 @@ exports.config = {
     // }
 
     // {
-    //   'name': 'edge_14_record_win10',
+    //   'name': 'edge_14_flash_record_win10',
     //   'browserName': 'edge',
     //   'os' : 'Windows',
     //   'version': '14',
@@ -211,21 +241,21 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_record_mac_sierra',
+    //   'name': 'safari_flash_record_mac_sierra',
     //   'browserName': 'safari',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_record_mac_el_capitan',
+    //   'name': 'safari_flash_record_mac_el_capitan',
     //   'browserName': 'safari',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'El Capitan',
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'opera_old_23_record_mac',
+    //   'name': 'opera_old_23_flash_record_mac',
     //   'browserName': 'opera',
     //   'version': '23',
     //   'os' : 'Windows',
@@ -233,7 +263,7 @@ exports.config = {
     //   'resolution' : '1024x768'
     // },
     // {
-    //   'name': 'safari_record_mac_yosemite',
+    //   'name': 'safari_flash_record_mac_yosemite',
     //   'browserName': 'safari',
     //   'os' : 'OS X',
     //   'os_version': 'Yosemite',
@@ -241,7 +271,7 @@ exports.config = {
     // },
 
     // {
-    //   'name': 'safari_record_mac_mavericks',
+    //   'name': 'safari_flash_record_mac_mavericks',
     //   'browserName': 'safari',
     //   'os' : 'OS X',
     //   'os_version': 'Mavericks',
@@ -250,19 +280,19 @@ exports.config = {
 
     // Mobile Devices
     // {
-    //   'name': 'android_record_android',
+    //   'name': 'android_flash_record_android',
     //   'browserName': 'Android',
     //   'os' : 'android'
     // },
 
     // {
-    //   'name': 'iPhone_record_ios',
+    //   'name': 'iPhone_flash_record_ios',
     //   'browserName': 'iPhone',
     //   'os' : 'ios'
     // },
     //
     // {
-    //   'name': 'iPad_14_record_ios',
+    //   'name': 'iPad_14_flash_record_ios',
     //   'browserName': 'iPad',
     //   'os' : 'ios'
     // }
@@ -306,12 +336,12 @@ exports.config = {
 
   //Code to start browserstack local before start of test
   onPrepare: function (config, capabilities) {
-    console.log("Connecting local recording test");
+    console.log("Connecting local flash recording test");
     return new Promise(function(resolve, reject){
       exports.bs_local = new browserstack.Local();
       exports.bs_local.start({'key': exports.config.key }, function(error) {
         if (error) return reject(error);
-        console.log('Connected. Now testing record video...');
+        console.log('Connected. Now testing flash record video...');
 
         resolve();
       });

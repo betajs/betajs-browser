@@ -21,6 +21,10 @@ module.exports = {
       "base_url" : "http://localhost:6001",
       "related_url" : "/static/cube.html"
     },
+    "flash_record" : {
+      "base_url" : "http://localhost:6001",
+      "related_url" : "/demos/record5.html"
+    },
     "ie" : {
       "noFlash" : true,  // Disable Flash in IE
       "enablePopups" : true

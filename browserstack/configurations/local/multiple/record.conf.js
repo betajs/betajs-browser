@@ -41,21 +41,22 @@ exports.config = {
     //   'os' : 'Windows',
     //   'plugin.state.flash': 0
     // },
-    // {
-    //   'name': 'chrome_record_win7',
-    //   'browserName': 'chrome',
-    //   'resolution' : '1024x768',
-    //   'os_version' : '7',
-    //   'os' : 'Windows',
-    //   'chromeOptions' : {
-    //     'args' : ["--use-fake-ui-for-media-stream",
-    //       'use-fake-device-for-media-stream',
-    //       'use-fake-ui-for-media-stream'
-    //       // --disable-user-media-security, --use-fake-ui-for-media-stream
-    //       // --disable-web-security, --reduce-security-for-testing
-    //     ]
-    //   }
-    // },
+    {
+      'name': 'chrome_record_win7',
+      'browserName': 'chrome',
+      'resolution' : '1024x768',
+      'os_version' : '7',
+      'os' : 'Windows',
+      'chromeOptions' : {
+        'args' : ["--use-fake-ui-for-media-stream",
+          'use-fake-device-for-media-stream',
+          'use-fake-ui-for-media-stream'
+          // --disable-user-media-security, --use-fake-ui-for-media-stream
+          // --disable-web-security, --reduce-security-for-testing
+        ]
+      }
+    }
+    //,
     // // WIN 10
     // {
     //   'name': 'firefox_record_win10',
@@ -79,14 +80,14 @@ exports.config = {
     //   }
     // },
     // // Mac Sierra
-    {
-      'name': 'firefox_record_mac_sierra',
-      'browserName': 'firefox',
-      'resolution' : '1024x768',
-      'os_version' : 'Sierra',
-      'os' : 'OS X',
-      'plugin.state.flash': 0
-    }
+    // {
+    //   'name': 'firefox_record_mac_sierra',
+    //   'browserName': 'firefox',
+    //   'resolution' : '1024x768',
+    //   'os_version' : 'Sierra',
+    //   'os' : 'OS X',
+    //   'plugin.state.flash': 0
+    // }
     // {
     //   'name': 'chrome_record_mac_sierra',
     //   'browserName': 'chrome',

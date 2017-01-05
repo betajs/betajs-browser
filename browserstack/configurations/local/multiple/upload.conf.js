@@ -33,13 +33,14 @@ exports.config = {
   //   'os_version' : '7',
   //   'os' : 'Windows'
   // },
-  // {
-  //   'name': 'chrome_upload_win7',
-  //   'browserName': 'chrome',
-  //   'resolution' : '1024x768',
-  //   'os_version' : '7',
-  //   'os' : 'Windows'
-  // }, {
+  {
+    'name': 'chrome_upload_win7',
+    'browserName': 'chrome',
+    'resolution' : '1024x768',
+    'os_version' : '7',
+    'os' : 'Windows'
+  }
+  // , {
   //   'name': 'ie11_upload_win7',
   //   'version': '11',
   //   'browserName': 'internet explorer',
@@ -99,20 +100,20 @@ exports.config = {
     //   'os_version' : '7',
     //   'resolution' : '1024x768'
     // },
-    {
-      'name': 'chrome_upload_mac_sierra',
-      'browserName': 'chrome',
-      'os' : 'OS X', // MAC
-      'os_version': 'Sierra',
-      'resolution' : '1024x768'
-    },
-    {
-      'name': 'firefox_upload_mac_el_capitan',
-      'browserName': 'firefox',
-      'os' : 'OS X', // MAC
-      'os_version': 'El Capitan',
-      'resolution' : '1024x768'
-    }
+    // {
+    //   'name': 'chrome_upload_mac_sierra',
+    //   'browserName': 'chrome',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'Sierra',
+    //   'resolution' : '1024x768'
+    // },
+    // {
+    //   'name': 'firefox_upload_mac_el_capitan',
+    //   'browserName': 'firefox',
+    //   'os' : 'OS X', // MAC
+    //   'os_version': 'El Capitan',
+    //   'resolution' : '1024x768'
+    // }.
     //
     // {
     //   'name': 'chrome_31_upload_win7',
@@ -154,8 +155,9 @@ exports.config = {
     //   'browserName': 'safari',
     //   'os' : 'OS X', // MAC
     //   'os_version': 'Sierra',
-    //   'resolution' : '1024x768'
-    // },
+    //   'resolution' : '1024x768',
+    //   'browserstack.safari.driver': "2.48"
+    // }
     // {
     //   'name': 'safari_upload_mac_el_capitan',
     //   'browserName': 'safari',
@@ -209,7 +211,7 @@ exports.config = {
   ],
 
   // Level of logging verbosity: silent | verbose | command | data | result | error
-  logLevel: 'verbose',
+  logLevel: 'silent',
 
   maxInstances: 1, // It's pointing how many spec files will run for several capabilites
 
@@ -249,7 +251,7 @@ exports.config = {
       exports.bs_local = new browserstack.Local();
       exports.bs_local.start({'key': exports.config.key }, function(error) {
         if (error) return reject(error);
-        console.log('Connected. Now testing chrome-upload...');
+        console.log('Connected. Now testing upload...');
 
         resolve();
       });
