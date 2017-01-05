@@ -78,7 +78,7 @@ module.exports = function(grunt) {
 
   gruntHelper.config.shell.firefoxRecord = {
     command: [
-      './node_modules/.bin/wdio browserstack/configurations/local/firefox/record.conf.js',
+      './node_modules/.bin/wdio browserstack/configurations/local/firefox/record.conf.js'
     ].join("&&")
   };
 
