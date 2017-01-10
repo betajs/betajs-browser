@@ -187,18 +187,20 @@ Scoped.define("module:Dom", [
 		elementDimensions: function (element) {
 			element = this.unbox(element);
 			var cs, w, h;
-			if (window.getComputedStyle) {
+			if (element && window.getComputedStyle) {
 				cs = window.getComputedStyle(element);
-				w = parseInt(cs.width, 10);
-				h = parseInt(cs.height, 10);
-				if (w && h) {
-					return {
-						width: w,
-						height: h
-					};
+				if (cs) {
+					w = parseInt(cs.width, 10);
+					h = parseInt(cs.height, 10);
+					if (w && h) {
+						return {
+							width: w,
+							height: h
+						};
+					}
 				}
 			}
-			if (element.currentStyle) {
+			if (element && element.currentStyle) {
 				cs = element.currentStyle;
 				w = element.clientWidth - parseInt(cs.paddingLeft || 0, 10) - parseInt(cs.paddingRight || 0, 10);
 				h = element.clientHeight - parseInt(cs.paddingTop || 0, 10) - parseInt(cs.paddingTop || 0, 10);
@@ -209,7 +211,7 @@ Scoped.define("module:Dom", [
 					};
 				}
 			}
-			if (element.getBoundingClientRect) {
+			if (element && element.getBoundingClientRect) {
 				var box = element.getBoundingClientRect();
 				h = box.bottom - box.top;
 				w = box.right - box.left;
@@ -265,6 +267,23 @@ Scoped.define("module:Dom", [
 			for (i = 0; i < disregarding.length; ++i)
 				disregarding[i].style.zIndex = backup[i];
 			return element;
+		},
+		
+		elementAddClass: function (element, cls) {
+			if (!this.elementHasClass(element, cls))
+				element.className = element.className + " " + cls;
+		},
+		
+		elementHasClass: function (element, cls) {
+			return element.className.split(" ").some(function (name) {
+				return name === cls;
+			});
+		},
+		
+		elementRemoveClass: function (element, cls) {
+			element.className = element.className.split(" ").filter(function (name) {
+				return name !== cls;
+			}).join(" ");
 		}
 
 	};
