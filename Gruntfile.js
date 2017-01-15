@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
 	var pkg = grunt.file.readJSON('package.json');
-	var gruntHelper = require('betajs-compile/grunt.js');
+	var gruntHelper = require('betajs-compile');
 	var dist = 'betajs-browser';
 	
 	gruntHelper.init(pkg, grunt)
@@ -12,9 +12,9 @@ module.exports = function(grunt) {
 		"module": "global:BetaJS.Browser",
 		"base": "global:BetaJS"
     }, {
-    	"base:version": 531
+    	"base:version": pkg.devDependencies.betajs
     })	
-    .concatTask('concat-scoped', ['vendors/scoped.js', 'dist/' + dist + '-noscoped.js'], 'dist/' + dist + '.js')
+    .concatTask('concat-scoped', [require.resolve("betajs-scoped"), 'dist/' + dist + '-noscoped.js'], 'dist/' + dist + '.js')
     .uglifyTask('uglify-noscoped', 'dist/' + dist + '-noscoped.js', 'dist/' + dist + '-noscoped.min.js')
     .uglifyTask('uglify-scoped', 'dist/' + dist + '.js', 'dist/' + dist + '.min.js')
 
@@ -23,8 +23,8 @@ module.exports = function(grunt) {
     .browserqunitTask("ajax-browserstack", "tests/ajax/browserstack.html")
     .qunitTask(null, './dist/' + dist + '-noscoped.js',
     		         grunt.file.expand(["./tests/fragments/test-jsdom.js", "./tests/common/*.js"]),
-    		         ['./tests/fragments/init-jsdom.js', './vendors/scoped.js', './vendors/beta-noscoped.js'])
-    .closureTask(null, ["./vendors/scoped.js", "./vendors/beta-noscoped.js", "./dist/betajs-browser-noscoped.js"], null, { })
+    		         ['./tests/fragments/init-jsdom.js', require.resolve("betajs-scoped"), require.resolve("betajs")])
+    .closureTask(null, [require.resolve("betajs-scoped"), require.resolve("betajs"), "./dist/betajs-browser-noscoped.js"], null, { })
     .browserstackTask(null, 'tests/tests.html', {desktop: true, mobile: true})
     .lintTask(null, ['./src/**/*.js', './dist/' + dist + '-noscoped.js', './dist/' + dist + '.js', './Gruntfile.js', './tests/**/*.js'])
     
@@ -33,9 +33,6 @@ module.exports = function(grunt) {
     .travisTask(null, "4.0")
     .packageTask()
     
-    /* Dependencies */
-    .dependenciesTask(null, { github: ['betajs/betajs-scoped/dist/scoped.js', 'betajs/betajs/dist/beta-noscoped.js', 'betajs/betajs-shims/dist/betajs-shims.js'] })
-
     /* Markdown Files */
 	.readmeTask()
     .licenseTask()
@@ -48,14 +45,14 @@ module.exports = function(grunt) {
 		command: [
 		    'open http://' + gruntHelper.myip() + ':5000/static/tests/ajax/index.html?cors=' + gruntHelper.myhostname() + ":5001",
 		    'open http://' + gruntHelper.myhostname() + ":5001/static/tests/ajax/dummy.html",
-		    'node node_modules/mock-ajax-server/server.js --staticserve .'
+		    'node ' + require.resolve("mock-ajax-server") + ' --staticserve .'
 		].join("&&")
 	};
 	
 	gruntHelper.config.shell.filesqunit = {
 		command: [
 		    'open http://' + gruntHelper.myip() + ':5000/static/tests/files/index.html',
-		    'node node_modules/mock-file-server/server.js --staticserve .'
+		    'node ' + require.resolve("mock-file-server") + ' --staticserve .'
 		].join("&&")
 	};
 

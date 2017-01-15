@@ -284,6 +284,33 @@ Scoped.define("module:Dom", [
 			element.className = element.className.split(" ").filter(function (name) {
 				return name !== cls;
 			}).join(" ");
+		},
+		
+		elementInsertBefore: function (element, before) {
+			before.parentNode.insertBefore(element, before);
+		},
+		
+		elementInsertAfter: function (element, after) {
+			if (after.nextSibling)
+				after.parentNode.insertBefore(element, after.nextSibling);
+			else
+				after.parentNode.appendChild(element);
+		},
+		
+		elementInsertAt: function (element, parent, index) {
+			if (index >= parent.children.length)
+				parent.appendChild(element);
+			else
+				parent.insertBefore(element, parent.children[Math.max(0, index)]);
+		},
+		
+		elementIndex: function (element) {
+			var idx = 0;
+			while (element.previousElementSibling) {
+				idx++;
+				element = element.previousElementSibling;
+			}
+			return idx;
 		}
 
 	};

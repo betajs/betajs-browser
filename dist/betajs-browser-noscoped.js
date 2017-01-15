@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.60 - 2017-01-10
+betajs-browser - v1.0.61 - 2017-01-15
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,10 +11,10 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "125.1484066983013"
+    "version": "1.0.61"
 };
 });
-Scoped.assumeVersion('base:version', 531);
+Scoped.assumeVersion('base:version', '~1.0.96');
 Scoped.define("module:Ajax.IframePostmessageAjax", [
     "base:Ajax.Support",
     "base:Net.Uri",
@@ -2006,6 +2006,33 @@ Scoped.define("module:Dom", [
 			element.className = element.className.split(" ").filter(function (name) {
 				return name !== cls;
 			}).join(" ");
+		},
+		
+		elementInsertBefore: function (element, before) {
+			before.parentNode.insertBefore(element, before);
+		},
+		
+		elementInsertAfter: function (element, after) {
+			if (after.nextSibling)
+				after.parentNode.insertBefore(element, after.nextSibling);
+			else
+				after.parentNode.appendChild(element);
+		},
+		
+		elementInsertAt: function (element, parent, index) {
+			if (index >= parent.children.length)
+				parent.appendChild(element);
+			else
+				parent.insertBefore(element, parent.children[Math.max(0, index)]);
+		},
+		
+		elementIndex: function (element) {
+			var idx = 0;
+			while (element.previousElementSibling) {
+				idx++;
+				element = element.previousElementSibling;
+			}
+			return idx;
 		}
 
 	};
