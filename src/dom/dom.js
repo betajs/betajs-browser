@@ -311,6 +311,13 @@ Scoped.define("module:Dom", [
 				element = element.previousElementSibling;
 			}
 			return idx;
+		},
+		
+		elementPrependChild: function (parent, child) {
+			if (parent.children.length > 0)
+				parent.insertBefore(child, parent.firstChild);
+			else
+				parent.appendChild(child);
 		}
 
 	};
