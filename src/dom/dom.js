@@ -1,8 +1,28 @@
 Scoped.define("module:Dom", [
     "base:Types",
-    "module:Info"
-], function (Types, Info) {
+    "module:Info",
+    "base:Async"
+], function (Types, Info, Async) {
 	return {
+		
+		ready: function (callback, context) {
+			if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+				Async.eventually(callback, context);
+			} else {
+				var completed;
+				var done = false;
+				completed = function () {
+					document.removeEventListener("DOMContentLoaded", completed);
+					window.removeEventListener("load", completed);
+					if (done)
+						return;
+					done = true;
+					callback.apply(context || this);
+				};
+				document.addEventListener("DOMContentLoaded", completed);
+				window.addEventListener("load", completed);
+			}
+		},
 		
 		elementsByTemplate: function (template) {
 			template = template.trim();

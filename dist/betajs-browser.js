@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.62 - 2017-01-17
+betajs-browser - v1.0.63 - 2017-01-18
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.62 - 2017-01-17
+betajs-browser - v1.0.63 - 2017-01-18
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1016,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.62"
+    "version": "1.0.63"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.96');
@@ -2727,9 +2727,29 @@ Scoped.define("module:LocationRouteBinder", [
 
 Scoped.define("module:Dom", [
     "base:Types",
-    "module:Info"
-], function (Types, Info) {
+    "module:Info",
+    "base:Async"
+], function (Types, Info, Async) {
 	return {
+		
+		ready: function (callback, context) {
+			if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+				Async.eventually(callback, context);
+			} else {
+				var completed;
+				var done = false;
+				completed = function () {
+					document.removeEventListener("DOMContentLoaded", completed);
+					window.removeEventListener("load", completed);
+					if (done)
+						return;
+					done = true;
+					callback.apply(context || this);
+				};
+				document.addEventListener("DOMContentLoaded", completed);
+				window.addEventListener("load", completed);
+			}
+		},
 		
 		elementsByTemplate: function (template) {
 			template = template.trim();
