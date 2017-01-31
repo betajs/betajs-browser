@@ -61,6 +61,9 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 			if (options.corscreds)
 				xmlhttp.withCredentials = true;
 
+			if (options.bearer)
+				xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
+
 			if (options.method !== "GET" && !Types.is_empty(options.data)) {
 				if (options.requireFormData) {
 					var formData = new FormData();
