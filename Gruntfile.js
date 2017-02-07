@@ -27,6 +27,14 @@ module.exports = function(grunt) {
     .closureTask(null, [require.resolve("betajs-scoped"), require.resolve("betajs"), "./dist/betajs-browser-noscoped.js"], null, { })
     .browserstackTask(null, 'tests/tests.html', {desktop: true, mobile: true})
     .lintTask(null, ['./src/**/*.js', './dist/' + dist + '-noscoped.js', './dist/' + dist + '.js', './Gruntfile.js', './tests/**/*.js'])
+    .cleanTask("clean-cordova", "./temp/cordova")
+    .simplecopyTask('copy-cordova', {
+    	'temp/cordova/www/index.html': './tests/cordova/index.html',
+    	'temp/cordova/www/scoped.js': './node_modules/betajs-scoped/dist/scoped.js',
+    	'temp/cordova/www/beta-noscoped.js': './node_modules/betajs/dist/beta-noscoped.js',
+    	'temp/cordova/www/betajs-browser-noscoped.js': './dist/betajs-browser-noscoped.js',
+    	'temp/cordova/config.xml': './tests/cordova/config.xml'
+    })
     
     /* External Configurations */
     .codeclimateTask()
@@ -67,6 +75,51 @@ module.exports = function(grunt) {
 			    './node_modules/.bin/wdio tests/files/selenium-local.js '
 			].join("&&")
 		};
+	
+	gruntHelper.config.shell["build-cordova-test"] = {
+		command: [
+			"cordova platform add ios",
+			"cordova platform add android",
+			//"cordova plugin add cordova-plugin-camera --variable CAMERA_USAGE_DESCRIPTION='Camera'",
+			"cordova plugin add cordova-plugin-file-transfer",
+			"cordova plugin add cordova-plugin-media-capture",
+			"cordova build"
+		].join("&&"),
+		options: {
+        	stdout: true,
+        	stderr: true,
+        	execOptions: {
+            	cwd: 'temp/cordova',
+            	maxBuffer: 1024 * 1024
+        	}
+    	}
+	};
+	gruntHelper.config.shell["cordova-test-run-ios"] = {
+			command: [
+				"cordova run ios --device"
+			].join("&&"),
+			options: {
+	        	stdout: true,
+	        	stderr: true,
+	        	execOptions: {
+	            	cwd: 'temp/cordova',
+	            	maxBuffer: 1024 * 1024
+	        	}
+	    	}
+		};
+	gruntHelper.config.shell["cordova-test-run-android"] = {
+			command: [
+				"cordova run android --device"
+			].join("&&"),
+			options: {
+	        	stdout: true,
+	        	stderr: true,
+	        	execOptions: {
+	            	cwd: 'temp/cordova',
+	            	maxBuffer: 1024 * 1024
+	        	}
+	    	}
+		};
 
 	grunt.initConfig(gruntHelper.config);
 	
@@ -77,5 +130,8 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
+	grunt.registerTask("build-cordova-test", ["clean-cordova", "copy-cordova", "shell:build-cordova-test"]);
+	grunt.registerTask("run-cordova-test-ios", ["shell:cordova-test-run-ios"]);
+	grunt.registerTask("run-cordova-test-android", ["shell:cordova-test-run-android"]);
 
 };

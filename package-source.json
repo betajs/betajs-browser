@@ -19,6 +19,7 @@
 		"grunt-jsdoc": "",
 		"grunt-shell": "",
 		"grunt-template": "",
+		"grunt-contrib-copy": "",
 		"selenium-webdriver": "",
 		"webdriverio": "",
 		"wdio-mocha-framework": "",
