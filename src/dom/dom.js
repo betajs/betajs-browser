@@ -92,7 +92,7 @@ Scoped.define("module:Dom", [
 		__FULLSCREEN_EVENTS: ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"],
 		__FULLSCREEN_METHODS: ["requestFullscreen", "webkitRequestFullscreen", "mozRequestFullScreen", "msRequestFullscreen"],
 		__FULLSCREEN_ATTRS: ["fullscreenElement", "webkitFullscreenElement", "mozFullScreenElement", "msFullscreenElement"],
-    __FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
+		__FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
 
 		elementSupportsFullscreen: function (element) {
 			return this.__FULLSCREEN_METHODS.some(function (key) {
@@ -111,13 +111,13 @@ Scoped.define("module:Dom", [
 		},
 
 		// Will exit from document's full screen mode
-    documentExitFullscreen: function () {
-      this.__FULLSCREEN_EXIT_METHODS.forEach(function(key) {
-        if( document[key] ) {
-          document[key]();
-        }
-      });
-    },
+		documentExitFullscreen: function () {
+			this.__FULLSCREEN_EXIT_METHODS.forEach(function(key) {
+				if (document[key]) {
+					document[key]();
+				}
+			});
+		},
 
 		elementIsFullscreen: function (element) {
 			return this.__FULLSCREEN_ATTRS.some(function (key) {
