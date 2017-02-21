@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.64 - 2017-01-29
+betajs-browser - v1.0.65 - 2017-02-21
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1004,7 +1004,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.64 - 2017-01-29
+betajs-browser - v1.0.65 - 2017-02-21
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1016,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.64"
+    "version": "1.0.65"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.96');
@@ -2822,7 +2822,7 @@ Scoped.define("module:Dom", [
 		__FULLSCREEN_EVENTS: ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"],
 		__FULLSCREEN_METHODS: ["requestFullscreen", "webkitRequestFullscreen", "mozRequestFullScreen", "msRequestFullscreen"],
 		__FULLSCREEN_ATTRS: ["fullscreenElement", "webkitFullscreenElement", "mozFullScreenElement", "msFullscreenElement"],
-    __FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
+		__FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
 
 		elementSupportsFullscreen: function (element) {
 			return this.__FULLSCREEN_METHODS.some(function (key) {
@@ -2841,13 +2841,13 @@ Scoped.define("module:Dom", [
 		},
 
 		// Will exit from document's full screen mode
-    documentExitFullscreen: function () {
-      this.__FULLSCREEN_EXIT_METHODS.forEach(function(key) {
-        if( document[key] ) {
-          document[key]();
-        }
-      });
-    },
+		documentExitFullscreen: function () {
+			this.__FULLSCREEN_EXIT_METHODS.forEach(function(key) {
+				if (document[key]) {
+					document[key]();
+				}
+			});
+		},
 
 		elementIsFullscreen: function (element) {
 			return this.__FULLSCREEN_ATTRS.some(function (key) {
@@ -2935,7 +2935,7 @@ Scoped.define("module:Dom", [
 			if (element.getBoundingClientRect) {
 				var box = element.getBoundingClientRect();
 				top = box.top;
-				left = box.left;
+				left = box.left - (document.body.getBoundingClientRect ? document.body.getBoundingClientRect().left : 0);
 			}
 			docElem = document.documentElement;
 			return {

@@ -205,7 +205,7 @@ Scoped.define("module:Dom", [
 			if (element.getBoundingClientRect) {
 				var box = element.getBoundingClientRect();
 				top = box.top;
-				left = box.left;
+				left = box.left - (document.body.getBoundingClientRect ? document.body.getBoundingClientRect().left : 0);
 			}
 			docElem = document.documentElement;
 			return {
