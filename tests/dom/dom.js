@@ -40,6 +40,7 @@ test("trigger click dom event", function () {
 
 if (!(BetaJS.Browser.Info.isiOS() && BetaJS.Browser.Info.iOSversion().major < 4)) {
 test("element offset", function () {
+	var addLeft = document.body.getBoundingClientRect ? document.body.getBoundingClientRect().left : 0;
 	var outerLeft = 20.25;
 	var outerTop = 10.75;
 	var innerLeft = 42.5;
@@ -56,7 +57,7 @@ test("element offset", function () {
 	                 (BetaJS.Browser.Info.isAndroid()  && BetaJS.Browser.Info.androidVersion().major < 4);
 	var roundIf = function (value, enable) { return enable ? Math.round(value) : value; };
 	var floorIf = function (value, enable) { return enable ? Math.floor(value) : value; };
-	QUnit.equal(offset.left, roundIf(floorIf(outerLeft, floorInner) + floorIf(innerLeft, floorInner), roundOuter));
+	QUnit.equal(offset.left + addLeft, roundIf(floorIf(outerLeft, floorInner) + floorIf(innerLeft, floorInner), roundOuter));
 	QUnit.equal(offset.top, roundIf(floorIf(outerTop, floorInner) + floorIf(innerTop, floorInner), roundOuter));
 	parent.remove();
 });

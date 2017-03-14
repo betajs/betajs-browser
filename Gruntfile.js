@@ -40,6 +40,7 @@ module.exports = function(grunt) {
     .codeclimateTask()
     .travisTask(null, "4.0")
     .packageTask()
+	.githookTask(null, "pre-commit", "check-node")
     
     /* Markdown Files */
 	.readmeTask()

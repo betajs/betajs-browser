@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.65 - 2017-02-21
+betajs-browser - v1.0.66 - 2017-03-14
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.65"
+    "version": "1.0.66"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.96');
@@ -313,7 +313,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || xmlhttp.status === 0) {
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || (xmlhttp.status === 0 && xmlhttp.responseText)) {
 				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, options.decodeType || "json");
 			    	} else {
 			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");

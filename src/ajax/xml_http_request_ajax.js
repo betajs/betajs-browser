@@ -41,7 +41,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
 			xmlhttp.onreadystatechange = function () {
 			    if (xmlhttp.readyState === 4) {
-			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || xmlhttp.status === 0) {
+			    	if (HttpHeader.isSuccessStatus(xmlhttp.status) || (xmlhttp.status === 0 && xmlhttp.responseText)) {
 				    	AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, options.decodeType || "json");
 			    	} else {
 			    		AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
