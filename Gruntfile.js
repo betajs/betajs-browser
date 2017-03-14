@@ -128,7 +128,7 @@ module.exports = function(grunt) {
 	grunt.registerTask("filesqunit", ["shell:filesqunit"]);
 	grunt.registerTask('files-browserstack', ['shell:files-browserstack']);
 
-	grunt.registerTask('default', ['package', 'readme', 'license', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
+	grunt.registerTask('default', ['package', 'readme', 'license', 'githook', 'codeclimate', 'travis', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 	grunt.registerTask("build-cordova-test", ["clean-cordova", "copy-cordova", "shell:build-cordova-test"]);
