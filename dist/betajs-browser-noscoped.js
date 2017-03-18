@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.66 - 2017-03-14
+betajs-browser - v1.0.67 - 2017-03-17
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.66"
+    "version": "1.0.67"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.96');
@@ -1725,9 +1725,10 @@ Scoped.define("module:LocationRouteBinder", [
 
 Scoped.define("module:Dom", [
     "base:Types",
+	"base:Objs",
     "module:Info",
     "base:Async"
-], function (Types, Info, Async) {
+], function (Types, Objs, Info, Async) {
 	return {
 		
 		ready: function (callback, context) {
@@ -1882,7 +1883,7 @@ Scoped.define("module:Dom", [
 			return !element || element.nodeType ? element : element.get(0);
 		},
 		
-		triggerDomEvent: function (element, eventName) {
+		triggerDomEvent: function (element, eventName, parameters) {
 			element = this.unbox(element);
 			eventName = eventName.toLowerCase();
 			var onEvent = "on" + eventName;
@@ -1910,6 +1911,7 @@ Scoped.define("module:Dom", [
 						event.type = eventName;
 					}
 				}
+				Objs.extend(event, parameters);
 				element.dispatchEvent(event);
 				if (onEventHandler) {
 					if (!onEventCalled)

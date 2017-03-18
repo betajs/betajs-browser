@@ -1,8 +1,9 @@
 Scoped.define("module:Dom", [
     "base:Types",
+	"base:Objs",
     "module:Info",
     "base:Async"
-], function (Types, Info, Async) {
+], function (Types, Objs, Info, Async) {
 	return {
 		
 		ready: function (callback, context) {
@@ -157,7 +158,7 @@ Scoped.define("module:Dom", [
 			return !element || element.nodeType ? element : element.get(0);
 		},
 		
-		triggerDomEvent: function (element, eventName) {
+		triggerDomEvent: function (element, eventName, parameters) {
 			element = this.unbox(element);
 			eventName = eventName.toLowerCase();
 			var onEvent = "on" + eventName;
@@ -185,6 +186,7 @@ Scoped.define("module:Dom", [
 						event.type = eventName;
 					}
 				}
+				Objs.extend(event, parameters);
 				element.dispatchEvent(event);
 				if (onEventHandler) {
 					if (!onEventCalled)
