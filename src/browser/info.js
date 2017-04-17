@@ -65,9 +65,7 @@ Scoped.define("module:Info", [
         },
 
         isCordova: function() {
-            return this.__cached("isCordova", function() {
-                return !!window.cordova || !!window._cordovaNative || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
-            });
+            return !!window.cordova || !!window._cordovaNative || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
         },
 
         isLocalCordova: function() {
