@@ -352,6 +352,26 @@ Scoped.define("module:Dom", [
                 parent.insertBefore(child, parent.firstChild);
             else
                 parent.appendChild(child);
+        },
+
+        // When element in visible port view, will return true
+        isElementVisible: function(element, fraction) {
+            fraction = fraction || 0.8;
+
+            var offset = this.elementOffset(element);
+            var x = offset.left;
+            var y = offset.top;
+            var w = element.offsetWidth;
+            var h = element.offsetHeight;
+            var right = x + w;
+            var bottom = y + h;
+
+            var visibleX = Math.max(0, Math.min(w, window.pageXOffset + window.innerWidth - x, right - window.pageXOffset));
+            var visibleY = Math.max(0, Math.min(h, window.pageYOffset + window.innerHeight - y, bottom - window.pageYOffset));
+
+            var visible = visibleX * visibleY / ( w * h);
+
+            return (visible > fraction);
         }
 
     };
