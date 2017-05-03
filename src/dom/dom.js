@@ -369,7 +369,7 @@ Scoped.define("module:Dom", [
             var visibleX = Math.max(0, Math.min(w, window.pageXOffset + window.innerWidth - x, right - window.pageXOffset));
             var visibleY = Math.max(0, Math.min(h, window.pageYOffset + window.innerHeight - y, bottom - window.pageYOffset));
 
-            var visible = visibleX * visibleY / ( w * h);
+            var visible = visibleX * visibleY / (w * h);
 
             return (visible > fraction);
         }
