@@ -96,7 +96,7 @@ Scoped.define("module:Dom", [
         __FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
 
         elementSupportsFullscreen: function(element) {
-            return this.__FULLSCREEN_METHODS.some(function(key) {
+            return element && this.__FULLSCREEN_METHODS.some(function(key) {
                 return key in element;
             });
         },
