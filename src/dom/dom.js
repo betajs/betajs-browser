@@ -12,7 +12,9 @@ Scoped.define("module:Dom", [
             } else {
                 var completed;
                 var done = false;
+                var timer = null;
                 completed = function() {
+                    clearInterval(timer);
                     document.removeEventListener("DOMContentLoaded", completed);
                     window.removeEventListener("load", completed);
                     if (done)
@@ -22,6 +24,10 @@ Scoped.define("module:Dom", [
                 };
                 document.addEventListener("DOMContentLoaded", completed);
                 window.addEventListener("load", completed);
+                timer = setInterval(function() {
+                    if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll))
+                        completed();
+                }, 10);
             }
         },
 
