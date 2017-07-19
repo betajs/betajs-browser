@@ -161,6 +161,8 @@ Scoped.define("module:Dom", [
         },
 
         unbox: function(element) {
+            if (Types.is_string(element))
+                element = document.querySelector(element);
             return !element || element.nodeType ? element : element.get(0);
         },
 
