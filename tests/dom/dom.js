@@ -4,6 +4,14 @@ test("template to elements", function () {
 });
 
 
+test("dom ready", function () {
+	stop();
+	BetaJS.Browser.Dom.ready(function () {
+		ok(true);
+		start();
+	});
+});
+
 test("trigger foobar dom event", function () {
 	var element = document.createElement("div");
 	document.body.appendChild(element);
