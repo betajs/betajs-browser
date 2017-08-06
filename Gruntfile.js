@@ -21,10 +21,8 @@ module.exports = function(grunt) {
 
     /* Testing */
     .browserqunitTask(null, "tests/tests.html")
-    .browserqunitTask("ajax-browserstack", "tests/ajax/browserstack.html")
-    .qunitTask(null, './dist/' + dist + '-noscoped.js',
-    		         grunt.file.expand(["./tests/fragments/test-jsdom.js", "./tests/common/*.js"]),
-    		         ['./tests/fragments/init-jsdom.js', require.resolve("betajs-scoped"), require.resolve("betajs")])
+    .browserstackTask("ajax-browserstack", "tests/ajax/browserstack.html")
+    .qunitjsTask(null, ["tests/qunitjs-node.js"])
     .closureTask(null, [require.resolve("betajs-scoped"), require.resolve("betajs"), "./dist/betajs-browser-noscoped.js"], null, { })
     .browserstackTask(null, 'tests/tests.html', {desktop: true, mobile: true})
     .lintTask(null, ['./src/**/*.js', './dist/' + dist + '-noscoped.js', './dist/' + dist + '.js', './Gruntfile.js', './tests/**/*.js'])
@@ -130,7 +128,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('files-browserstack', ['shell:files-browserstack']);
 
 	grunt.registerTask('default', ['package', 'readme', 'license', 'githook', 'codeclimate', 'travis', 'jsbeautify', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
-	grunt.registerTask('check-node', [ 'lint', 'qunit' ]);
+	grunt.registerTask('check-node', [ 'lint', 'qunitjs' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 	grunt.registerTask("build-cordova-test", ["clean-cordova", "copy-cordova", "shell:build-cordova-test"]);
 	grunt.registerTask("run-cordova-test-ios", ["shell:cordova-test-run-ios"]);

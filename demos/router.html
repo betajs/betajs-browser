@@ -3,40 +3,39 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Router Demo</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="../node_modules/betajs-scoped/dist/scoped.js"></script>
 		<script src="../node_modules/betajs/dist/beta-noscoped.js"></script>
         <script src="../dist/betajs-browser-noscoped.js"></script>
 		<script>
-			$(document).ready(function () {
+			BetaJS.Browser.Dom.ready(function () {
 				router = new BetaJS.Router.Router();
 				router.bind("main", "/main", function () {
-					$("[data-selector='page']").css("display", "none");
-					$("#main").css("display", "");
+					document.querySelector("[data-selector='page']").style.display = "none";
+					document.querySelector("#main").style.display = "";
 				});
 				router.bind("about", "/about", function () {
-					$("[data-selector='page']").css("display", "none");
-					$("#about").css("display", "");
+					document.querySelector("[data-selector='page']").style.display = "none";
+					document.querySelector("#about").style.display = "";
 				});
 				router.bind("pages", "/pages", function () {
 					index = 1;
-					$("#pages #index").html(index);
-					$("#pages #next").attr("href", "javascript:router.navigate('/pages/" + (index+1) + "')");
-					$("[data-selector='page']").css("display", "none");
-					$("#pages").css("display", "");
+					document.querySelector("#pages #index").innerHTML = index;
+					document.querySelector("#pages #next").href = "javascript:router.navigate('/pages/" + (index+1) + "')";
+					document.querySelector("[data-selector='page']").style.display = "none";
+					document.querySelector("#pages").style.display = "";
 				});
 				router.bind("pages_idx", "/pages/(index:[0-9]+)", function (args) {
 					index = parseInt(args.index || 1);
-					$("#pages #index").html(index);
-					$("#pages #next").attr("href", "javascript:router.navigate('/pages/" + (index+1) + "')");
-					$("[data-selector='page']").css("display", "none");
-					$("#pages").css("display", "");
+					document.querySelector("#pages #index").innerHTML = index;
+					document.querySelector("#pages #next").href = "javascript:router.navigate('/pages/" + (index+1) + "')";
+					document.querySelector("[data-selector='page']").style.display = "none";
+					document.querySelector("#pages").style.display = "";
 				});
 				router_history = new BetaJS.Router.RouterHistory(router);
 				router_history.on("change", function () {
-					$("#history").html("");
+					document.querySelector("#history").innerHTML = "";
 					for (var i = 0; i < router_history.count(); ++i) 
-						$("#history").append("<li>" + router_history.get(i).route + "</li>");
+						document.querySelector("#history").appendChild(BetaJS.Browser.Dom.elementByTemplate("<li>" + router_history.get(i).route + "</li>"));
 				});
 				//binder = new BetaJS.Browser.HistoryRouteBinder(router);
 				binder = new BetaJS.Browser.HashRouteBinder(router);				

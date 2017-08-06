@@ -3,14 +3,14 @@
 	<head>
 		<meta charset="utf-8">
 		<title>BetaJS-Browser Ajax Tests</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-		<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.11.0.css">
-		<script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.1/es5-shim.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.23.1.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.js"></script>
 		<script src="/assets/client.js"></script>
-		<script src="../../vendors/betajs-shims.js"></script>
-		<script src="../../vendors/scoped.js"></script>
-		<script src="../../vendors/beta-noscoped.js"></script>
+		<script src="../../node_modules/betajs-shims/dist/betajs-shims.js"></script>
+		<script src="../../node_modules/betajs-scoped/dist/scoped.js"></script>
+		<script src="../../node_modules/betajs/dist/beta-noscoped.js"></script>
 		<script src="../../dist/betajs-browser-noscoped.js"></script>
 	</head>
 	<body>
@@ -19,12 +19,12 @@
 		</h1>
 		<div id="qunit"></div>
 		<div id="qunit-fixture"></div>
-		<script src="http://code.jquery.com/qunit/qunit-1.11.0.js"></script>
+		<script src="http://code.jquery.com/qunit/qunit-1.23.1.js"></script>
 		<script>
 			MockAjax.corsHost = BetaJS.Net.Uri.decodeUriParams(document.location.search.substring(1)).cors;
 			if (!MockAjax.corsHost) {
 				MockAjax.corsHost = document.location.hostname + ":" + (parseInt(document.location.port, 10) + 1);
-				$('#cors-warning').show();
+				document.getElementById('cors-warning').style.display = "";
 			}
 			MockAjax.corsHost = document.location.protocol + "//" + MockAjax.corsHost;
 		</script>

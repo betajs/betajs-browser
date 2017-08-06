@@ -2,26 +2,26 @@ window.Helper = {
 			
 	test: function (opts) {
 		var setup = MockAjax.createTest(opts);
-		test(setup.name, function () {
+		QUnit.test(setup.name, function (assert) {
 			var request = setup.request;
-			QUnit.equal(BetaJS.Ajax.Support.preprocess({uri: request.uri}).isCorsRequest, opts.origin === "cross");
-			stop();
+			assert.equal(BetaJS.Ajax.Support.preprocess({uri: request.uri}).isCorsRequest, opts.origin === "cross");
+			var done = assert.async();
 			MockAjax.runTest(setup, function () {
 				BetaJS.Ajax.Support.execute(setup.ajax).callback(function (error, success) {
 					var has_error = !!error;
 					if (has_error == (opts.should === "succeed")) {
-						ok(false, "should " + opts.should + " but does not");
-						start();
+						assert.ok(false, "should " + opts.should + " but does not");
+						done();
 						return;
 					}
 					MockAjax.requestLog(setup.request, function (log) {
 						MockAjax.qunitCheckLog(log, setup);
 						if (!error)
-							QUnit.deepEqual(log, success);
-						start();
+							assert.deepEqual(log, success);
+						done();
 					}, function (e) {
-						ok(false, "Log should not fail");
-						start();
+						assert.ok(false, "Log should not fail");
+						done();
 					});
 				});
 			});

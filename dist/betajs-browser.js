@@ -1,10 +1,10 @@
 /*!
-betajs-browser - v1.0.74 - 2017-07-18
+betajs-browser - v1.0.75 - 2017-08-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
 /** @flow **//*!
-betajs-scoped - v0.0.13 - 2017-01-15
+betajs-scoped - v0.0.16 - 2017-07-23
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -638,7 +638,10 @@ function newScope (parent, parentNS, rootNS, globalNS) {
 		
 		var execute = function () {
 			this.require(args.dependencies, args.hiddenDependencies, function () {
-				arguments[arguments.length - 1].ns = ns;
+                var _arguments = [];
+                for (var a = 0; a < arguments.length; ++a)
+                    _arguments.push(arguments[a]);
+                _arguments[_arguments.length - 1].ns = ns;
 				if (this.options.compile) {
 					var params = [];
 					for (var i = 0; i < argmts.length; ++i)
@@ -658,7 +661,7 @@ function newScope (parent, parentNS, rootNS, globalNS) {
 						}, this);
 					}
 				}
-				var result = this.options.compile ? {} : args.callback.apply(args.context || this, arguments);
+				var result = this.options.compile ? {} : args.callback.apply(args.context || this, _arguments);
 				callback.call(this, ns, result);
 			}, this);
 		};
@@ -962,7 +965,7 @@ var Public = Helper.extend(rootScope, (function () {
 return {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '0.0.13',
+	version: '0.0.16',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -1004,7 +1007,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.74 - 2017-07-18
+betajs-browser - v1.0.75 - 2017-08-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1016,7 +1019,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.74"
+    "version": "1.0.75"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2912,7 +2915,7 @@ Scoped.define("module:Dom", [
             return !element || element.nodeType ? element : element.get(0);
         },
 
-        triggerDomEvent: function(element, eventName, parameters) {
+        triggerDomEvent: function(element, eventName, parameters, customEventParams) {
             element = this.unbox(element);
             eventName = eventName.toLowerCase();
             var onEvent = "on" + eventName;
@@ -2930,11 +2933,19 @@ Scoped.define("module:Dom", [
             try {
                 var event;
                 try {
-                    event = new Event(eventName);
+                    if (customEventParams)
+                        event = new CustomEvent(eventName, customEventParams);
+                    else
+                        event = new Event(eventName);
                 } catch (e) {
                     try {
-                        event = document.createEvent('Event');
-                        event.initEvent(eventName, false, false);
+                        if (customEventParams) {
+                            event = document.createEvent('CustomEvent');
+                            event.initCustomEvent(eventName, customEventParams.bubbles || false, customEventParams.cancelable || false, customEventParams.detail || false);
+                        } else {
+                            event = document.createEvent('Event');
+                            event.initEvent(eventName, false, false);
+                        }
                     } catch (e) {
                         event = document.createEventObject();
                         event.type = eventName;

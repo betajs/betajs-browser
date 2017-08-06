@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.74 - 2017-07-18
+betajs-browser - v1.0.75 - 2017-08-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.74"
+    "version": "1.0.75"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1907,7 +1907,7 @@ Scoped.define("module:Dom", [
             return !element || element.nodeType ? element : element.get(0);
         },
 
-        triggerDomEvent: function(element, eventName, parameters) {
+        triggerDomEvent: function(element, eventName, parameters, customEventParams) {
             element = this.unbox(element);
             eventName = eventName.toLowerCase();
             var onEvent = "on" + eventName;
@@ -1925,11 +1925,19 @@ Scoped.define("module:Dom", [
             try {
                 var event;
                 try {
-                    event = new Event(eventName);
+                    if (customEventParams)
+                        event = new CustomEvent(eventName, customEventParams);
+                    else
+                        event = new Event(eventName);
                 } catch (e) {
                     try {
-                        event = document.createEvent('Event');
-                        event.initEvent(eventName, false, false);
+                        if (customEventParams) {
+                            event = document.createEvent('CustomEvent');
+                            event.initCustomEvent(eventName, customEventParams.bubbles || false, customEventParams.cancelable || false, customEventParams.detail || false);
+                        } else {
+                            event = document.createEvent('Event');
+                            event.initEvent(eventName, false, false);
+                        }
                     } catch (e) {
                         event = document.createEventObject();
                         event.type = eventName;

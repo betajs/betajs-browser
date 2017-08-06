@@ -20,9 +20,9 @@ describe('File Upload', function() {
 				}).click('button#upload-button', function(err) {
 			assert.isNull(err, "File upload button can't be clicked");
 		});
-		var passed = browser.$('#qunit-test-output0 .counts .passed');
+		var passed = browser.document.querySelector('#qunit-test-output0 .counts .passed');
 		passed.waitForExist();
-		expect(passed.getText()).to.be.equal('2');
+		expect(passed.innerText.trim()).to.be.equal('2');
 	});
 
 	it('Test 2', function() {
@@ -45,9 +45,9 @@ describe('File Upload', function() {
 			assert.isNull(err, "File upload button can't be clicked");
 		});
 
-		var passed = browser.$('#qunit-test-output1 .counts .passed');
+		var passed = browser.document.querySelector('#qunit-test-output1 .counts .passed');
 		passed.waitForExist();
-		expect(passed.getText()).to.be.equal('5');
+		expect(passed.innerText.trim()).to.be.equal('5');
 		browser.pause(3000);
 	});
 
@@ -61,9 +61,9 @@ describe('File Upload', function() {
 				}).click('button#upload-button', function(err) {
 			assert.isNull(err, "File upload button can't be clicked");
 		});
-		var passed = browser.$('#qunit-test-output2 .counts .passed');
+		var passed = browser.document.querySelector('#qunit-test-output2 .counts .passed');
 		passed.waitForExist();
-		expect(passed.getText()).to.be.equal('2');
+		expect(passed.innerText.trim()).to.be.equal('2');
 	});
 
 	it('Test 4', function() {
@@ -76,9 +76,9 @@ describe('File Upload', function() {
 				}).click('button#upload-button', function(err) {
 			assert.isNull(err, "File upload button can't be clicked");
 		});
-		var passed = browser.$('#qunit-test-output3 .counts .passed');
+		var passed = browser.document.querySelector('#qunit-test-output3 .counts .passed');
 		passed.waitForExist();
-		expect(passed.getText()).to.be.equal('2');
+		expect(passed.innerText.trim()).to.be.equal('2');
 	});
 
 	after(function(done) {
