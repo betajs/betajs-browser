@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.75 - 2017-08-06
+betajs-browser - v1.0.76 - 2017-08-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1007,7 +1007,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.75 - 2017-08-06
+betajs-browser - v1.0.76 - 2017-08-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1019,7 +1019,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.75"
+    "version": "1.0.76"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1160,10 +1160,12 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
             var script = document.createElement("script");
             var executed = false;
             script.onerror = function(event) {
-                if (event.stopPropagation)
-                    event.stopPropagation();
-                else
-                    event.cancelBubble = true;
+                if (event) {
+                    if (event.stopPropagation)
+                        event.stopPropagation();
+                    else
+                        event.cancelBubble = true;
+                }
                 if (hasResult)
                     return;
                 hasResult = true;

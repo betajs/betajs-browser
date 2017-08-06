@@ -49,10 +49,12 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
             var script = document.createElement("script");
             var executed = false;
             script.onerror = function(event) {
-                if (event.stopPropagation)
-                    event.stopPropagation();
-                else
-                    event.cancelBubble = true;
+                if (event) {
+                    if (event.stopPropagation)
+                        event.stopPropagation();
+                    else
+                        event.cancelBubble = true;
+                }
                 if (hasResult)
                     return;
                 hasResult = true;
