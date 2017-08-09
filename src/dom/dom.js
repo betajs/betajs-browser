@@ -152,12 +152,16 @@ Scoped.define("module:Dom", [
         entitiesToUnicode: function(s) {
             if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
                 return s;
-            var temp = document.createElement("span");
-            temp.innerHTML = s;
-            s = temp.textContent || temp.innerText;
-            if (temp.remove)
-                temp.remove();
-            return s;
+            return s.split(">").map(function(s) {
+                return s.split("<").map(function(s) {
+                    var temp = document.createElement("span");
+                    temp.innerHTML = s;
+                    s = temp.textContent || temp.innerText;
+                    if (temp.remove)
+                        temp.remove();
+                    return s;
+                }).join("<");
+            }).join(">");
         },
 
         unbox: function(element) {

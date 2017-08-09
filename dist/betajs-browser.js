@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.76 - 2017-08-06
+betajs-browser - v1.0.77 - 2017-08-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1007,7 +1007,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.76 - 2017-08-06
+betajs-browser - v1.0.77 - 2017-08-09
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1019,7 +1019,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.76"
+    "version": "1.0.77"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2903,12 +2903,16 @@ Scoped.define("module:Dom", [
         entitiesToUnicode: function(s) {
             if (!s || !Types.is_string(s) || s.indexOf("&") < 0)
                 return s;
-            var temp = document.createElement("span");
-            temp.innerHTML = s;
-            s = temp.textContent || temp.innerText;
-            if (temp.remove)
-                temp.remove();
-            return s;
+            return s.split(">").map(function(s) {
+                return s.split("<").map(function(s) {
+                    var temp = document.createElement("span");
+                    temp.innerHTML = s;
+                    s = temp.textContent || temp.innerText;
+                    if (temp.remove)
+                        temp.remove();
+                    return s;
+                }).join("<");
+            }).join(">");
         },
 
         unbox: function(element) {
