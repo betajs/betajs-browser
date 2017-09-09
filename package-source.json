@@ -30,7 +30,7 @@
 	    "betajs-scoped": "~0.0.13",
 	    "betajs-compile": "~0.0.28",
 	    "betajs": "~1.0.104",
-		"betajs-shims": "~0.0.12",
+		"betajs-shims": "~0.0.13",
 		"mock-file-server": "~0.1.15",
 		"mock-ajax-server": "~0.0.6",
 		"js-beautify": ""
