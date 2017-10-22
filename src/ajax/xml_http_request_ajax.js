@@ -42,7 +42,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {
                     if (HttpHeader.isSuccessStatus(xmlhttp.status) || (xmlhttp.status === 0 && xmlhttp.responseText)) {
-                        AjaxSupport.promiseReturnData(promise, options, xmlhttp.responseText, options.decodeType || "json");
+                        AjaxSupport.promiseReturnData(promise, options, options.contentType === "xml" ? xmlhttp.responseXML : xmlhttp.responseText, options.decodeType || "json");
                     } else {
                         AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
                     }
@@ -75,6 +75,9 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
                 } else if (options.contentType === "json") {
                     if (options.sendContentType)
                         xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    xmlhttp.send(JSON.stringify(options.data));
+                } else if (options.contentType === "xml") {
+                    xmlhttp.overrideMimeType('application/xml');
                     xmlhttp.send(JSON.stringify(options.data));
                 } else {
                     if (options.sendContentType)
