@@ -324,7 +324,9 @@ Scoped.define("module:Dom", [
         },
 
         elementAddClass: function(element, cls) {
-            if (!this.elementHasClass(element, cls))
+            if (!element.className)
+                element.className = cls;
+            else if (!this.elementHasClass(element, cls))
                 element.className = element.className + " " + cls;
         },
 
