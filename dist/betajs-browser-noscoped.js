@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.79 - 2017-10-31
+betajs-browser - v1.0.80 - 2017-11-17
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.79"
+    "version": "1.0.80"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -993,8 +993,55 @@ Scoped.define("module:Hotkeys", [
             return String.fromCharCode(code).toLowerCase();
         },
 
+        handleKeyEvent: function(hotkey, e, options) {
+            options = Objs.extend({
+                "propagate": false,
+                "disable_in_input": false,
+                "keycode": false
+            }, options);
+            var keys = hotkey.toLowerCase().split("+");
+            if (options.disable_in_input) {
+                var element = e.target || e.srcElement || null;
+                if (element && element.nodeType == 3)
+                    element = element.parentNode;
+                if (element && (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA'))
+                    return false;
+            }
+            var code = e.keyCode || e.which || 0;
+            var character = this.keyCodeToCharacter(code);
+            var kp = 0;
+            var modifier_map = {};
+            Objs.iter(this.MODIFIERS, function(mod) {
+                modifier_map[mod] = {
+                    pressed: e[mod + "Key"],
+                    wanted: false
+                };
+            }, this);
+            Objs.iter(keys, function(key) {
+                if (key in modifier_map) {
+                    modifier_map[key].wanted = true;
+                    kp++;
+                } else if (key.length > 1) {
+                    if (this.SPECIAL_KEYS[key] == code)
+                        kp++;
+                } else if (options.keycode) {
+                    if (options.keycode == code)
+                        kp++;
+                } else if (character == key || (e.shiftKey && this.SHIFT_NUMS[character] == key)) {
+                    kp++;
+                }
+            }, this);
+            if (kp == keys.length && Objs.all(modifier_map, function(data) {
+                    return data.wanted == data.pressed;
+                })) {
+                if (!options.propagate)
+                    e.preventDefault();
+                return true;
+            }
+            return false;
+        },
+
         register: function(hotkey, callback, context, options) {
-            var self = this;
             options = Objs.extend({
                 "type": "keyup",
                 "propagate": false,
@@ -1002,46 +1049,10 @@ Scoped.define("module:Hotkeys", [
                 "target": document,
                 "keycode": false
             }, options);
-            var keys = hotkey.toLowerCase().split("+");
+            var self = this;
             var func = function(e) {
-                if (options.disable_in_input) {
-                    var element = e.target || e.srcElement || null;
-                    if (element && element.nodeType == 3)
-                        element = element.parentNode;
-                    if (element && (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA'))
-                        return;
-                }
-                var code = e.keyCode || e.which || 0;
-                var character = self.keyCodeToCharacter(code);
-                var kp = 0;
-                var modifier_map = {};
-                Objs.iter(self.MODIFIERS, function(mod) {
-                    modifier_map[mod] = {
-                        pressed: e[mod + "Key"],
-                        wanted: false
-                    };
-                }, this);
-                Objs.iter(keys, function(key) {
-                    if (key in modifier_map) {
-                        modifier_map[key].wanted = true;
-                        kp++;
-                    } else if (key.length > 1) {
-                        if (self.SPECIAL_KEYS[key] == code)
-                            kp++;
-                    } else if (options.keycode) {
-                        if (options.keycode == code)
-                            kp++;
-                    } else if (character == key || (e.shiftKey && self.SHIFT_NUMS[character] == key)) {
-                        kp++;
-                    }
-                }, this);
-                if (kp == keys.length && Objs.all(modifier_map, function(data) {
-                        return data.wanted == data.pressed;
-                    })) {
-                    callback.apply(context || this);
-                    if (!options.propagate)
-                        e.preventDefault();
-                }
+                if (self.handleKeyEvent(hotkey, e, options))
+                    callback.call(context || this, e);
             };
             options.target.addEventListener(options.type, func, false);
             return {
