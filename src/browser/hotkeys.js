@@ -100,7 +100,6 @@ Scoped.define("module:Hotkeys", [
 
         handleKeyEvent: function(hotkey, e, options) {
             options = Objs.extend({
-                "propagate": false,
                 "disable_in_input": false,
                 "keycode": false
             }, options);
@@ -136,14 +135,9 @@ Scoped.define("module:Hotkeys", [
                     kp++;
                 }
             }, this);
-            if (kp == keys.length && Objs.all(modifier_map, function(data) {
-                    return data.wanted == data.pressed;
-                })) {
-                if (!options.propagate)
-                    e.preventDefault();
-                return true;
-            }
-            return false;
+            return kp == keys.length && Objs.all(modifier_map, function(data) {
+                return data.wanted == data.pressed;
+            });
         },
 
         register: function(hotkey, callback, context, options) {
@@ -156,8 +150,13 @@ Scoped.define("module:Hotkeys", [
             }, options);
             var self = this;
             var func = function(e) {
-                if (self.handleKeyEvent(hotkey, e, options))
+                if (self.handleKeyEvent(hotkey, e, options)) {
+                    if (!options.propagate) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                     callback.call(context || this, e);
+                }
             };
             options.target.addEventListener(options.type, func, false);
             return {
