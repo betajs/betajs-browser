@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.81 - 2017-11-19
+betajs-browser - v1.0.82 - 2017-12-01
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.81"
+    "version": "1.0.82"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1785,6 +1785,10 @@ Scoped.define("module:Dom", [
                         completed();
                 }, 10);
             }
+        },
+
+        isTabHidden: function() {
+            return document.hidden || document.webkitHidden || document.mozHidden || document.msHidden;
         },
 
         elementsByTemplate: function(template) {

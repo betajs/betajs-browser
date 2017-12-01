@@ -31,6 +31,10 @@ Scoped.define("module:Dom", [
             }
         },
 
+        isTabHidden: function() {
+            return document.hidden || document.webkitHidden || document.mozHidden || document.msHidden;
+        },
+
         elementsByTemplate: function(template) {
             template = template.trim();
             var polyfill = Info.isInternetExplorer() && Info.internetExplorerVersion() < 9;
