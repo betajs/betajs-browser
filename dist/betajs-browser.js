@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.82 - 2017-12-01
+betajs-browser - v1.0.83 - 2017-12-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1009,7 +1009,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.82 - 2017-12-01
+betajs-browser - v1.0.83 - 2017-12-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1021,7 +1021,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.82"
+    "version": "1.0.83"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3877,28 +3877,56 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
 
 });
 Scoped.define("module:Upload.CordovaFileUploader", [
-    "module:Upload.FileUploader"
-], function(FileUploader, scoped) {
+    "module:Upload.FileUploader",
+    "module:Info",
+    "base:Promise"
+], function(FileUploader, Info, Promise, scoped) {
     return FileUploader.extend({
         scoped: scoped
     }, {
 
+        _acquirePermission: function() {
+            var promise = Promise.create();
+            if (Info.isAndroid()) {
+                var perms = cordova.plugins.permissions;
+                perms.checkPermission(perms.READ_EXTERNAL_STORAGE, function(status) {
+                    if (!status.hasPermission) {
+                        perms.requestPermission(perms.READ_EXTERNAL_STORAGE, function(status) {
+                            if (status.hasPermission)
+                                promise.asyncSuccess(true);
+                            else
+                                promise.asyncError("Access to storage was not granted");
+                        }, function() {
+                            promise.asyncError("Could not request storage permission");
+                        });
+                    } else
+                        promise.asyncSuccess(true);
+                }, function() {
+                    promise.asyncError("Could not check storage permission");
+                });
+            } else
+                promise.asyncSuccess(true);
+            return promise;
+        },
+
         _upload: function() {
-            var self = this;
-            //var fileURI = this._options.source.localURL;
-            var fileURI = this._options.source.fullPath.split(':')[1];
-            var fileUploadOptions = new window.FileUploadOptions();
-            fileUploadOptions.fileKey = "file";
-            fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
-            fileUploadOptions.mimeType = this._options.source.type;
-            fileUploadOptions.httpMethod = "POST";
-            fileUploadOptions.params = this._options.data;
-            var fileTransfer = new window.FileTransfer();
-            fileTransfer.upload(fileURI, this._options.url, function(data) {
-                self._successCallback(data);
-            }, function(data) {
-                self._errorCallback(data);
-            }, fileUploadOptions);
+            return this._acquirePermission().mapSuccess(function() {
+                var self = this;
+                //var fileURI = this._options.source.localURL;
+                var fileURI = this._options.source.fullPath.split(':')[1];
+                var fileUploadOptions = new window.FileUploadOptions();
+                fileUploadOptions.fileKey = "file";
+                fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
+                fileUploadOptions.mimeType = this._options.source.type;
+                fileUploadOptions.httpMethod = "POST";
+                fileUploadOptions.params = this._options.data;
+                var fileTransfer = new window.FileTransfer();
+                fileTransfer.upload(fileURI, this._options.url, function(data) {
+                    self._successCallback(data);
+                }, function(data) {
+                    self._errorCallback(data);
+                }, fileUploadOptions);
+            }, this);
         }
 
     }, {
