@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.83 - 2017-12-13
+betajs-browser - v1.0.84 - 2018-01-25
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1009,7 +1009,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.83 - 2017-12-13
+betajs-browser - v1.0.84 - 2018-01-25
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1021,7 +1021,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.83"
+    "version": "1.0.84"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2040,6 +2040,19 @@ Scoped.define("module:Hotkeys", [
                     kp++;
                 }
             }, this);
+            /**
+             * Allow to use use several keys for one action
+             * @example: ba-hotkey:space^enter="function(){}"
+             */
+            var multipleKeys = hotkey.toLowerCase().split("^");
+            if (multipleKeys.length > 1) {
+                Objs.iter(multipleKeys, function(key) {
+                    if (key.length > 1) {
+                        if (this.SPECIAL_KEYS[key] == code)
+                            kp++;
+                    }
+                }, this);
+            }
             return kp == keys.length && Objs.all(modifier_map, function(data) {
                 return data.wanted == data.pressed;
             });

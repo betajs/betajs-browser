@@ -43,7 +43,7 @@
         "jsdom": "~9.12.0",
         "grunt-betajs-docs-compile": "~0.0.19",
         "betajs-scoped": "~0.0.13",
-        "betajs-compile": "~0.0.28",
+        "betajs-compile": "~0.0.37",
         "betajs": "~1.0.104",
         "betajs-shims": "~0.0.13",
         "mock-file-server": "~0.1.15",

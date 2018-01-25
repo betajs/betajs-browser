@@ -140,7 +140,7 @@ Scoped.define("module:Hotkeys", [
              * @example: ba-hotkey:space^enter="function(){}"
              */
             var multipleKeys = hotkey.toLowerCase().split("^");
-            if(multipleKeys.length > 1) {
+            if (multipleKeys.length > 1) {
                 Objs.iter(multipleKeys, function(key) {
                     if (key.length > 1) {
                         if (this.SPECIAL_KEYS[key] == code)

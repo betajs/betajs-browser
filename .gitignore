@@ -21,3 +21,4 @@ browserstack-run.pid
 /browserstack/reports/*
 /browserstack/tmp/
 .package-lock.json
+
