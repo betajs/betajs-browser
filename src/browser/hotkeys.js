@@ -135,6 +135,19 @@ Scoped.define("module:Hotkeys", [
                     kp++;
                 }
             }, this);
+            /**
+             * Allow to use use several keys for one action
+             * @example: ba-hotkey:space^enter="function(){}"
+             */
+            var multipleKeys = hotkey.toLowerCase().split("^");
+            if(multipleKeys.length > 1) {
+                Objs.iter(multipleKeys, function(key) {
+                    if (key.length > 1) {
+                        if (this.SPECIAL_KEYS[key] == code)
+                            kp++;
+                    }
+                }, this);
+            }
             return kp == keys.length && Objs.all(modifier_map, function(data) {
                 return data.wanted == data.pressed;
             });
