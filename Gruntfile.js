@@ -39,6 +39,7 @@ module.exports = function(grunt) {
     .codeclimateTask()
     .travisTask(null, "4.0")
     .packageTask()
+	.autoincreasepackageTask(null, "package-source.json")
 	.githookTask(null, "pre-commit", "check-node")
     
     /* Markdown Files */
@@ -127,7 +128,7 @@ module.exports = function(grunt) {
 	grunt.registerTask("filesqunit", ["shell:filesqunit"]);
 	grunt.registerTask('files-browserstack', ['shell:files-browserstack']);
 
-	grunt.registerTask('default', ['package', 'readme', 'license', 'githook', 'codeclimate', 'travis', 'jsbeautify', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
+	grunt.registerTask('default', ['autoincreasepackage', 'package', 'readme', 'license', 'githook', 'codeclimate', 'travis', 'jsbeautify', 'scopedclosurerevision', 'concat-scoped', 'uglify-noscoped', 'uglify-scoped']);
 	grunt.registerTask('check-node', [ 'lint', 'qunitjs' ]);
 	grunt.registerTask('check', ['check-node', 'browserqunit']);
 	grunt.registerTask("build-cordova-test", ["clean-cordova", "copy-cordova", "shell:build-cordova-test"]);

@@ -1,93 +1,93 @@
 {
-	"name": "betajs-browser",
-	"version": "1.0.84",
-	"description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
-	"contributors": [
-		"Oliver Friedmann"
-	],
-	"devDependencies": {
-		"lodash": "",
-		"grunt": "",
-		"grunt-contrib-jshint": "",
-		"grunt-contrib-concat": "",
-		"grunt-contrib-uglify": "~2.3.0",
-		"grunt-contrib-clean": "",
-		"grunt-preprocess": "",
-		"grunt-closure-tools": "",
-		"grunt-githooks": "",
-		"qunitjs": "",
-		"grunt-jsdoc": "",
-		"grunt-shell": "",
-		"grunt-template": "",
-		"grunt-contrib-copy": "",
-		"selenium-webdriver": "",
-		"webdriverio": "",
-		"wdio-mocha-framework": "",
-		"chai": "",
-		"browserstack-local": "",
-		"jsdom": "~9.12.0",
-	    "grunt-betajs-docs-compile":"~0.0.19",
-	    "betajs-scoped": "~0.0.13",
-	    "betajs-compile": "~0.0.37",
-	    "betajs": "~1.0.104",
-		"betajs-shims": "~0.0.13",
-		"mock-file-server": "~0.1.15",
-		"mock-ajax-server": "~0.0.6",
-		"js-beautify": ""
-	},
-	"main": "dist/betajs-browser.js",
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/betajs/betajs-browser.git"
-	},
-	"scripts": {
-		"test": "grunt check-node",
-		"relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server"
-	},
-	"meta": {
-		"sponsors": [
-			"Ziggeo",
-			"Browserstack"
-		],
-		"guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-		"installdoc": "docsrc/common/install.md",
-		"summarydoc": "docsrc/common/summary.md",
-		"badges": {
-			"codeclimate": true,
-			"travis": true,
-			"npm": true,
-			"gitter": true
-		},
-		"credits": [
-			"FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",
-			"Keyboard Shortcuts, BSD Software License, (c) Binny V A"
-		],
-		"compatability": {
-			"Firefox": "6 - Latest",
-			"Chrome": "18 - Latest",
-			"Safari": "4 - Latest",
-			"Opera": "12 - Latest",
-			"Internet Explorer": "8 - Latest",
-			"Edge": "12 - Latest",
-			"Yandex": "Latest",
-			"iOS": "3.0 - Latest",
-			"Android": "2.2 - Latest"
-		},
-		"weakDependencies": {
-			"betajs-scoped": "https://github.com/betajs/betajs-scoped",
-			"betajs-shims": "https://github.com/betajs/betajs-shims"
-		},
-		"dependencies": {
-			"betajs": "https://github.com/betajs/betajs"
-		},
-		"tests": {
-			"Test Suite": "http://rawgit.com/betajs/betajs-browser/master/tests/tests.html"
-		},
-		"cdn": {
-			"betajs-browser.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js",
-			"betajs-browser.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js",
-			"betajs-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js",
-			"betajs-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js"
-		}
-	}
+    "name": "betajs-browser",
+    "version": "1.0.85",
+    "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
+    "contributors": [
+        "Oliver Friedmann"
+    ],
+    "devDependencies": {
+        "lodash": "",
+        "grunt": "",
+        "grunt-contrib-jshint": "",
+        "grunt-contrib-concat": "",
+        "grunt-contrib-uglify": "~2.3.0",
+        "grunt-contrib-clean": "",
+        "grunt-preprocess": "",
+        "grunt-closure-tools": "",
+        "grunt-githooks": "",
+        "qunitjs": "",
+        "grunt-jsdoc": "",
+        "grunt-shell": "",
+        "grunt-template": "",
+        "grunt-contrib-copy": "",
+        "selenium-webdriver": "",
+        "webdriverio": "",
+        "wdio-mocha-framework": "",
+        "chai": "",
+        "browserstack-local": "",
+        "jsdom": "~9.12.0",
+        "grunt-betajs-docs-compile": "~0.0.19",
+        "betajs-scoped": "~0.0.13",
+        "betajs-compile": "~0.0.37",
+        "betajs": "~1.0.104",
+        "betajs-shims": "~0.0.13",
+        "mock-file-server": "~0.1.15",
+        "mock-ajax-server": "~0.0.6",
+        "js-beautify": ""
+    },
+    "main": "dist/betajs-browser.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/betajs/betajs-browser.git"
+    },
+    "scripts": {
+        "test": "grunt check-node",
+        "relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server"
+    },
+    "meta": {
+        "sponsors": [
+            "Ziggeo",
+            "Browserstack"
+        ],
+        "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
+        "installdoc": "docsrc/common/install.md",
+        "summarydoc": "docsrc/common/summary.md",
+        "badges": {
+            "codeclimate": true,
+            "travis": true,
+            "npm": true,
+            "gitter": true
+        },
+        "credits": [
+            "FlashDetect, BSD Software License, (c) 2007, Carl S. Yestrau",
+            "Keyboard Shortcuts, BSD Software License, (c) Binny V A"
+        ],
+        "compatability": {
+            "Firefox": "6 - Latest",
+            "Chrome": "18 - Latest",
+            "Safari": "4 - Latest",
+            "Opera": "12 - Latest",
+            "Internet Explorer": "8 - Latest",
+            "Edge": "12 - Latest",
+            "Yandex": "Latest",
+            "iOS": "3.0 - Latest",
+            "Android": "2.2 - Latest"
+        },
+        "weakDependencies": {
+            "betajs-scoped": "https://github.com/betajs/betajs-scoped",
+            "betajs-shims": "https://github.com/betajs/betajs-shims"
+        },
+        "dependencies": {
+            "betajs": "https://github.com/betajs/betajs"
+        },
+        "tests": {
+            "Test Suite": "http://rawgit.com/betajs/betajs-browser/master/tests/tests.html"
+        },
+        "cdn": {
+            "betajs-browser.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.js",
+            "betajs-browser.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser.min.js",
+            "betajs-browser-noscoped.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.js",
+            "betajs-browser-noscoped.min.js": "http://cdn.rawgit.com/betajs/betajs-browser/master/dist/betajs-browser-noscoped.min.js"
+        }
+    }
 }
