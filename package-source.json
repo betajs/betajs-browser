@@ -41,7 +41,8 @@
 		"url": "git://github.com/betajs/betajs-browser.git"
 	},
 	"scripts": {
-		"test": "grunt check-node"
+		"test": "grunt check-node",
+		"relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server"
 	},
 	"meta": {
 		"sponsors": [

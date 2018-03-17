@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.84 - 2018-01-25
+betajs-browser - v1.0.84 - 2018-03-17
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1773,6 +1773,13 @@ Scoped.define("module:Dom", [
     "module:Info",
     "base:Async"
 ], function(Types, Objs, Info, Async) {
+
+    var TEMPLATE_TAG_MAP = {
+        "tr": ["tbody"],
+        "td": ["tbody", "tr"],
+        "th": ["thead", "tr"]
+    };
+
     return {
 
         ready: function(callback, context) {
@@ -1807,7 +1814,6 @@ Scoped.define("module:Dom", [
         elementsByTemplate: function(template) {
             template = template.trim();
             var polyfill = Info.isInternetExplorer() && Info.internetExplorerVersion() < 9;
-            var parentTag = 'div';
             /*
              * TODO: This is probably not a good fix.
              * 
@@ -1820,9 +1826,18 @@ Scoped.define("module:Dom", [
              * 
              * This needs to be fixed properly in the future.
              */
-            if (template.indexOf("<tr") === 0)
-                parentTag = "tbody";
-            var element = document.createElement(parentTag);
+            var parentTags = ["div"];
+            Objs.iter(TEMPLATE_TAG_MAP, function(value, key) {
+                if (template.indexOf("<" + key) === 0)
+                    parentTags = value;
+            });
+            var element = null;
+            parentTags.forEach(function(parentTag) {
+                var child = document.createElement(parentTag);
+                if (element)
+                    element.appendChild(child);
+                element = child;
+            });
             element.innerHTML = polyfill ? "<br/>" + template : template;
             var result = [];
             for (var i = polyfill ? 1 : 0; i < element.children.length; ++i)

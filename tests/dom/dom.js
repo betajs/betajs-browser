@@ -1,6 +1,12 @@
 QUnit.test("template to elements", function (assert) {
-	var elements = BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>");
-	assert.ok(elements.length > 0);
+	assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>").length, 1);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<td></td>").length, 1);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<tr></tr>").length, 1);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<th></th>").length, 1);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>")[0].querySelectorAll("*").length, 0);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<td></td>")[0].querySelectorAll("*").length, 0);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<tr></tr>")[0].querySelectorAll("*").length, 0);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<th></th>")[0].querySelectorAll("*").length, 0);
 });
 
 
