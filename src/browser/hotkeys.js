@@ -142,7 +142,13 @@ Scoped.define("module:Hotkeys", [
             var multipleKeys = hotkey.toLowerCase().split("^");
             if (multipleKeys.length > 1) {
                 Objs.iter(multipleKeys, function(key) {
-                    if (key.length > 1) {
+                    if (key.length > 1 && key.toLowerCase() === e.code.toLowerCase()) {
+                        // Prevent browser scroll when press space
+                        if (code === 32) {
+                            e.preventDefault();
+                            console.log('here');
+                        }
+
                         if (this.SPECIAL_KEYS[key] == code)
                             kp++;
                     }
