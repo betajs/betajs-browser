@@ -144,10 +144,7 @@ Scoped.define("module:Hotkeys", [
                 Objs.iter(multipleKeys, function(key) {
                     if (key.length > 1 && key.toLowerCase() === e.code.toLowerCase()) {
                         // Prevent browser scroll when press space
-                        if (code === 32) {
-                            e.preventDefault();
-                            console.log('here');
-                        }
+                        if (code === 32) e.preventDefault();
 
                         if (this.SPECIAL_KEYS[key] == code)
                             kp++;
