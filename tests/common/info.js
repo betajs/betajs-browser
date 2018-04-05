@@ -41,15 +41,23 @@ QUnit.test("test different browsers", function (assert) {
 	check("desktop", "windows", "edge", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240", {window_chrome: true});
 	
 	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko", {appName: "Netscape"});
+    assert.equal(BetaJS.Browser.Info.isInternetExplorer(), true, "IE");
 	assert.equal(BetaJS.Browser.Info.internetExplorerVersion(), 11, "IE 11");
 
+    check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; Tablet PC 2.0; wbx 1.0.0; rv:11.0) like Gecko");
+    assert.equal(BetaJS.Browser.Info.isInternetExplorer(), true, "IE");
+    assert.equal(BetaJS.Browser.Info.internetExplorerVersion(), 11, "IE 11");
+
 	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)", {appName: "Microsoft Internet Explorer"});
+    assert.equal(BetaJS.Browser.Info.isInternetExplorer(), true, "IE");
 	assert.equal(BetaJS.Browser.Info.internetExplorerVersion(), 10, "IE 10");
 
 	check("desktop", "windows", "internetexplorer", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; WOW64; Trident/5.0)", {appName: "Microsoft Internet Explorer"});
+    assert.equal(BetaJS.Browser.Info.isInternetExplorer(), true, "IE");
 	assert.equal(BetaJS.Browser.Info.internetExplorerVersion(), 9, "IE 9");
 
 	check("desktop", "windows", "internetexplorer", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET4.0C)", {appName: "Microsoft Internet Explorer"});
+    assert.equal(BetaJS.Browser.Info.isInternetExplorer(), true, "IE");
 	assert.equal(BetaJS.Browser.Info.internetExplorerVersion(), 8, "IE 8");
 
 	check("mobile", "windowsphone", "iemobile", "Mozilla/5.0 (Windows Phone 8.1; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; NOKIA; Lumia 920) like Gecko");
