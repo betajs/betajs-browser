@@ -1,10 +1,10 @@
 /*!
-betajs-browser - v1.0.88 - 2018-03-18
+betajs-browser - v1.0.89 - 2018-04-08
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
 /** @flow **//*!
-betajs-scoped - v0.0.17 - 2018-02-17
+betajs-scoped - v0.0.19 - 2018-04-07
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -759,10 +759,7 @@ function newScope (parent, parentNS, rootNS, globalNS) {
 		resolve: function (namespaceLocator) {
 			var parts = namespaceLocator.split(":");
 			if (parts.length == 1) {
-				return {
-					namespace: privateNamespace,
-					path: parts[0]
-				};
+                throw ("The locator '" + parts[0] + "' requires a namespace.");
 			} else {
 				var binding = bindings[parts[0]];
 				if (!binding)
@@ -967,7 +964,7 @@ var Public = Helper.extend(rootScope, (function () {
 return {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '0.0.17',
+	version: '0.0.19',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -1009,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.88 - 2018-03-18
+betajs-browser - v1.0.89 - 2018-04-08
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1021,7 +1018,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.88"
+    "version": "1.0.89"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -4057,11 +4054,19 @@ Scoped.define("module:Upload.FileUploader", [
             _errorCallback: function(data) {
                 if (this.state() !== "uploading")
                     return;
+                try {
+                    if (data.data)
+                        data = data.data();
+                    if (Types.is_string(data))
+                        data = JSON.parse(data);
+                } catch (e) {}
                 if (this._options.resilience > 0) {
-                    Async.eventually(function() {
-                        this.__upload();
-                    }, this, this._options.resilience_delay);
-                    return;
+                    if (!this._options.resilienceCheck || this._options.resilienceCheck(data)) {
+                        Async.eventually(function() {
+                            this.__upload();
+                        }, this, this._options.resilience_delay);
+                        return;
+                    }
                 }
                 if (!this._options.essential) {
                     this._successCallback({});

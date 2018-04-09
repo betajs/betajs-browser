@@ -80,11 +80,19 @@ Scoped.define("module:Upload.FileUploader", [
             _errorCallback: function(data) {
                 if (this.state() !== "uploading")
                     return;
+                try {
+                    if (data.data)
+                        data = data.data();
+                    if (Types.is_string(data))
+                        data = JSON.parse(data);
+                } catch (e) {}
                 if (this._options.resilience > 0) {
-                    Async.eventually(function() {
-                        this.__upload();
-                    }, this, this._options.resilience_delay);
-                    return;
+                    if (!this._options.resilienceCheck || this._options.resilienceCheck(data)) {
+                        Async.eventually(function() {
+                            this.__upload();
+                        }, this, this._options.resilience_delay);
+                        return;
+                    }
                 }
                 if (!this._options.essential) {
                     this._successCallback({});

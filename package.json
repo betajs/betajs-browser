@@ -1,5 +1,5 @@
 {
-    "homepage": "http://betajs.com",
+    "homepage": "https://betajs.com",
     "license": "Apache-2.0",
     "licenses": [
         {
@@ -15,7 +15,7 @@
         "url": "https://github.com/betajs/betajs-browser/issues"
     },
     "name": "betajs-browser",
-    "version": "1.0.88",
+    "version": "1.0.89",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
@@ -60,8 +60,8 @@
         "relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server"
     },
     "meta": {
-        "blog": "http://blog.betajs.com",
-        "twitter": "http://twitter.com/thebetajs",
+        "blog": "https://blog.betajs.com",
+        "twitter": "https://twitter.com/thebetajs",
         "sponsors": [
             "Ziggeo",
             "Browserstack"

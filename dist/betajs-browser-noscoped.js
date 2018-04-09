@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.88 - 2018-03-18
+betajs-browser - v1.0.89 - 2018-04-08
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.88"
+    "version": "1.0.89"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3047,11 +3047,19 @@ Scoped.define("module:Upload.FileUploader", [
             _errorCallback: function(data) {
                 if (this.state() !== "uploading")
                     return;
+                try {
+                    if (data.data)
+                        data = data.data();
+                    if (Types.is_string(data))
+                        data = JSON.parse(data);
+                } catch (e) {}
                 if (this._options.resilience > 0) {
-                    Async.eventually(function() {
-                        this.__upload();
-                    }, this, this._options.resilience_delay);
-                    return;
+                    if (!this._options.resilienceCheck || this._options.resilienceCheck(data)) {
+                        Async.eventually(function() {
+                            this.__upload();
+                        }, this, this._options.resilience_delay);
+                        return;
+                    }
                 }
                 if (!this._options.essential) {
                     this._successCallback({});
