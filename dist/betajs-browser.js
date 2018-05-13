@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.89 - 2018-04-08
+betajs-browser - v1.0.90 - 2018-05-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.89 - 2018-04-08
+betajs-browser - v1.0.90 - 2018-05-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,7 +1018,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.89"
+    "version": "1.0.90"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3172,6 +3172,30 @@ Scoped.define("module:Dom", [
                 parent.insertBefore(child, parent.firstChild);
             else
                 parent.appendChild(child);
+        },
+
+        // Will find closest parent element, will stop on stopSelector
+        // example:  Dom.elementReplaceClasses(element, '.look-element-class-name', '.stop-on-class-name')
+        elementFindClosestParent: function(element, selector, stopSelector) {
+            var _returnVal = null;
+            while (element) {
+                if (element.className.indexOf(selector) > -1) {
+                    _returnVal = element;
+                    break;
+                } else if (stopSelector && element.className.indexOf(stopSelector) > -1) {
+                    break;
+                }
+                element = element.parentElement;
+            }
+            return _returnVal;
+        },
+
+        // Will replace class names on element
+        elementReplaceClasses: function(element, replaceClass, replaceWith) {
+            if (this.elementHasClass(element, replaceClass)) {
+                this.elementRemoveClass(element, replaceClass);
+                this.elementAddClass(element, replaceWith);
+            }
         },
 
         // When element in visible port view, will return true
