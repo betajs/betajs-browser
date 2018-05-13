@@ -395,6 +395,30 @@ Scoped.define("module:Dom", [
                 parent.appendChild(child);
         },
 
+        // Will find closest parent element, will stop on stopSelector
+        // example:  Dom.elementReplaceClasses(element, '.look-element-class-name', '.stop-on-class-name')
+        elementFindClosestParent: function(element, selector, stopSelector) {
+            var _returnVal = null;
+            while (element) {
+                if (element.className.indexOf(selector) > -1) {
+                    _returnVal = element;
+                    break;
+                } else if (stopSelector && element.className.indexOf(stopSelector) > -1) {
+                    break;
+                }
+                element = element.parentElement;
+            }
+            return _returnVal;
+        },
+
+        // Will replace class names on element
+        elementReplaceClasses: function(element, replaceClass, replaceWith) {
+            if (this.elementHasClass(element, replaceClass)) {
+                this.elementRemoveClass(element, replaceClass);
+                this.elementAddClass(element, replaceWith);
+            }
+        },
+
         // When element in visible port view, will return true
         isElementVisible: function(element, fraction) {
             fraction = fraction || 0.8;
