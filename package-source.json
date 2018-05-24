@@ -1,6 +1,6 @@
 {
     "name": "betajs-browser",
-    "version": "1.0.91",
+    "version": "1.0.92",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
@@ -15,6 +15,7 @@
         "grunt-preprocess": "",
         "grunt-closure-tools": "",
         "grunt-githooks": "",
+        "grunt-contrib-connect": "",
         "qunitjs": "",
         "grunt-jsdoc": "",
         "grunt-shell": "",

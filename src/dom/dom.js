@@ -6,9 +6,9 @@ Scoped.define("module:Dom", [
 ], function(Types, Objs, Info, Async) {
 
     var TEMPLATE_TAG_MAP = {
-        "tr": ["tbody"],
-        "td": ["tbody", "tr"],
-        "th": ["thead", "tr"]
+        "tr": ["table", "tbody"],
+        "td": ["table", "tbody", "tr"],
+        "th": ["table", "thead", "tr"]
     };
 
     return {
@@ -57,19 +57,28 @@ Scoped.define("module:Dom", [
              * 
              * This needs to be fixed properly in the future.
              */
-            var parentTags = ["div"];
+            var parentTags = [];
             Objs.iter(TEMPLATE_TAG_MAP, function(value, key) {
-                if (template.indexOf("<" + key) === 0)
+                if (template.indexOf("<" + key) === 0) {
                     parentTags = value;
+                    polyfill = false;
+                }
             });
-            var element = null;
-            parentTags.forEach(function(parentTag) {
-                var child = document.createElement(parentTag);
-                if (element)
-                    element.appendChild(child);
-                element = child;
+            var outerTemplate = [
+                parentTags.map(function(t) {
+                    return "<" + t + ">";
+                }).join(""),
+                polyfill ? "<br/>" : "",
+                template,
+                parentTags.map(function(t) {
+                    return "</" + t + ">";
+                }).join("")
+            ].join("");
+            var element = document.createElement("div");
+            element.innerHTML = outerTemplate;
+            parentTags.forEach(function() {
+                element = element.children[0];
             });
-            element.innerHTML = polyfill ? "<br/>" + template : template;
             var result = [];
             for (var i = polyfill ? 1 : 0; i < element.children.length; ++i)
                 result.push(element.children[i]);

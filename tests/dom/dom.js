@@ -1,7 +1,7 @@
 QUnit.test("template to elements", function (assert) {
 	assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>").length, 1);
-    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<td></td>").length, 1);
     assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<tr></tr>").length, 1);
+    assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<td></td>").length, 1);
     assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<th></th>").length, 1);
     assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<foobar></foobar>")[0].querySelectorAll("*").length, 0);
     assert.equal(BetaJS.Browser.Dom.elementsByTemplate("<td></td>")[0].querySelectorAll("*").length, 0);
@@ -82,7 +82,8 @@ QUnit.test("element width height", function (assert) {
     document.body.appendChild(parent);
     var elem = document.getElementById("inner");
 	var dim = BetaJS.Browser.Dom.elementDimensions(elem);
-	assert.equal(dim.width, 2*3+2*5+2*7+11);
-	assert.equal(dim.height, 2*3+2*5+2*7+11);
+	var adder = BetaJS.Browser.Info.isInternetExplorer() && BetaJS.Browser.Info.internetExplorerVersion() <= 9 ? 1 : 0;
+	assert.equal(dim.width, 2*3+2*5+2*7+11 -adder);
+	assert.equal(dim.height, 2*3+2*5+2*7+11 -adder);
     document.body.removeChild(parent);
 });

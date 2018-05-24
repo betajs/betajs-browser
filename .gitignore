@@ -20,5 +20,5 @@ browserstack-run.pid
 /allure-report/*
 /browserstack/reports/*
 /browserstack/tmp/
-.package-lock.json
+package-lock.json
 

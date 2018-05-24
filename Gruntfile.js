@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 	.jsbeautifyTask(null, "src/**/*.js")
 
     /* Testing */
-    .browserqunitTask(null, "tests/tests.html")
+    .browserqunitTask(null, "tests/tests.html", true)
     .browserstackTask("ajax-browserstack", "tests/ajax/browserstack.html")
     .qunitjsTask(null, ["tests/qunitjs-node.js"])
     .closureTask(null, [require.resolve("betajs-scoped"), require.resolve("betajs"), "./dist/betajs-browser-noscoped.js"], null, { })
