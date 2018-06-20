@@ -446,6 +446,11 @@ Scoped.define("module:Dom", [
             var visible = visibleX * visibleY / (w * h);
 
             return (visible > fraction);
+        },
+
+        keyboardUnfocus: function() {
+            if (document.activeElement)
+                document.activeElement.blur();
         }
 
     };

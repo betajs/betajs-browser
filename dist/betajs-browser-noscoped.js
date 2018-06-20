@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.92 - 2018-05-24
+betajs-browser - v1.0.92 - 2018-06-20
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -2654,6 +2654,11 @@ Scoped.define("module:Dom", [
             var visible = visibleX * visibleY / (w * h);
 
             return (visible > fraction);
+        },
+
+        keyboardUnfocus: function() {
+            if (document.activeElement)
+                document.activeElement.blur();
         }
 
     };
