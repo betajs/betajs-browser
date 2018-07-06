@@ -1,4 +1,6 @@
-Scoped.define("module:Blobs", [], function() {
+Scoped.define("module:Blobs", [
+    "base:Promise"
+], function(Promise) {
     return {
 
         createBlobByArrayBufferView: function(arrayBuffer, offset, size, type) {
@@ -18,6 +20,34 @@ Scoped.define("module:Blobs", [], function() {
                     return bb.getBlob(type);
                 }
             }
+        },
+
+        loadFileIntoArrayBuffer: function(file) {
+            var promise = Promise.create();
+            try {
+                var fileReader = new FileReader();
+                fileReader.onloadend = function(e) {
+                    promise.asyncSuccess(e.target.result);
+                };
+                fileReader.readAsArrayBuffer(file.files ? file.files[0] : file);
+            } catch (e) {
+                promise.asyncError(e);
+            }
+            return e;
+        },
+
+        loadFileIntoString: function(file) {
+            var promise = Promise.create();
+            try {
+                var fileReader = new FileReader();
+                fileReader.onloadend = function(e) {
+                    promise.asyncSuccess(e.target.result);
+                };
+                fileReader.readAsText(file.files ? file.files[0] : file);
+            } catch (e) {
+                promise.asyncError(e);
+            }
+            return e;
         }
 
     };

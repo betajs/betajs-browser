@@ -52,13 +52,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
             _upload: function() {
                 var identifier = this.__generateIdentifier();
                 var file = this._options.isBlob ? this._options.source : this._options.source.files[0];
-                var fileReader = new FileReader();
-                var arrayBufferPromise = Promise.create();
-                fileReader.onloadend = function(e) {
-                    arrayBufferPromise.asyncSuccess(e.target.result);
-                };
-                fileReader.readAsArrayBuffer(file);
-                arrayBufferPromise.success(function(arrayBuffer) {
+                Blobs.loadFileIntoArrayBuffer(file).success(function(arrayBuffer) {
                     var chunkNumber = 0;
                     while (chunkNumber * this._options.chunks.size < file.size) {
                         var data = {};

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.92 - 2018-06-20
+betajs-browser - v1.0.94 - 2018-07-06
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.92"
+    "version": "1.0.94"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -490,7 +490,9 @@ function tryIframeApproach() {
 }
 
  */
-Scoped.define("module:Blobs", [], function() {
+Scoped.define("module:Blobs", [
+    "base:Promise"
+], function(Promise) {
     return {
 
         createBlobByArrayBufferView: function(arrayBuffer, offset, size, type) {
@@ -510,6 +512,34 @@ Scoped.define("module:Blobs", [], function() {
                     return bb.getBlob(type);
                 }
             }
+        },
+
+        loadFileIntoArrayBuffer: function(file) {
+            var promise = Promise.create();
+            try {
+                var fileReader = new FileReader();
+                fileReader.onloadend = function(e) {
+                    promise.asyncSuccess(e.target.result);
+                };
+                fileReader.readAsArrayBuffer(file.files ? file.files[0] : file);
+            } catch (e) {
+                promise.asyncError(e);
+            }
+            return e;
+        },
+
+        loadFileIntoString: function(file) {
+            var promise = Promise.create();
+            try {
+                var fileReader = new FileReader();
+                fileReader.onloadend = function(e) {
+                    promise.asyncSuccess(e.target.result);
+                };
+                fileReader.readAsText(file.files ? file.files[0] : file);
+            } catch (e) {
+                promise.asyncError(e);
+            }
+            return e;
         }
 
     };
@@ -2879,13 +2909,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
             _upload: function() {
                 var identifier = this.__generateIdentifier();
                 var file = this._options.isBlob ? this._options.source : this._options.source.files[0];
-                var fileReader = new FileReader();
-                var arrayBufferPromise = Promise.create();
-                fileReader.onloadend = function(e) {
-                    arrayBufferPromise.asyncSuccess(e.target.result);
-                };
-                fileReader.readAsArrayBuffer(file);
-                arrayBufferPromise.success(function(arrayBuffer) {
+                Blobs.loadFileIntoArrayBuffer(file).success(function(arrayBuffer) {
                     var chunkNumber = 0;
                     while (chunkNumber * this._options.chunks.size < file.size) {
                         var data = {};
