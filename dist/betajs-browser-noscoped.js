@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.94 - 2018-07-06
+betajs-browser - v1.0.95 - 2018-07-28
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.94"
+    "version": "1.0.95"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2249,6 +2249,21 @@ Scoped.define("module:Dom", [
         "th": ["table", "thead", "tr"]
     };
 
+    var INTERACTION_EVENTS = ["click", "mousedown", "mouseup", "touchstart", "touchend", "keydown", "keyup", "keypress"];
+
+    var userInteractionCallbackList = [];
+    var userInteractionCallbackWaiting = false;
+    var userInteractionCallbackFunc = function() {
+        userInteractionCallbackList.forEach(function(entry) {
+            entry.callback.call(entry.context || this);
+        });
+        userInteractionCallbackList = [];
+        userInteractionCallbackWaiting = false;
+        INTERACTION_EVENTS.forEach(function(event) {
+            document.body.removeEventListener(event, userInteractionCallbackFunc);
+        });
+    };
+
     return {
 
         ready: function(callback, context) {
@@ -2273,6 +2288,19 @@ Scoped.define("module:Dom", [
                     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll))
                         completed();
                 }, 10);
+            }
+        },
+
+        userInteraction: function(callback, context) {
+            userInteractionCallbackList.push({
+                callback: callback,
+                context: context
+            });
+            if (!userInteractionCallbackWaiting) {
+                userInteractionCallbackWaiting = true;
+                INTERACTION_EVENTS.forEach(function(event) {
+                    document.body.addEventListener(event, userInteractionCallbackFunc);
+                });
             }
         },
 

@@ -11,6 +11,21 @@ Scoped.define("module:Dom", [
         "th": ["table", "thead", "tr"]
     };
 
+    var INTERACTION_EVENTS = ["click", "mousedown", "mouseup", "touchstart", "touchend", "keydown", "keyup", "keypress"];
+
+    var userInteractionCallbackList = [];
+    var userInteractionCallbackWaiting = false;
+    var userInteractionCallbackFunc = function() {
+        userInteractionCallbackList.forEach(function(entry) {
+            entry.callback.call(entry.context || this);
+        });
+        userInteractionCallbackList = [];
+        userInteractionCallbackWaiting = false;
+        INTERACTION_EVENTS.forEach(function(event) {
+            document.body.removeEventListener(event, userInteractionCallbackFunc);
+        });
+    };
+
     return {
 
         ready: function(callback, context) {
@@ -35,6 +50,19 @@ Scoped.define("module:Dom", [
                     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll))
                         completed();
                 }, 10);
+            }
+        },
+
+        userInteraction: function(callback, context) {
+            userInteractionCallbackList.push({
+                callback: callback,
+                context: context
+            });
+            if (!userInteractionCallbackWaiting) {
+                userInteractionCallbackWaiting = true;
+                INTERACTION_EVENTS.forEach(function(event) {
+                    document.body.addEventListener(event, userInteractionCallbackFunc);
+                });
             }
         },
 
