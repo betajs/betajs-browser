@@ -25,7 +25,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
             if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9)
                 return false;
             try {
-                new FormData();
+                new(window.FormData)();
             } catch (e) {
                 return false;
             }

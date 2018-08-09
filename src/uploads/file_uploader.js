@@ -127,7 +127,7 @@ Scoped.define("module:Upload.FileUploader", [
                 //source: null,
                 serverSupportChunked: false,
                 serverSupportPostMessage: false,
-                isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
+                isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),
                 resilience: 1,
                 resilience_delay: 1000,
                 essential: true,

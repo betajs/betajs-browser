@@ -96,7 +96,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
     }, {
 
         supported: function(options) {
-            return typeof Blob !== "undefined" && typeof FileReader !== "undefined" && typeof DataView !== "undefined" && options.serverSupportsChunked;
+            return typeof(window.Blob) !== "undefined" && typeof FileReader !== "undefined" && typeof DataView !== "undefined" && options.serverSupportsChunked;
         }
 
     });

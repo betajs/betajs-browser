@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.95 - 2018-07-28
+betajs-browser - v1.0.96 - 2018-08-08
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.95 - 2018-07-28
+betajs-browser - v1.0.96 - 2018-08-08
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,7 +1018,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.95"
+    "version": "1.0.96"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1295,11 +1295,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
                 return false;
             try {
                 Objs.iter(options.data, function(value) {
-                    if ((typeof Blob !== "undefined" && value instanceof Blob) || (typeof File !== "undefined" && value instanceof File))
+                    if ((typeof(window.Blob) !== "undefined" && value instanceof(window.Blob)) || (typeof File !== "undefined" && value instanceof File))
                         options.requireFormData = true;
                 });
                 if (options.requireFormData)
-                    new FormData();
+                    new(window.FormData)();
             } catch (e) {
                 options.requireFormData = false;
             }
@@ -1341,7 +1341,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
             if (options.method !== "GET" && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
-                    var formData = new FormData();
+                    var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {
                         formData.append(key, value);
                     }, this);
@@ -1504,12 +1504,12 @@ Scoped.define("module:Blobs", [
 
         createBlobByArrayBufferView: function(arrayBuffer, offset, size, type) {
             try {
-                return new Blob([new DataView(arrayBuffer, offset, size)], {
+                return new(window.Blob)([new DataView(arrayBuffer, offset, size)], {
                     type: type
                 });
             } catch (e) {
                 try {
-                    return new Blob([new Uint8Array(arrayBuffer, offset, size)], {
+                    return new(window.Blob)([new Uint8Array(arrayBuffer, offset, size)], {
                         type: type
                     });
                 } catch (e) {
@@ -3988,7 +3988,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
     }, {
 
         supported: function(options) {
-            return typeof Blob !== "undefined" && typeof FileReader !== "undefined" && typeof DataView !== "undefined" && options.serverSupportsChunked;
+            return typeof(window.Blob) !== "undefined" && typeof FileReader !== "undefined" && typeof DataView !== "undefined" && options.serverSupportsChunked;
         }
 
     });
@@ -4191,7 +4191,7 @@ Scoped.define("module:Upload.FileUploader", [
                 //source: null,
                 serverSupportChunked: false,
                 serverSupportPostMessage: false,
-                isBlob: typeof Blob !== "undefined" && options.source instanceof Blob,
+                isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),
                 resilience: 1,
                 resilience_delay: 1000,
                 essential: true,
@@ -4271,7 +4271,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
             if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9)
                 return false;
             try {
-                new FormData();
+                new(window.FormData)();
             } catch (e) {
                 return false;
             }
@@ -4585,7 +4585,7 @@ Scoped.define("module:Upload.StreamingFileUploader", [
     }, {
 
         supported: function(options) {
-            return typeof Blob !== "undefined" && options.serverSupportsChunked;
+            return typeof(window.Blob) !== "undefined" && options.serverSupportsChunked;
         }
 
     });

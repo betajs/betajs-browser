@@ -5,12 +5,12 @@ Scoped.define("module:Blobs", [
 
         createBlobByArrayBufferView: function(arrayBuffer, offset, size, type) {
             try {
-                return new Blob([new DataView(arrayBuffer, offset, size)], {
+                return new(window.Blob)([new DataView(arrayBuffer, offset, size)], {
                     type: type
                 });
             } catch (e) {
                 try {
-                    return new Blob([new Uint8Array(arrayBuffer, offset, size)], {
+                    return new(window.Blob)([new Uint8Array(arrayBuffer, offset, size)], {
                         type: type
                     });
                 } catch (e) {

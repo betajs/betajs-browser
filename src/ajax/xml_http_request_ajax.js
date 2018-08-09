@@ -20,11 +20,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
                 return false;
             try {
                 Objs.iter(options.data, function(value) {
-                    if ((typeof Blob !== "undefined" && value instanceof Blob) || (typeof File !== "undefined" && value instanceof File))
+                    if ((typeof(window.Blob) !== "undefined" && value instanceof(window.Blob)) || (typeof File !== "undefined" && value instanceof File))
                         options.requireFormData = true;
                 });
                 if (options.requireFormData)
-                    new FormData();
+                    new(window.FormData)();
             } catch (e) {
                 options.requireFormData = false;
             }
@@ -66,7 +66,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
             if (options.method !== "GET" && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
-                    var formData = new FormData();
+                    var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {
                         formData.append(key, value);
                     }, this);
