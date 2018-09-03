@@ -363,7 +363,7 @@ Scoped.define("module:Dom", [
             return bb.left <= x && x <= bb.right && bb.top <= y && y <= bb.bottom;
         },
 
-        elementFromPoint: function(x, y, disregarding) {
+        elementFromPoint: function(x, y, disregarding, parent) {
             disregarding = disregarding || [];
             if (!Types.is_array(disregarding))
                 disregarding = [disregarding];
@@ -376,6 +376,8 @@ Scoped.define("module:Dom", [
             var element = document.elementFromPoint(x - window.pageXOffset, y - window.pageYOffset);
             for (i = 0; i < disregarding.length; ++i)
                 disregarding[i].style.zIndex = backup[i];
+            while (element && parent && element.parentNode !== parent)
+                element = element.parentNode;
             return element;
         },
 
