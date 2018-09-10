@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.96 - 2018-09-03
+betajs-browser - v1.0.98 - 2018-09-10
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.96"
+    "version": "1.0.98"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2966,7 +2966,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
                         data[this._options.assembly.chunkNumberParameter] = chunkNumber;
                         data[this._options.assembly.fileTypeParameter] = file.type;
                         AjaxSupport.execute(Objs.extend({
-                            method: "POST",
+                            method: this._options.method,
                             uri: this._options.assembly.url || this._options.url,
                             data: Objs.extend(data, this._options.data)
                         }, this._options.assembly.ajaxOptions)).success(function() {
@@ -3031,7 +3031,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
                 fileUploadOptions.fileKey = "file";
                 fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
                 fileUploadOptions.mimeType = this._options.source.type;
-                fileUploadOptions.httpMethod = "POST";
+                fileUploadOptions.httpMethod = this._options.method;
                 fileUploadOptions.params = this._options.data;
                 var fileTransfer = new window.FileTransfer();
                 fileTransfer.upload(fileURI, this._options.url, function(data) {
@@ -3184,6 +3184,7 @@ Scoped.define("module:Upload.FileUploader", [
             return Objs.extend({
                 //url: "",
                 //source: null,
+                method: "POST",
                 serverSupportChunked: false,
                 serverSupportPostMessage: false,
                 isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),
@@ -3251,7 +3252,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
 
         _upload: function() {
             return AjaxSupport.execute({
-                method: "POST",
+                method: this._options.method,
                 uri: this._options.url,
                 decodeType: "text",
                 data: Objs.extend({
@@ -3293,7 +3294,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
             iframe.name = id;
             iframe.style.display = "none";
             var form = document.createElement("form");
-            form.method = "POST";
+            form.method = this._options.method;
             form.target = id;
             form.style.display = "none";
             document.body.appendChild(iframe);
@@ -3564,7 +3565,7 @@ Scoped.define("module:Upload.StreamingFileUploader", [
                     data[this._options.assembly.totalSizeParameter] = this._totalSize;
                     data[this._options.assembly.chunkNumberParameter] = this._chunkNumber;
                     AjaxSupport.execute(Objs.extend({
-                        method: "POST",
+                        method: this._options.method,
                         uri: this._options.assembly.url || this._options.url,
                         data: Objs.extend(data, this._options.data)
                     }, this._options.assembly.ajaxOptions)).success(function() {

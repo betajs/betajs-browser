@@ -10,7 +10,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
 
         _upload: function() {
             return AjaxSupport.execute({
-                method: "POST",
+                method: this._options.method,
                 uri: this._options.url,
                 decodeType: "text",
                 data: Objs.extend({

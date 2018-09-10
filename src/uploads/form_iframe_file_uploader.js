@@ -16,7 +16,7 @@ Scoped.define("module:Upload.FormIframeFileUploader", [
             iframe.name = id;
             iframe.style.display = "none";
             var form = document.createElement("form");
-            form.method = "POST";
+            form.method = this._options.method;
             form.target = id;
             form.style.display = "none";
             document.body.appendChild(iframe);

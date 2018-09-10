@@ -40,7 +40,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
                 fileUploadOptions.fileKey = "file";
                 fileUploadOptions.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
                 fileUploadOptions.mimeType = this._options.source.type;
-                fileUploadOptions.httpMethod = "POST";
+                fileUploadOptions.httpMethod = this._options.method;
                 fileUploadOptions.params = this._options.data;
                 var fileTransfer = new window.FileTransfer();
                 fileTransfer.upload(fileURI, this._options.url, function(data) {

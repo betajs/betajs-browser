@@ -79,7 +79,7 @@ Scoped.define("module:Upload.ChunkedFileUploader", [
                         data[this._options.assembly.chunkNumberParameter] = chunkNumber;
                         data[this._options.assembly.fileTypeParameter] = file.type;
                         AjaxSupport.execute(Objs.extend({
-                            method: "POST",
+                            method: this._options.method,
                             uri: this._options.assembly.url || this._options.url,
                             data: Objs.extend(data, this._options.data)
                         }, this._options.assembly.ajaxOptions)).success(function() {

@@ -125,6 +125,7 @@ Scoped.define("module:Upload.FileUploader", [
             return Objs.extend({
                 //url: "",
                 //source: null,
+                method: "POST",
                 serverSupportChunked: false,
                 serverSupportPostMessage: false,
                 isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),

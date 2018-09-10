@@ -80,7 +80,7 @@ Scoped.define("module:Upload.StreamingFileUploader", [
                     data[this._options.assembly.totalSizeParameter] = this._totalSize;
                     data[this._options.assembly.chunkNumberParameter] = this._chunkNumber;
                     AjaxSupport.execute(Objs.extend({
-                        method: "POST",
+                        method: this._options.method,
                         uri: this._options.assembly.url || this._options.url,
                         data: Objs.extend(data, this._options.data)
                     }, this._options.assembly.ajaxOptions)).success(function() {
