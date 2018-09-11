@@ -9,13 +9,13 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         _upload: function() {
+	        var data = Objs.clone(this._options.data || {}, 1);
+	        data.file = this._options.isBlob ? this._options.source : this._options.source.files[0];
             return AjaxSupport.execute({
                 method: this._options.method,
                 uri: this._options.url,
                 decodeType: "text",
-                data: Objs.extend({
-                    file: this._options.isBlob ? this._options.source : this._options.source.files[0]
-                }, this._options.data)
+                data: data
             }, this._progressCallback, this).success(this._successCallback, this).error(this._errorCallback, this);
         }
 
