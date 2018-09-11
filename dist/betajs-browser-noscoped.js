@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.98 - 2018-09-10
+betajs-browser - v1.0.99 - 2018-09-11
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,7 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.98"
+    "version": "1.0.99"
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3251,13 +3251,13 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         _upload: function() {
+            var data = Objs.clone(this._options.data || {}, 1);
+            data.file = this._options.isBlob ? this._options.source : this._options.source.files[0];
             return AjaxSupport.execute({
                 method: this._options.method,
                 uri: this._options.url,
                 decodeType: "text",
-                data: Objs.extend({
-                    file: this._options.isBlob ? this._options.source : this._options.source.files[0]
-                }, this._options.data)
+                data: data
             }, this._progressCallback, this).success(this._successCallback, this).error(this._errorCallback, this);
         }
 
