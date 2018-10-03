@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.99 - 2018-09-11
+betajs-browser - v1.0.100 - 2018-10-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -11,7 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.99"
+    "version": "1.0.100",
+    "datetime": 1538598181391
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -500,12 +501,12 @@ Scoped.define("module:Blobs", [
                 return new(window.Blob)([new DataView(arrayBuffer, offset, size)], {
                     type: type
                 });
-            } catch (e) {
+            } catch (err) {
                 try {
                     return new(window.Blob)([new Uint8Array(arrayBuffer, offset, size)], {
                         type: type
                     });
-                } catch (e) {
+                } catch (err2) {
                     var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
                     var bb = new BlobBuilder();
                     bb.append(arrayBuffer.slice(offset, offset + size));
@@ -518,28 +519,28 @@ Scoped.define("module:Blobs", [
             var promise = Promise.create();
             try {
                 var fileReader = new FileReader();
-                fileReader.onloadend = function(e) {
-                    promise.asyncSuccess(e.target.result);
+                fileReader.onloadend = function(ev) {
+                    promise.asyncSuccess(ev.target.result);
                 };
                 fileReader.readAsArrayBuffer(file.files ? file.files[0] : file);
-            } catch (e) {
-                promise.asyncError(e);
+            } catch (err) {
+                promise.asyncError(err);
             }
-            return e;
+            return promise;
         },
 
         loadFileIntoString: function(file) {
             var promise = Promise.create();
             try {
                 var fileReader = new FileReader();
-                fileReader.onloadend = function(e) {
-                    promise.asyncSuccess(e.target.result);
+                fileReader.onloadend = function(ev) {
+                    promise.asyncSuccess(ev.target.result);
                 };
                 fileReader.readAsText(file.files ? file.files[0] : file);
-            } catch (e) {
-                promise.asyncError(e);
+            } catch (err) {
+                promise.asyncError(err);
             }
-            return e;
+            return promise;
         }
 
     };

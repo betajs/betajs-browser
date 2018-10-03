@@ -8,12 +8,12 @@ Scoped.define("module:Blobs", [
                 return new(window.Blob)([new DataView(arrayBuffer, offset, size)], {
                     type: type
                 });
-            } catch (e) {
+            } catch (err) {
                 try {
                     return new(window.Blob)([new Uint8Array(arrayBuffer, offset, size)], {
                         type: type
                     });
-                } catch (e) {
+                } catch (err2) {
                     var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
                     var bb = new BlobBuilder();
                     bb.append(arrayBuffer.slice(offset, offset + size));
@@ -26,28 +26,28 @@ Scoped.define("module:Blobs", [
             var promise = Promise.create();
             try {
                 var fileReader = new FileReader();
-                fileReader.onloadend = function(e) {
-                    promise.asyncSuccess(e.target.result);
+                fileReader.onloadend = function(ev) {
+                    promise.asyncSuccess(ev.target.result);
                 };
                 fileReader.readAsArrayBuffer(file.files ? file.files[0] : file);
-            } catch (e) {
-                promise.asyncError(e);
+            } catch (err) {
+                promise.asyncError(err);
             }
-            return e;
+            return promise;
         },
 
         loadFileIntoString: function(file) {
             var promise = Promise.create();
             try {
                 var fileReader = new FileReader();
-                fileReader.onloadend = function(e) {
-                    promise.asyncSuccess(e.target.result);
+                fileReader.onloadend = function(ev) {
+                    promise.asyncSuccess(ev.target.result);
                 };
                 fileReader.readAsText(file.files ? file.files[0] : file);
-            } catch (e) {
-                promise.asyncError(e);
+            } catch (err) {
+                promise.asyncError(err);
             }
-            return e;
+            return promise;
         }
 
     };
