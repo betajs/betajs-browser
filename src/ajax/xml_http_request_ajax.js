@@ -12,6 +12,9 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
     var Module = {
 
         supports: function(options) {
+            // Worker
+            if (typeof window === "undefined")
+                return true;
             if (!window.XMLHttpRequest)
                 return false;
             if (options.forceJsonp || options.forcePostmessage)
