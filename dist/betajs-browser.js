@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.101 - 2018-10-11
+betajs-browser - v1.0.102 - 2018-10-14
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.101 - 2018-10-11
+betajs-browser - v1.0.102 - 2018-10-14
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.101",
-    "datetime": 1539309306909
+    "version": "1.0.102",
+    "datetime": 1539551508390
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3271,7 +3271,7 @@ Scoped.define("module:Dom", [
         userInteractionCallbackList = [];
         userInteractionCallbackWaiting = false;
         INTERACTION_EVENTS.forEach(function(event) {
-            document.body.removeEventListener(event, userInteractionCallbackFunc);
+            window.removeEventListener(event, userInteractionCallbackFunc);
         });
     };
 
@@ -3310,7 +3310,7 @@ Scoped.define("module:Dom", [
             if (!userInteractionCallbackWaiting) {
                 userInteractionCallbackWaiting = true;
                 INTERACTION_EVENTS.forEach(function(event) {
-                    document.body.addEventListener(event, userInteractionCallbackFunc);
+                    window.addEventListener(event, userInteractionCallbackFunc);
                 });
             }
         },

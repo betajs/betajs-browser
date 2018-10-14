@@ -22,7 +22,7 @@ Scoped.define("module:Dom", [
         userInteractionCallbackList = [];
         userInteractionCallbackWaiting = false;
         INTERACTION_EVENTS.forEach(function(event) {
-            document.body.removeEventListener(event, userInteractionCallbackFunc);
+            window.removeEventListener(event, userInteractionCallbackFunc);
         });
     };
 
@@ -61,7 +61,7 @@ Scoped.define("module:Dom", [
             if (!userInteractionCallbackWaiting) {
                 userInteractionCallbackWaiting = true;
                 INTERACTION_EVENTS.forEach(function(event) {
-                    document.body.addEventListener(event, userInteractionCallbackFunc);
+                    window.addEventListener(event, userInteractionCallbackFunc);
                 });
             }
         },

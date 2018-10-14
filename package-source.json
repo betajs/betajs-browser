@@ -1,6 +1,6 @@
 {
     "name": "betajs-browser",
-    "version": "1.0.101",
+    "version": "1.0.102",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann"
