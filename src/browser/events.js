@@ -1,8 +1,9 @@
 Scoped.define("module:Events", [
     "base:Class",
     "base:Objs",
-    "base:Functions"
-], function(Class, Objs, Functions, scoped) {
+    "base:Functions",
+    "module:Dom"
+], function(Class, Objs, Functions, Dom, scoped) {
     return Class.extend({
         scoped: scoped
     }, function(inherited) {
@@ -18,12 +19,12 @@ Scoped.define("module:Events", [
                 inherited.destroy.call(this);
             },
 
-            on: function(element, events, callback, context) {
+            on: function(element, events, callback, context, options) {
                 events.split(" ").forEach(function(event) {
                     if (!event)
                         return;
                     var callback_function = Functions.as_method(callback, context || element);
-                    element.addEventListener(event, callback_function, false);
+                    element.addEventListener(event, callback_function, options && Dom.passiveEventsSupported() ? options : false);
                     this.__callbacks[event] = this.__callbacks[event] || [];
                     this.__callbacks[event].push({
                         element: element,
@@ -44,7 +45,7 @@ Scoped.define("module:Events", [
                         var i = 0;
                         while (i < entries.length) {
                             var entry = entries[i];
-                            if ((!element || element == entry.element) && (!callback || callback == entry.callback) && (!context || context == entry.context)) {
+                            if ((!element || element === entry.element) && (!callback || callback === entry.callback) && (!context || context === entry.context)) {
                                 entry.element.removeEventListener(event, entry.callback_function, false);
                                 entries[i] = entries[entries.length - 1];
                                 entries.pop();

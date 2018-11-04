@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.102 - 2018-10-14
+betajs-browser - v1.0.103 - 2018-11-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.102 - 2018-10-14
+betajs-browser - v1.0.103 - 2018-11-03
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.102",
-    "datetime": 1539551508390
+    "version": "1.0.103",
+    "datetime": 1541303594220
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1583,8 +1583,9 @@ Scoped.define("module:Cookies", ["base:Net.Cookies"], function(Cookies) {
 Scoped.define("module:Events", [
     "base:Class",
     "base:Objs",
-    "base:Functions"
-], function(Class, Objs, Functions, scoped) {
+    "base:Functions",
+    "module:Dom"
+], function(Class, Objs, Functions, Dom, scoped) {
     return Class.extend({
         scoped: scoped
     }, function(inherited) {
@@ -1600,12 +1601,12 @@ Scoped.define("module:Events", [
                 inherited.destroy.call(this);
             },
 
-            on: function(element, events, callback, context) {
+            on: function(element, events, callback, context, options) {
                 events.split(" ").forEach(function(event) {
                     if (!event)
                         return;
                     var callback_function = Functions.as_method(callback, context || element);
-                    element.addEventListener(event, callback_function, false);
+                    element.addEventListener(event, callback_function, options && Dom.passiveEventsSupported() ? options : false);
                     this.__callbacks[event] = this.__callbacks[event] || [];
                     this.__callbacks[event].push({
                         element: element,
@@ -1626,7 +1627,7 @@ Scoped.define("module:Events", [
                         var i = 0;
                         while (i < entries.length) {
                             var entry = entries[i];
-                            if ((!element || element == entry.element) && (!callback || callback == entry.callback) && (!context || context == entry.context)) {
+                            if ((!element || element === entry.element) && (!callback || callback === entry.callback) && (!context || context === entry.context)) {
                                 entry.element.removeEventListener(event, entry.callback_function, false);
                                 entries[i] = entries[entries.length - 1];
                                 entries.pop();
@@ -3730,6 +3731,33 @@ Scoped.define("module:Dom", [
         keyboardUnfocus: function() {
             if (document.activeElement)
                 document.activeElement.blur();
+        },
+
+        passiveEventsSupported: function() {
+            return Info.isiOS();
+        },
+
+        containerStickyBottom: function(someElement) {
+            var lastScrollHeight = someElement.scrollHeight;
+            var critical = false;
+            var observer = new MutationObserver(function() {
+                if (critical)
+                    return;
+                critical = true;
+                var newScrollHeight = someElement.scrollHeight;
+                var oldScrollHeight = lastScrollHeight;
+                lastScrollHeight = newScrollHeight;
+                if (newScrollHeight > oldScrollHeight)
+                    someElement.scrollTop = someElement.scrollTop + newScrollHeight - oldScrollHeight;
+                critical = false;
+            });
+            observer.observe(someElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                characterData: true
+            });
+            return observer;
         }
 
     };

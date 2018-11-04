@@ -481,6 +481,33 @@ Scoped.define("module:Dom", [
         keyboardUnfocus: function() {
             if (document.activeElement)
                 document.activeElement.blur();
+        },
+
+        passiveEventsSupported: function() {
+            return Info.isiOS();
+        },
+
+        containerStickyBottom: function(someElement) {
+            var lastScrollHeight = someElement.scrollHeight;
+            var critical = false;
+            var observer = new MutationObserver(function() {
+                if (critical)
+                    return;
+                critical = true;
+                var newScrollHeight = someElement.scrollHeight;
+                var oldScrollHeight = lastScrollHeight;
+                lastScrollHeight = newScrollHeight;
+                if (newScrollHeight > oldScrollHeight)
+                    someElement.scrollTop = someElement.scrollTop + newScrollHeight - oldScrollHeight;
+                critical = false;
+            });
+            observer.observe(someElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                characterData: true
+            });
+            return observer;
         }
 
     };
