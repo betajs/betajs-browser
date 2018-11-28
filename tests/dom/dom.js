@@ -82,8 +82,7 @@ QUnit.test("element width height", function (assert) {
     document.body.appendChild(parent);
     var elem = document.getElementById("inner");
 	var dim = BetaJS.Browser.Dom.elementDimensions(elem);
-	var adder = BetaJS.Browser.Info.isInternetExplorer() && BetaJS.Browser.Info.internetExplorerVersion() <= 9 ? 1 : 0;
-	assert.equal(dim.width, 2*3+2*5+2*7+11 -adder);
-	assert.equal(dim.height, 2*3+2*5+2*7+11 -adder);
+	assert.equal(dim.width, 2*3+2*5+2*7+11);
+	assert.equal(dim.height, 2*3+2*5+2*7+11);
     document.body.removeChild(parent);
 });
