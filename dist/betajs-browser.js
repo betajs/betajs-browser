@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.104 - 2018-11-28
+betajs-browser - v1.0.105 - 2018-12-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.104 - 2018-11-28
+betajs-browser - v1.0.105 - 2018-12-13
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -1018,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.104",
-    "datetime": 1543421948127
+    "version": "1.0.105",
+    "datetime": 1544744880698
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1056,6 +1056,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
             var form = document.createElement("form");
             form.method = options.method;
             form.target = postmessageName;
+            uri = AjaxSupport.finalizeUri(options, uri);
             form.action = uri;
             form.style.display = "none";
             var promise = Promise.create();
@@ -1185,6 +1186,7 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
                 }
             };
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             script.src = uri;
             head.appendChild(script);
 
@@ -1252,6 +1254,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
                 delete Module.__requests[Ids.objectId(xdomreq)];
             };
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             xdomreq.open(options.method, uri);
 
             Async.eventually(function() {
@@ -1335,6 +1338,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
                 };
             }
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             xmlhttp.open(options.method, uri, true);
 
             if (options.corscreds)

@@ -31,6 +31,7 @@ Scoped.define("module:Ajax.IframePostmessageAjax", [
             var form = document.createElement("form");
             form.method = options.method;
             form.target = postmessageName;
+            uri = AjaxSupport.finalizeUri(options, uri);
             form.action = uri;
             form.style.display = "none";
             var promise = Promise.create();

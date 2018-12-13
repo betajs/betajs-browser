@@ -59,6 +59,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
                 };
             }
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             xmlhttp.open(options.method, uri, true);
 
             if (options.corscreds)

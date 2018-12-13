@@ -74,6 +74,7 @@ Scoped.define("module:Ajax.JsonpScriptAjax", [
                 }
             };
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             script.src = uri;
             head.appendChild(script);
 

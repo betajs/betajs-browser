@@ -53,6 +53,7 @@ Scoped.define("module:Ajax.XDomainRequestAjax", [
                 delete Module.__requests[Ids.objectId(xdomreq)];
             };
 
+            uri = AjaxSupport.finalizeUri(options, uri);
             xdomreq.open(options.method, uri);
 
             Async.eventually(function() {
