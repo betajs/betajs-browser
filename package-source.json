@@ -1,6 +1,6 @@
 {
     "name": "betajs-browser",
-    "version": "1.0.106",
+    "version": "1.0.107",
     "description": "BetaJS-Browser is a client-side JavaScript framework for Browser-specific methods.",
     "contributors": [
         "Oliver Friedmann",
@@ -44,7 +44,8 @@
     },
     "scripts": {
         "test": "grunt check-node",
-        "relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server"
+        "relink": "npm link betajs && npm link betajs-compile && npm link betajs-scoped && npm link betajs-shims && npm link mock-ajax-server && npm link mock-file-server",
+        "reinstall": "rm -f package-lock.json && rm -rf node_modules && npm i && npm run relink"
     },
     "meta": {
         "sponsors": [

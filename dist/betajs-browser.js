@@ -1,6 +1,6 @@
 /*!
-betajs-browser - v1.0.105 - 2018-12-13
-Copyright (c) Oliver Friedmann
+betajs-browser - v1.0.106 - 2019-01-16
+Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
 /** @flow **//*!
@@ -1006,8 +1006,8 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.105 - 2018-12-13
-Copyright (c) Oliver Friedmann
+betajs-browser - v1.0.106 - 2019-01-16
+Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
 
@@ -1018,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.105",
-    "datetime": 1544744880698
+    "version": "1.0.106",
+    "datetime": 1547654603708
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3372,9 +3372,15 @@ Scoped.define("module:Dom", [
             return result;
         },
 
-        elementByTemplate: function(template) {
+        elementByTemplate: function(template, encapsulate_in_div_if_needed) {
             var result = this.elementsByTemplate(template);
-            return result.length > 0 ? result[0] : null;
+            if (result.length === 1)
+                return result[0];
+            if (result.length === 0 || !encapsulate_in_div_if_needed)
+                return null;
+            var element = document.createElement("div");
+            result.forEach(element.appendChild, element);
+            return element;
         },
 
         changeTag: function(node, name) {

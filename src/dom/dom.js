@@ -118,9 +118,15 @@ Scoped.define("module:Dom", [
             return result;
         },
 
-        elementByTemplate: function(template) {
+        elementByTemplate: function(template, encapsulate_in_div_if_needed) {
             var result = this.elementsByTemplate(template);
-            return result.length > 0 ? result[0] : null;
+            if (result.length === 1)
+                return result[0];
+            if (result.length === 0 || !encapsulate_in_div_if_needed)
+                return null;
+            var element = document.createElement("div");
+            result.forEach(element.appendChild, element);
+            return element;
         },
 
         changeTag: function(node, name) {
