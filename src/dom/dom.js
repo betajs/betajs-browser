@@ -166,7 +166,7 @@ Scoped.define("module:Dom", [
         __FULLSCREEN_EVENTS: ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"],
         __FULLSCREEN_METHODS: ["requestFullscreen", "webkitRequestFullscreen", "mozRequestFullScreen", "msRequestFullscreen", "webkitEnterFullScreen"],
         __FULLSCREEN_ATTRS: ["fullscreenElement", "webkitFullscreenElement", "mozFullScreenElement", "msFullscreenElement"],
-        __FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen"],
+        __FULLSCREEN_EXIT_METHODS: ["exitFullscreen", "mozCancelFullScreen", "webkitExitFullscreen", "msExitFullscreen"],
 
         elementSupportsFullscreen: function(element) {
             return element && this.__FULLSCREEN_METHODS.some(function(key) {
