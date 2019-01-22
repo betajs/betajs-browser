@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.109 - 2019-01-21
+betajs-browser - v1.0.110 - 2019-01-21
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1006,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.109 - 2019-01-21
+betajs-browser - v1.0.110 - 2019-01-21
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1018,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.109",
-    "datetime": 1548082610925
+    "version": "1.0.110",
+    "datetime": 1548127982676
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1315,7 +1315,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
         execute: function(options, progress, progressCtx) {
             var uri = Uri.appendUriParams(options.uri, options.query || {});
-            if (options.method === "GET")
+            if (!options.methodSupportsPayload)
                 uri = Uri.appendUriParams(uri, options.data || {});
             var promise = Promise.create();
 
@@ -1347,7 +1347,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
 
-            if (options.method !== "GET" && !Types.is_empty(options.data)) {
+            if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
                     var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {

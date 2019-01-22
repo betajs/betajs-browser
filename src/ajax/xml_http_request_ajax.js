@@ -36,7 +36,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
         execute: function(options, progress, progressCtx) {
             var uri = Uri.appendUriParams(options.uri, options.query || {});
-            if (options.method === "GET")
+            if (!options.methodSupportsPayload)
                 uri = Uri.appendUriParams(uri, options.data || {});
             var promise = Promise.create();
 
@@ -68,7 +68,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
 
-            if (options.method !== "GET" && !Types.is_empty(options.data)) {
+            if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
                     var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {
