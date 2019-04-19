@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.110 - 2019-01-21
+betajs-browser - v1.0.111 - 2019-04-19
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.110",
-    "datetime": 1548127982676
+    "version": "1.0.111",
+    "datetime": 1555715079519
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2766,6 +2766,46 @@ Scoped.define("module:Dom", [
                 characterData: true
             });
             return observer;
+        },
+
+        isInputLikeElement: function(element) {
+            return element.nodeName === "TEXTAREA" || element.nodeName === "INPUT";
+        },
+
+        copyStringToClipboard: function(s) {
+            var input = document.createElement("input");
+            input.style.display = 'none';
+            document.body.appendChild(input);
+            input.value = s;
+            this.copyInputValueToClipboard(input);
+            document.body.removeChild(input);
+        },
+
+        copyInputValueToClipboard: function(element) {
+            if (document.body.createTextRange) {
+                var textRange = document.body.createTextRange();
+                textRange.moveToElementText(element);
+                textRange.select();
+                return textRange.execCommand("Copy");
+            } else if (window.getSelection && document.createRange) {
+                var oldContentEditable = element.contentEditable;
+                var oldReadOnly = element.readOnly;
+                element.contentEditable = true;
+                element.readOnly = false;
+                var range = document.createRange();
+                range.selectNodeContents(element);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range); // Does not work for Firefox if a textarea or input
+                if (this.isInputLikeElement(element))
+                    element.select(); // Firefox will only select a form element with select()
+                if (Info.isiOS())
+                    element.setSelectionRange(0, 999999);
+                element.contentEditable = oldContentEditable;
+                element.readOnly = oldReadOnly;
+                return document.execCommand("copy");
+            }
+            return false;
         }
 
     };
