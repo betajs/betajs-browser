@@ -68,6 +68,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
 
+            var parsed = Uri.parse(uri);
+            if (parsed.user || parsed.password)
+                xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
+
             if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
                     var formData = new(window.FormData)();

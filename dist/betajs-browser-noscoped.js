@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.111 - 2019-04-19
+betajs-browser - v1.0.111 - 2019-07-05
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -12,7 +12,7 @@ Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
     "version": "1.0.111",
-    "datetime": 1555715079519
+    "datetime": 1562362884695
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -339,6 +339,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
+
+            var parsed = Uri.parse(uri);
+            if (parsed.user || parsed.password)
+                xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
 
             if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
                 if (options.requireFormData) {
