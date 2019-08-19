@@ -50,11 +50,11 @@ The BetaJS Browser module contains a variety of browser helper libraries, partic
 ## Links
 | Resource   | URL |
 | :--------- | --: |
-| Homepage   | [http://betajs.com](http://betajs.com) |
+| Homepage   | [https://betajs.com](https://betajs.com) |
 | Git        | [git://github.com/betajs/betajs-browser.git](git://github.com/betajs/betajs-browser.git) |
 | Repository | [https://github.com/betajs/betajs-browser](https://github.com/betajs/betajs-browser) |
-| Blog       | [http://blog.betajs.com](http://blog.betajs.com) | 
-| Twitter    | [http://twitter.com/thebetajs](http://twitter.com/thebetajs) | 
+| Blog       | [https://blog.betajs.com](https://blog.betajs.com) | 
+| Twitter    | [https://twitter.com/thebetajs](https://twitter.com/thebetajs) | 
 | Gitter     | [https://gitter.im/betajs/betajs-browser](https://gitter.im/betajs/betajs-browser) | 
 
 
