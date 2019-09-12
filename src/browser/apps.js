@@ -56,7 +56,7 @@ Scoped.define("module:Apps", [
         },
 
         playStoreLink: function(appIdent) {
-            return "http://play.google.com/store/apps/details?id=<" + appIdent + ">";
+            return "https://play.google.com/store/apps/details?id=<" + appIdent + ">";
         },
 
         iOSAppURL: function(protocol, url) {

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.115 - 2019-08-19
+betajs-browser - v1.0.116 - 2019-09-11
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.115",
-    "datetime": 1566257000410
+    "version": "1.0.116",
+    "datetime": 1568250477157
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -434,7 +434,7 @@ Scoped.define("module:Apps", [
         },
 
         playStoreLink: function(appIdent) {
-            return "http://play.google.com/store/apps/details?id=<" + appIdent + ">";
+            return "https://play.google.com/store/apps/details?id=<" + appIdent + ">";
         },
 
         iOSAppURL: function(protocol, url) {
@@ -816,7 +816,7 @@ Scoped.define("module:FlashHelper", [
             });
             params.push({
                 "objectKey": "codebase",
-                "value": "http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab"
+                "value": "https://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab"
             });
             params.push({
                 "embedKey": "align",
@@ -836,7 +836,7 @@ Scoped.define("module:FlashHelper", [
             });
             params.push({
                 "embedKey": "pluginspage",
-                "value": "http://www.adobe.com/go/getflashplayer"
+                "value": "https://get.adobe.com/flashplayer"
             });
             params.push({
                 "objectParam": "quality",

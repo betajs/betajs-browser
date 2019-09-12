@@ -162,7 +162,7 @@ Scoped.define("module:FlashHelper", [
             });
             params.push({
                 "objectKey": "codebase",
-                "value": "http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab"
+                "value": "https://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab"
             });
             params.push({
                 "embedKey": "align",
@@ -182,7 +182,7 @@ Scoped.define("module:FlashHelper", [
             });
             params.push({
                 "embedKey": "pluginspage",
-                "value": "http://www.adobe.com/go/getflashplayer"
+                "value": "https://get.adobe.com/flashplayer"
             });
             params.push({
                 "objectParam": "quality",
