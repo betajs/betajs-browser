@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.116 - 2019-09-11
+betajs-browser - v1.0.117 - 2019-09-14
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.116",
-    "datetime": 1568250477157
+    "version": "1.0.117",
+    "datetime": 1568464605281
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');

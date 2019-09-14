@@ -1,10 +1,10 @@
 /*!
-betajs-browser - v1.0.116 - 2019-09-11
+betajs-browser - v1.0.117 - 2019-09-14
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
 /** @flow **//*!
-betajs-scoped - v0.0.22 - 2019-09-11
+betajs-scoped - v0.0.19 - 2018-04-07
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -393,18 +393,16 @@ function newNamespace (opts/* : {tree ?: boolean, global ?: boolean, root ?: Obj
 		}
 	}
 	
-	function nodeEnforce(node/* : Node */, resolveLazy) {
+	function nodeEnforce(node/* : Node */) {
 		if (node.ready)
 			return;
 		if (node.parent && !node.parent.ready)
-			nodeEnforce(node.parent, false);
+			nodeEnforce(node.parent);
 		node.ready = true;
 		if (node.parent) {
 			if (options.tree && typeof node.parent.data == "object")
 				node.parent.data[node.route] = node.data;
 		}
-		if (resolveLazy)
-			nodeResolveLazy(node);
 		for (var i = 0; i < node.watchers.length; ++i)
 			node.watchers[i].callback.call(node.watchers[i].context || this, node.data);
 		node.watchers = [];
@@ -422,7 +420,7 @@ function newNamespace (opts/* : {tree ?: boolean, global ?: boolean, root ?: Obj
 					node.children[ckey].data = value[ckey];
 			}
 		}
-		nodeEnforce(node, true);
+		nodeEnforce(node);
 		for (var k in node.children)
 			nodeDigest(node.children[k]);
 	}
@@ -453,18 +451,6 @@ function newNamespace (opts/* : {tree ?: boolean, global ?: boolean, root ?: Obj
 		}
 		return current;
 	}
-
-	function nodeResolveLazy(node) {
-		if (node.lazy.length > 0) {
-			if (node.lazy.length > 0) {
-				var lazy = node.lazy.shift();
-				lazy.callback.call(lazy.context || this, node.data);
-				nodeResolveLazy(node);
-			} else if (node.parent && node.parent.lazy && !node.parent.ready)
-				nodeResolveLazy(node.parent);
-		}
-	}
-
 	
 	function nodeAddWatcher(node/* : Node */, callback, context) {
 		if (node.ready)
@@ -474,7 +460,16 @@ function newNamespace (opts/* : {tree ?: boolean, global ?: boolean, root ?: Obj
 				callback: callback,
 				context: context
 			});
-			nodeResolveLazy(node);
+			if (node.lazy.length > 0) {
+				var f = function (node) {
+					if (node.lazy.length > 0) {
+						var lazy = node.lazy.shift();
+						lazy.callback.call(lazy.context || this, node.data);
+						f(node);
+					}
+				};
+				f(node);
+			}
 		}
 	}
 	
@@ -833,7 +828,7 @@ function newScope (parent, parentNS, rootNS, globalNS) {
 		
 		
 		/**
-		 * Extends a potentially existing name space once a list of name space locators is available.
+		 * Extends a potentiall existing name space once a list of name space locators is available.
 		 * 
 		 * @param {string} namespaceLocator the name space that is to be defined
 		 * @param {array} dependencies a list of name space locator dependencies (optional)
@@ -969,7 +964,7 @@ var Public = Helper.extend(rootScope, (function () {
 return {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '0.0.22',
+	version: '0.0.19',
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -1011,7 +1006,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.116 - 2019-09-11
+betajs-browser - v1.0.117 - 2019-09-14
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1023,8 +1018,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.116",
-    "datetime": 1568250477157
+    "version": "1.0.117",
+    "datetime": 1568464605281
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
