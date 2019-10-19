@@ -209,6 +209,15 @@ Scoped.define("module:Info", [
             });
         },
 
+        /**
+         * Checking if device is touchable device
+         *
+         * @return {boolean}
+         */
+        isTouchable: function () {
+            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+        },
+
         internetExplorerVersion: function() {
             return this.__cached("internetExplorerVersion", function(nav, ua) {
                 if (nav.appName == 'Microsoft Internet Explorer') {
