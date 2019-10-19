@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.117 - 2019-09-14
+betajs-browser - v1.0.117 - 2019-10-19
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -12,7 +12,7 @@ Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
     "version": "1.0.117",
-    "datetime": 1568464605281
+    "datetime": 1571487235628
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1335,6 +1335,15 @@ Scoped.define("module:Info", [
             return this.__cached("isLinux", function(nav) {
                 return !this.isAndroid() && nav.appVersion.toLowerCase().indexOf("linux") != -1;
             });
+        },
+
+        /**
+         * Checking if device is touchable device
+         *
+         * @return {boolean}
+         */
+        isTouchable: function() {
+            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
         },
 
         internetExplorerVersion: function() {
