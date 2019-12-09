@@ -1,10 +1,10 @@
 /*!
-betajs-browser - v1.0.117 - 2019-10-19
+betajs-browser - v1.0.120 - 2019-12-09
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
 /** @flow **//*!
-betajs-scoped - v0.0.19 - 2018-04-07
+betajs-scoped - v0.0.22 - 2019-10-23
 Copyright (c) Oliver Friedmann
 Apache-2.0 Software License.
 */
@@ -242,13 +242,15 @@ return {
 	 */
 	upgrade: function (namespace/* : ?string */) {
 		var current = Globals.get(namespace || Attach.__namespace);
-		if (current && Helper.typeOf(current) == "object" && current.guid == this.guid && Helper.typeOf(current.version) == "string") {
+		if (current && Helper.typeOf(current) === "object" && current.guid === this.guid && Helper.typeOf(current.version) === "string") {
+			if (this.upgradable === false || current.upgradable === false)
+				return current;
 			var my_version = this.version.split(".");
 			var current_version = current.version.split(".");
 			var newer = false;
 			for (var i = 0; i < Math.min(my_version.length, current_version.length); ++i) {
 				newer = parseInt(my_version[i], 10) > parseInt(current_version[i], 10);
-				if (my_version[i] != current_version[i]) 
+				if (my_version[i] !== current_version[i])
 					break;
 			}
 			return newer ? this.attach(namespace) : current;				
@@ -267,7 +269,7 @@ return {
 		if (namespace)
 			Attach.__namespace = namespace;
 		var current = Globals.get(Attach.__namespace);
-		if (current == this)
+		if (current === this)
 			return this;
 		Attach.__revert = current;
 		if (current) {
@@ -312,7 +314,7 @@ return {
 	 */
 	exports: function (mod, object, forceExport) {
 		mod = mod || (typeof module != "undefined" ? module : null);
-		if (typeof mod == "object" && mod && "exports" in mod && (forceExport || mod.exports == this || !mod.exports || Helper.isEmpty(mod.exports)))
+		if (typeof mod == "object" && mod && "exports" in mod && (forceExport || mod.exports === this || !mod.exports || Helper.isEmpty(mod.exports)))
 			mod.exports = object || this;
 		return this;
 	}	
@@ -828,7 +830,7 @@ function newScope (parent, parentNS, rootNS, globalNS) {
 		
 		
 		/**
-		 * Extends a potentiall existing name space once a list of name space locators is available.
+		 * Extends a potentially existing name space once a list of name space locators is available.
 		 * 
 		 * @param {string} namespaceLocator the name space that is to be defined
 		 * @param {array} dependencies a list of name space locator dependencies (optional)
@@ -964,7 +966,9 @@ var Public = Helper.extend(rootScope, (function () {
 return {
 		
 	guid: "4b6878ee-cb6a-46b3-94ac-27d91f58d666",
-	version: '0.0.19',
+	version: '0.0.22',
+
+	upgradable: true,
 		
 	upgrade: Attach.upgrade,
 	attach: Attach.attach,
@@ -1006,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.117 - 2019-10-19
+betajs-browser - v1.0.120 - 2019-12-09
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1018,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.117",
-    "datetime": 1571487235628
+    "version": "1.0.120",
+    "datetime": 1575925642995
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3856,6 +3860,27 @@ Scoped.define("module:Dom", [
             return false;
         }
 
+    };
+});
+Scoped.define("module:Geometry", [], function() {
+    return {
+        /**
+         *
+         * @param videoWidth
+         * @param videoHeight
+         * @param embedWidth
+         * @param embedHeight
+         */
+        padFitBoxInBox: function(videoWidth, videoHeight, embedWidth, embedHeight) {
+            var videoAR = videoWidth / videoHeight;
+            var embedAR = embedWidth / embedHeight;
+            var scale = videoAR > embedAR ? (embedWidth / videoWidth) : (embedHeight / videoHeight);
+            return {
+                scale: scale,
+                offsetX: videoAR < embedAR ? (embedWidth - videoWidth * scale) / 2 : 0,
+                offsetY: videoAR > embedAR ? (embedHeight - videoHeight * scale) / 2 : 0
+            };
+        }
     };
 });
 Scoped.define("module:Selection", [

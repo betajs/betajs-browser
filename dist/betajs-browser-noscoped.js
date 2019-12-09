@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.117 - 2019-10-19
+betajs-browser - v1.0.120 - 2019-12-09
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.117",
-    "datetime": 1571487235628
+    "version": "1.0.120",
+    "datetime": 1575925642995
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2849,6 +2849,27 @@ Scoped.define("module:Dom", [
             return false;
         }
 
+    };
+});
+Scoped.define("module:Geometry", [], function() {
+    return {
+        /**
+         *
+         * @param videoWidth
+         * @param videoHeight
+         * @param embedWidth
+         * @param embedHeight
+         */
+        padFitBoxInBox: function(videoWidth, videoHeight, embedWidth, embedHeight) {
+            var videoAR = videoWidth / videoHeight;
+            var embedAR = embedWidth / embedHeight;
+            var scale = videoAR > embedAR ? (embedWidth / videoWidth) : (embedHeight / videoHeight);
+            return {
+                scale: scale,
+                offsetX: videoAR < embedAR ? (embedWidth - videoWidth * scale) / 2 : 0,
+                offsetY: videoAR > embedAR ? (embedHeight - videoHeight * scale) / 2 : 0
+            };
+        }
     };
 });
 Scoped.define("module:Selection", [

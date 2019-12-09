@@ -17,5 +17,5 @@ Scoped.define("module:Geometry", [], function() {
                 offsetY: videoAR > embedAR ? (embedHeight - videoHeight * scale) / 2 : 0
             };
         }
-    }
+    };
 });
