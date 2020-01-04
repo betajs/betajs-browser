@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.120 - 2019-12-09
+betajs-browser - v1.0.121 - 2020-01-03
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.120",
-    "datetime": 1575925642995
+    "version": "1.0.121",
+    "datetime": 1578096201931
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2473,6 +2473,124 @@ Scoped.define("module:Dom", [
         elementOffFullscreenChange: function(element, listener) {
             this.__FULLSCREEN_EVENTS.forEach(function(event) {
                 element.removeEventListener(event, listener, false);
+            });
+        },
+        __PIP_EVENTS: ["enterpictureinpicture", "leavepictureinpicture"],
+        /**
+         * If browser supports picture-in-picture
+         *
+         * INFO: to enable PIP in FF: about:config, set media.videocontrols.picture-in-picture.enabled,
+         * media.videocontrols.picture-in-picture.video-toggle.enabled;true
+         * and media.videocontrols.picture-in-picture.video-toggle.flyout-enabled
+         *
+         * @param {HTMLVideoElement =} videoElement
+         * @returns {boolean}
+         */
+        browserSupportsPIP: function(videoElement) {
+            videoElement = videoElement || HTMLVideoElement.prototype || {};
+
+            if ('pictureInPictureEnabled' in document)
+                return true;
+
+            if (Info.isMacOS() && Info.safariVersion() >= 9)
+                return !!(videoElement.webkitSupportsPresentationMode && typeof videoElement.webkitSetPresentationMode === "function");
+
+            return false;
+        },
+
+        /**
+         *
+         * @param {HTMLVideoElement} videoElement
+         */
+        videoElementEnterPIPMode: function(videoElement) {
+            if (!videoElement || !(videoElement instanceof HTMLVideoElement))
+                return;
+            videoElement = videoElement || HTMLVideoElement.prototype || {};
+
+            if ('pictureInPictureElement' in document) {
+                if (!document.pictureInPictureElement && typeof videoElement.requestPictureInPicture === 'function') {
+                    try {
+                        videoElement.requestPictureInPicture();
+                    } catch (err) {
+                        console.warn(err);
+                    }
+                }
+            }
+
+            if (Info.isMacOS() && Info.safariVersion() >= 9 && typeof videoElement.webkitSetPresentationMode === 'function')
+                videoElement.webkitSetPresentationMode("picture-in-picture");
+        },
+
+        /**
+         * Video Will Exit From PIP Mode
+         * @param {HTMLVideoElement} videoElement
+         */
+        videoElementExitPIPMode: function(videoElement) {
+            videoElement = videoElement || HTMLVideoElement.prototype || {};
+
+            if ('pictureInPictureElement' in document) {
+                if (document.pictureInPictureElement && typeof document.exitPictureInPicture === 'function') {
+                    try {
+                        document.exitPictureInPicture();
+                    } catch (err) {
+                        console.warn(err);
+                    }
+                }
+            }
+
+            if (Info.isMacOS() && Info.safariVersion() >= 9 && typeof videoElement.webkitSetPresentationMode === 'function') {
+                videoElement.webkitSetPresentationMode('inline');
+            }
+        },
+
+        /**
+         * Will check if Video Element in PIP Mode
+         * @param {HTMLVideoElement} videoElement
+         * @returns {boolean}
+         */
+        videoIsInPIPMode: function(videoElement) {
+            if ('pictureInPictureElement' in document)
+                return !!document.pictureInPictureElement;
+
+            if (Info.isMacOS() && Info.safariVersion() >= 9)
+                return (videoElement.webkitPresentationMode === "picture-in-picture");
+
+        },
+
+        /**
+         *
+         * @param {HTMLVideoElement} videoElement
+         * @param {function} callback
+         * @param {object =} context
+         * @returns {listener | null}
+         */
+        videoAddPIPChangeListeners: function(videoElement, callback, context) {
+            if (!videoElement || !(videoElement instanceof HTMLVideoElement))
+                return null;
+
+            var self = this;
+            var listener = function() {
+                callback.call(context || this, videoElement, self.videoIsInPIPMode(videoElement));
+            };
+            this.__PIP_EVENTS.forEach(function(event) {
+                videoElement.addEventListener(event, listener, false);
+            });
+            return listener;
+        },
+
+        /**
+         *
+         * @param {HTMLVideoElement} videoElement
+         * @param {function} callback
+         * @param {object =} context
+         * @returns {listener}
+         */
+        videoRemovePIPChangeListeners: function(videoElement) {
+            if (!videoElement || !(videoElement instanceof HTMLVideoElement))
+                return null;
+
+            this.__PIP_EVENTS.forEach(function(event) {
+                videoElement.removeEventListener(event, videoElement);
             });
         },
 
