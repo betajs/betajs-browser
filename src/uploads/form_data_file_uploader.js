@@ -22,7 +22,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         supported: function(options) {
-            if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9)
+            if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9 || Info.isCordova())
                 return false;
             try {
                 new(window.FormData)();
