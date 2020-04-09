@@ -45,7 +45,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {
                     if (HttpHeader.isSuccessStatus(xmlhttp.status) || (xmlhttp.status === 0 && xmlhttp.responseText)) {
-                        AjaxSupport.promiseReturnData(promise, options, options.contentType === "xml" ? xmlhttp.responseXML : xmlhttp.responseText, options.decodeType || "json");
+                        AjaxSupport.promiseReturnData(promise, options, options.contentType === "binary" ? xmlhttp.response : (options.contentType === "xml" ? xmlhttp.responseXML : xmlhttp.responseText), options.decodeType || "json");
                     } else {
                         AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
                     }
@@ -67,6 +67,12 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
+
+            if (options.accept)
+                xmlhttp.setRequestHeader("Accept", options.accept);
+
+            if (options.contentType === "binary")
+                xmlhttp.responseType = "blob";
 
             var parsed = Uri.parse(uri);
             if (parsed.user || parsed.password)

@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.122 - 2020-02-25
+betajs-browser - v1.0.123 - 2020-04-08
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.122",
-    "datetime": 1582666528426
+    "version": "1.0.123",
+    "datetime": 1586402712577
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -317,7 +317,7 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {
                     if (HttpHeader.isSuccessStatus(xmlhttp.status) || (xmlhttp.status === 0 && xmlhttp.responseText)) {
-                        AjaxSupport.promiseReturnData(promise, options, options.contentType === "xml" ? xmlhttp.responseXML : xmlhttp.responseText, options.decodeType || "json");
+                        AjaxSupport.promiseReturnData(promise, options, options.contentType === "binary" ? xmlhttp.response : (options.contentType === "xml" ? xmlhttp.responseXML : xmlhttp.responseText), options.decodeType || "json");
                     } else {
                         AjaxSupport.promiseRequestException(promise, xmlhttp.status, xmlhttp.statusText, xmlhttp.responseText, options.decodeType || "json");
                     }
@@ -339,6 +339,12 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
 
             if (options.bearer)
                 xmlhttp.setRequestHeader('Authorization', 'Bearer ' + options.bearer);
+
+            if (options.accept)
+                xmlhttp.setRequestHeader("Accept", options.accept);
+
+            if (options.contentType === "binary")
+                xmlhttp.responseType = "blob";
 
             var parsed = Uri.parse(uri);
             if (parsed.user || parsed.password)
