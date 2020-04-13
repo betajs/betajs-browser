@@ -94,7 +94,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
                 !!navigator.device.capture.captureVideo &&
                 !!(window.resolveLocalFileSystemURL || (window.FileTransfer && window.FileUploadOptions)) &&
                 !options.isBlob &&
-                ("localURL" in options.source);
+                ("localURL" in options.source || "fullPath" in options.source);
             return result;
         }
 

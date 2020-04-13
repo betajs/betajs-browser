@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.123 - 2020-04-08
+betajs-browser - v1.0.123 - 2020-04-13
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -12,7 +12,7 @@ Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
     "version": "1.0.123",
-    "datetime": 1586402712577
+    "datetime": 1586816433757
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3358,7 +3358,7 @@ Scoped.define("module:Upload.CordovaFileUploader", [
                 !!navigator.device.capture.captureVideo &&
                 !!(window.resolveLocalFileSystemURL || (window.FileTransfer && window.FileUploadOptions)) &&
                 !options.isBlob &&
-                ("localURL" in options.source);
+                ("localURL" in options.source || "fullPath" in options.source);
             return result;
         }
 
@@ -3571,7 +3571,7 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         supported: function(options) {
-            if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9 || Info.isCordova())
+            if (Info.isInternetExplorer() && Info.internetExplorerVersion() <= 9 || (Info.isCordova() && ("localURL" in options.source || "fullPath" in options.source)))
                 return false;
             try {
                 new(window.FormData)();
