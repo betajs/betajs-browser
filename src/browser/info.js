@@ -54,7 +54,15 @@ Scoped.define("module:Info", [
             return this.__cached("isiOS", function(nav, ua) {
                 if (this.isInternetExplorer() || this.isIEMobile())
                     return false;
-                return ua.indexOf('iPhone') != -1 || ua.indexOf('iPod') != -1 || ua.indexOf('iPad') != -1;
+                var strs = [ua];
+                if (nav.platform)
+                    strs.push(nav.platform);
+                var ids = ["iPhone", "iPod", "iPad"];
+                return strs.some(function(s) {
+                    return ids.some(function(i) {
+                        return s.indexOf(i) != -1;
+                    });
+                });
             });
         },
 
@@ -175,7 +183,11 @@ Scoped.define("module:Info", [
 
         isFirefox: function() {
             return this.__cached("isFirefox", function(nav, ua, ualc) {
-                return ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1;
+                if (ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1)
+                    return true;
+                if (nav.platform && nav.platform === 'iPad' && ua.indexOf("Macintosh") != -1)
+                    return true;
+                return false;
             });
         },
 

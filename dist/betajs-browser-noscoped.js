@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.123 - 2020-04-13
+betajs-browser - v1.0.125 - 2020-06-18
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.123",
-    "datetime": 1586816433757
+    "version": "1.0.125",
+    "datetime": 1592509533363
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1188,7 +1188,15 @@ Scoped.define("module:Info", [
             return this.__cached("isiOS", function(nav, ua) {
                 if (this.isInternetExplorer() || this.isIEMobile())
                     return false;
-                return ua.indexOf('iPhone') != -1 || ua.indexOf('iPod') != -1 || ua.indexOf('iPad') != -1;
+                var strs = [ua];
+                if (nav.platform)
+                    strs.push(nav.platform);
+                var ids = ["iPhone", "iPod", "iPad"];
+                return strs.some(function(s) {
+                    return ids.some(function(i) {
+                        return s.indexOf(i) != -1;
+                    });
+                });
             });
         },
 
@@ -1309,7 +1317,11 @@ Scoped.define("module:Info", [
 
         isFirefox: function() {
             return this.__cached("isFirefox", function(nav, ua, ualc) {
-                return ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1;
+                if (ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1)
+                    return true;
+                if (nav.platform && nav.platform === 'iPad' && ua.indexOf("Macintosh") != -1)
+                    return true;
+                return false;
             });
         },
 
