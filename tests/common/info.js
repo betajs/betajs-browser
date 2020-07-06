@@ -68,7 +68,9 @@ QUnit.test("test different browsers", function (assert) {
 	check("mobile", "android", "chromium", "Mozilla/5.0 (Linux; U; Android 4.3.1; en-us; Ascend Y300 Build/JLS36I) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 CyanogenMod/10.2/u8833");
 	assert.equal(BetaJS.Browser.Info.androidVersion().major, 4, "Android 4.3.1");
 
-	check("mobile", "ios", "firefox", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15", {platform: "iPad"});
+	check("mobile", "ios", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15", {platform: "iPad"});
+
+	check("mobile", "ios", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Safari/605.1.15", {platform: "MacIntel", touchable: true});
 
 	
 	BetaJS.Browser.Info.setNavigator();

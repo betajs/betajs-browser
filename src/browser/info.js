@@ -17,7 +17,8 @@ Scoped.define("module:Info", [
                     userAgent: navigator.userAgent,
                     window_chrome: "chrome" in window,
                     window_opera: "opera" in window,
-                    language: navigator.language || navigator.userLanguage || ""
+                    language: navigator.language || navigator.userLanguage || "",
+                    isTouchable: this.isTouchable()
                 };
             }
             return this.__navigator;
@@ -62,7 +63,7 @@ Scoped.define("module:Info", [
                     return ids.some(function(i) {
                         return s.indexOf(i) != -1;
                     });
-                });
+                }) || (nav.platform && nav.platform === "MacIntel" && nav.touchable);
             });
         },
 
@@ -185,15 +186,21 @@ Scoped.define("module:Info", [
             return this.__cached("isFirefox", function(nav, ua, ualc) {
                 if (ualc.indexOf("firefox") != -1 || ualc.indexOf("fxios") != -1)
                     return true;
-                if (nav.platform && nav.platform === 'iPad' && ua.indexOf("Macintosh") != -1)
-                    return true;
                 return false;
             });
         },
 
         isSafari: function() {
             return this.__cached("isSafari", function(nav, ua, ualc) {
-                return !this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1 && !this.isAndroid();
+                if (!this.isChrome() && !this.isOpera() && !this.isEdge() && !this.isFirefox() && ualc.indexOf("safari") != -1 && !this.isAndroid())
+                    return true;
+                if (this.isiOS() && ua.indexOf("Macintosh") != -1 && nav.platform) {
+                    if (nav.platform === "iPad")
+                        return true;
+                    if (nav.touchable && nav.platform === "MacIntel")
+                        return true;
+                }
+                return false;
             });
         },
 
