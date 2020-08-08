@@ -5,8 +5,19 @@ Scoped.define("module:Cookies", ["base:Net.Cookies"], function(Cookies) {
             return Cookies.getCookielikeValue(document.cookie, key);
         },
 
-        set: function(key, value, end, path, domain, secure) {
-            document.cookie = Cookies.createCookielikeValue(key, value, end, path, domain, secure);
+        /**
+         * Will set the Cookie with provided settings
+         *
+         * @param {string} key
+         * @param {string} value
+         * @param {Date} end
+         * @param {string} path
+         * @param {string} domain
+         * @param {boolean} secure
+         * @param {'None'|'Lax'|'Strict'} sameSite
+         */
+        set: function(key, value, end, path, domain, secure, sameSite) {
+            document.cookie = Cookies.createCookielikeValue(key, value, end, path, domain, secure, sameSite);
         },
 
         remove: function(key, value, path, domain) {
