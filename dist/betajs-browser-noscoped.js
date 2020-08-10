@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.125 - 2020-07-05
+betajs-browser - v1.0.128 - 2020-08-10
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.125",
-    "datetime": 1594005907997
+    "version": "1.0.128",
+    "datetime": 1597033319938
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -569,8 +569,19 @@ Scoped.define("module:Cookies", ["base:Net.Cookies"], function(Cookies) {
             return Cookies.getCookielikeValue(document.cookie, key);
         },
 
-        set: function(key, value, end, path, domain, secure) {
-            document.cookie = Cookies.createCookielikeValue(key, value, end, path, domain, secure);
+        /**
+         * Will set the Cookie with provided settings
+         *
+         * @param {string} key
+         * @param {string} value
+         * @param {Date} end
+         * @param {string} path
+         * @param {string} domain
+         * @param {boolean} secure
+         * @param {'None'|'Lax'|'Strict'} sameSite
+         */
+        set: function(key, value, end, path, domain, secure, sameSite) {
+            document.cookie = Cookies.createCookielikeValue(key, value, end, path, domain, secure, sameSite);
         },
 
         remove: function(key, value, path, domain) {
