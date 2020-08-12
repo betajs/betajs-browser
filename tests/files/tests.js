@@ -1,4 +1,4 @@
-QUnit.test("standard file upload", function () {
+QUnit.test("standard file upload", function (assert) {
 	var done = assert.async();
     document.getElementById("qunit-fixture-visible").innerHTML = "<input type='file' name='file' /> <button id='upload-button'>Upload</button>";
 	var file = document.querySelector("#qunit-fixture-visible input");
@@ -35,14 +35,14 @@ QUnit.test("standard file upload", function () {
 });
 
 
-QUnit.test("multi file upload", function () {
+QUnit.test("multi file upload", function (assert) {
 	var done = assert.async();
 	var fileCount = 4;
 	var files = [];
 	var simul = 2;
 	document.getElementById("qunit-fixture-visible").innerHTML = "";
 	for (var i = 0; i < fileCount; ++i) {
-		var file = document.querySelector("<input type='file' name='file' />");
+		var file = BetaJS.Browser.Dom.elementByTemplate("<input type='file' name='file' />");
         document.getElementById("qunit-fixture-visible").appendChild(file);
 		files.push({
 			id: i,
@@ -94,7 +94,7 @@ QUnit.test("multi file upload", function () {
 
 
 if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:true})) {
-	test("chunked file upload", function () {
+	test("chunked file upload", function (assert) {
 		var done = assert.async();
         document.getElementById("qunit-fixture-visible").innerHTML = "<input type='file' name='file' />";
 		var file = document.querySelector("#qunit-fixture-visible input");
@@ -134,7 +134,7 @@ if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:t
 		};
 	});
 } else {
-	test("chunked file upload dummy", function () {
+	test("chunked file upload dummy", function (assert) {
 		var done = assert.async();
         document.getElementById("qunit-fixture-visible").innerHTML = "<input type='file' name='file' /> <button id='upload-button'>Upload</button>";
 		var file = document.querySelector("#qunit-fixture-visible input");
@@ -172,7 +172,7 @@ if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:t
 }
 
 if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:true}) && BetaJS.Browser.Upload.StreamingFileUploader.supported({serverSupportsChunked:true})) {
-	test("streaming file upload", function () {
+	test("streaming file upload", function (assert) {
 		var done = assert.async();
         document.getElementById("qunit-fixture-visible").innerHTML = "<input type='file' name='file' />";
 		var file = document.querySelector("#qunit-fixture-visible input");
@@ -222,7 +222,7 @@ if (BetaJS.Browser.Upload.ChunkedFileUploader.supported({serverSupportsChunked:t
 		};
 	});
 } else {
-	test("streaming file upload dummy", function () {
+	test("streaming file upload dummy", function (assert) {
 		var done = assert.async();
 		document.getElementById("qunit-fixture-visible").innerHTML = "<input type='file' name='file' /> <button id='upload-button'>Upload</button>";
 		var file = document.querySelector("#qunit-fixture-visible input");

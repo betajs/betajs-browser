@@ -60,6 +60,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             }
 
             uri = AjaxSupport.finalizeUri(options, uri);
+            var parsed = Uri.parse(uri);
+
+            if (Info.isFirefox() && parsed.user && parsed.password)
+                uri = uri.replace(parsed.user + ":" + parsed.password + "@", "");
+
             xmlhttp.open(options.method, uri, true);
 
             if (options.corscreds)
@@ -74,7 +79,6 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (options.contentType === "binary")
                 xmlhttp.responseType = "blob";
 
-            var parsed = Uri.parse(uri);
             if (parsed.user || parsed.password)
                 xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
 

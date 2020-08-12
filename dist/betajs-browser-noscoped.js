@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.128 - 2020-08-10
+betajs-browser - v1.0.129 - 2020-08-12
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.128",
-    "datetime": 1597033319938
+    "version": "1.0.129",
+    "datetime": 1597267460270
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -332,6 +332,11 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             }
 
             uri = AjaxSupport.finalizeUri(options, uri);
+            var parsed = Uri.parse(uri);
+
+            if (Info.isFirefox() && parsed.user && parsed.password)
+                uri = uri.replace(parsed.user + ":" + parsed.password + "@", "");
+
             xmlhttp.open(options.method, uri, true);
 
             if (options.corscreds)
@@ -346,7 +351,6 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (options.contentType === "binary")
                 xmlhttp.responseType = "blob";
 
-            var parsed = Uri.parse(uri);
             if (parsed.user || parsed.password)
                 xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
 
