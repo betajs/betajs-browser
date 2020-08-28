@@ -15,8 +15,8 @@ Scoped.define("module:Info", [
                     onLine: navigator.onLine,
                     platform: navigator.platform,
                     userAgent: navigator.userAgent,
-                    window_chrome: "chrome" in window,
-                    window_opera: "opera" in window,
+                    window_chrome: (typeof window !== "undefined") && ("chrome" in window),
+                    window_opera: (typeof window !== "undefined") && ("opera" in window),
                     language: navigator.language || navigator.userLanguage || "",
                     isTouchable: this.isTouchable()
                 };
@@ -74,7 +74,7 @@ Scoped.define("module:Info", [
         },
 
         isCordova: function() {
-            return !!window.cordova || !!window._cordovaNative || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
+            return ((typeof window !== "undefined") && (!!window.cordova || !!window._cordovaNative)) || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
         },
 
         isLocalCordova: function() {
@@ -234,7 +234,7 @@ Scoped.define("module:Info", [
          * @return {boolean}
          */
         isTouchable: function() {
-            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+            return (((typeof window !== "undefined") && ('ontouchstart' in window)) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
         },
 
         internetExplorerVersion: function() {
@@ -296,7 +296,7 @@ Scoped.define("module:Info", [
 
         inIframe: function() {
             try {
-                return window.self !== window.top;
+                return (typeof window !== "undefined") && (window.self !== window.top);
             } catch (e) {
                 return true;
             }

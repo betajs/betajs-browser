@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.129 - 2020-08-12
+betajs-browser - v1.0.130 - 2020-08-27
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.129",
-    "datetime": 1597267460270
+    "version": "1.0.130",
+    "datetime": 1598581185769
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1164,8 +1164,8 @@ Scoped.define("module:Info", [
                     onLine: navigator.onLine,
                     platform: navigator.platform,
                     userAgent: navigator.userAgent,
-                    window_chrome: "chrome" in window,
-                    window_opera: "opera" in window,
+                    window_chrome: (typeof window !== "undefined") && ("chrome" in window),
+                    window_opera: (typeof window !== "undefined") && ("opera" in window),
                     language: navigator.language || navigator.userLanguage || "",
                     isTouchable: this.isTouchable()
                 };
@@ -1223,7 +1223,7 @@ Scoped.define("module:Info", [
         },
 
         isCordova: function() {
-            return !!window.cordova || !!window._cordovaNative || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
+            return ((typeof window !== "undefined") && (!!window.cordova || !!window._cordovaNative)) || document.location.href.indexOf("file:///android_asset/www") === 0 || document.location.href.indexOf("file:///var/mobile/Containers/Bundle/Application") === 0;
         },
 
         isLocalCordova: function() {
@@ -1383,7 +1383,7 @@ Scoped.define("module:Info", [
          * @return {boolean}
          */
         isTouchable: function() {
-            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+            return (((typeof window !== "undefined") && ('ontouchstart' in window)) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
         },
 
         internetExplorerVersion: function() {
@@ -1445,7 +1445,7 @@ Scoped.define("module:Info", [
 
         inIframe: function() {
             try {
-                return window.self !== window.top;
+                return (typeof window !== "undefined") && (window.self !== window.top);
             } catch (e) {
                 return true;
             }
