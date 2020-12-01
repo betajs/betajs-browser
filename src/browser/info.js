@@ -63,7 +63,7 @@ Scoped.define("module:Info", [
                     return ids.some(function(i) {
                         return s.indexOf(i) != -1;
                     });
-                }) || (nav.platform && nav.platform === "MacIntel" && nav.touchable);
+                }) || (nav.platform && nav.platform === "MacIntel" && nav.isTouchable);
             });
         },
 
@@ -197,7 +197,7 @@ Scoped.define("module:Info", [
                 if (this.isiOS() && ua.indexOf("Macintosh") != -1 && nav.platform) {
                     if (nav.platform === "iPad")
                         return true;
-                    if (nav.touchable && nav.platform === "MacIntel")
+                    if (nav.isTouchable && nav.platform === "MacIntel")
                         return true;
                 }
                 return false;

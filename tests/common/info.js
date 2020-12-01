@@ -70,8 +70,7 @@ QUnit.test("test different browsers", function (assert) {
 
 	check("mobile", "ios", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15", {platform: "iPad"});
 
-	check("mobile", "ios", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Safari/605.1.15", {platform: "MacIntel", touchable: true});
-
+	check("mobile", "ios", "safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Safari/605.1.15", {platform: "MacIntel", isTouchable: true});
 	
 	BetaJS.Browser.Info.setNavigator();
 });
