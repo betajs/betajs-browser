@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.130 - 2020-08-27
+betajs-browser - v1.0.131 - 2020-12-01
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.130 - 2020-08-27
+betajs-browser - v1.0.131 - 2020-12-01
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.130",
-    "datetime": 1598581185769
+    "version": "1.0.131",
+    "datetime": 1606874456658
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -2223,7 +2223,7 @@ Scoped.define("module:Info", [
                     return ids.some(function(i) {
                         return s.indexOf(i) != -1;
                     });
-                }) || (nav.platform && nav.platform === "MacIntel" && nav.touchable);
+                }) || (nav.platform && nav.platform === "MacIntel" && nav.isTouchable);
             });
         },
 
@@ -2357,7 +2357,7 @@ Scoped.define("module:Info", [
                 if (this.isiOS() && ua.indexOf("Macintosh") != -1 && nav.platform) {
                     if (nav.platform === "iPad")
                         return true;
-                    if (nav.touchable && nav.platform === "MacIntel")
+                    if (nav.isTouchable && nav.platform === "MacIntel")
                         return true;
                 }
                 return false;
