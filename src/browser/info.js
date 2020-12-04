@@ -294,6 +294,16 @@ Scoped.define("module:Info", [
             });
         },
 
+        edgeVersion: function() {
+            return this.__cached("edgeVersion", function(nav, ua) {
+                var re = /Edg\/(\d+\.\d+)/gi;
+                var ma = re.exec(ua);
+                if (ma)
+                    return parseFloat(ma[1]);
+                return null;
+            });
+        },
+
         inIframe: function() {
             try {
                 return (typeof window !== "undefined") && (window.self !== window.top);
