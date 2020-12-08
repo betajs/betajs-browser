@@ -237,6 +237,21 @@ Scoped.define("module:Info", [
             return (((typeof window !== "undefined") && ('ontouchstart' in window)) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
         },
 
+        /**
+         * Will return boolean if screen recorder is supported
+         * We have the same method in betajs-media package, but sometimes it could be required before
+         * recorder is initialized
+         * @return {boolean}
+         */
+        isScreenRecorderSupported: function() {
+            if (typeof navigator.mediaDevices !== 'undefined') {
+                if ((this.isChrome() || this.isFirefox() || this.isOpera() || this.isEdge()) && !this.isMobile() && typeof navigator.mediaDevices.getDisplayMedia !== 'undefined')
+                    return true;
+            }
+            return false;
+        },
+
+
         internetExplorerVersion: function() {
             return this.__cached("internetExplorerVersion", function(nav, ua) {
                 if (nav.appName == 'Microsoft Internet Explorer') {
@@ -296,7 +311,8 @@ Scoped.define("module:Info", [
 
         edgeVersion: function() {
             return this.__cached("edgeVersion", function(nav, ua) {
-                var re = /Edg\/(\d+\.\d+)/gi;
+                // Edge for the old versions latest was 15, Edg is for Chromium based version
+                var re = /Edg\/(\d+\.\d+)|Edge\/(\d+\.\d+)/gi;
                 var ma = re.exec(ua);
                 if (ma)
                     return parseFloat(ma[1]);
