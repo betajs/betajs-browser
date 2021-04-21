@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.132 - 2020-12-09
+betajs-browser - v1.0.132 - 2021-04-21
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.132 - 2020-12-09
+betajs-browser - v1.0.132 - 2021-04-21
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1023,7 +1023,7 @@ Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
     "version": "1.0.132",
-    "datetime": 1607550657896
+    "datetime": 1619038578441
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -4622,14 +4622,15 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     "module:Upload.FileUploader",
     "module:Info",
     "base:Ajax.Support",
-    "base:Objs"
-], function(FileUploader, Info, AjaxSupport, Objs, scoped) {
+    "base:Objs",
+    "base:Types"
+], function(FileUploader, Info, AjaxSupport, Objs, Types, scoped) {
     return FileUploader.extend({
         scoped: scoped
     }, {
 
         _upload: function() {
-            var data = Objs.clone(this._options.data || {}, 1);
+            var data = Objs.clone(Types.is_empty(this._options.data) ? {} : this._options.data, 1);
             data.file = this._options.isBlob ? this._options.source : this._options.source.files[0];
             return AjaxSupport.execute({
                 method: this._options.method,
