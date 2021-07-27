@@ -56,8 +56,8 @@ Scoped.define("module:Upload.FileUploader", [
             },
 
             __upload: function() {
-                this._options.resilience--;
                 this._upload();
+                this._options.resilience--;
             },
 
             _upload: function() {},
