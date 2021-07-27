@@ -34,13 +34,17 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             return true;
         },
 
-        execute: function(options, progress, progressCtx) {
+        create: function() {
+            return new XMLHttpRequest();
+        },
+
+        execute: function(options, progress, progressCtx, xmlhttp) {
             var uri = Uri.appendUriParams(options.uri, options.query || {});
             if (!options.methodSupportsPayload)
                 uri = Uri.appendUriParams(uri, options.data || {});
             var promise = Promise.create();
 
-            var xmlhttp = new XMLHttpRequest();
+            xmlhttp = xmlhttp || this.create();
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {

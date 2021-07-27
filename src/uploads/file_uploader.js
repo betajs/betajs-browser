@@ -17,10 +17,10 @@ Scoped.define("module:Upload.FileUploader", [
                 this._state = "idle";
             },
 
-            _setState: function(state, triggerdata) {
+            _setState: function(state, triggerdata, xmlhttprequest) {
                 this._state = state;
-                this.trigger(state, triggerdata);
-                this.trigger("state", state, triggerdata);
+                this.trigger(state, triggerdata, xmlhttprequest);
+                this.trigger("state", state, triggerdata, xmlhttprequest);
             },
 
             state: function() {
@@ -44,6 +44,7 @@ Scoped.define("module:Upload.FileUploader", [
                     delete this._data;
                     delete this._uploaded;
                     delete this._total;
+                    delete this._request;
                 }
             },
 
@@ -74,7 +75,7 @@ Scoped.define("module:Upload.FileUploader", [
                 if (this.state() !== "uploading")
                     return;
                 this._data = data;
-                this._setState("success", data);
+                this._setState("success", data, this._request);
             },
 
             _errorCallback: function(data) {
@@ -99,7 +100,7 @@ Scoped.define("module:Upload.FileUploader", [
                     return;
                 }
                 this._data = data;
-                this._setState("error", data);
+                this._setState("error", data, this._request);
             },
 
             uploadedBytes: function() {
