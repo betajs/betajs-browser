@@ -14,6 +14,7 @@ Scoped.define("module:Upload.FileUploader", [
             constructor: function(options) {
                 inherited.constructor.call(this, options);
                 // idle, uploading, success, error
+                this._uploaded = 0;
                 this._state = "idle";
             },
 
@@ -42,7 +43,7 @@ Scoped.define("module:Upload.FileUploader", [
                 if (this.state() === "error") {
                     this._setState("idle");
                     delete this._data;
-                    delete this._uploaded;
+                    this._uploaded = 0;
                     delete this._total;
                     delete this._request;
                 }
