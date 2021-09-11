@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.132 - 2021-04-21
+betajs-browser - v1.0.133 - 2021-09-11
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.132 - 2021-04-21
+betajs-browser - v1.0.133 - 2021-09-11
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.132",
-    "datetime": 1619038578441
+    "version": "1.0.133",
+    "datetime": 1631366940915
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1317,13 +1317,17 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             return true;
         },
 
-        execute: function(options, progress, progressCtx) {
+        create: function() {
+            return new XMLHttpRequest();
+        },
+
+        execute: function(options, progress, progressCtx, xmlhttp) {
             var uri = Uri.appendUriParams(options.uri, options.query || {});
             if (!options.methodSupportsPayload)
                 uri = Uri.appendUriParams(uri, options.data || {});
             var promise = Promise.create();
 
-            var xmlhttp = new XMLHttpRequest();
+            xmlhttp = xmlhttp || this.create();
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {
@@ -1365,8 +1369,10 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (parsed.user || parsed.password)
                 xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
 
-            if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
-                if (options.requireFormData) {
+            if (options.methodSupportsPayload && (options.body || !Types.is_empty(options.data))) {
+                if (options.body) {
+                    xmlhttp.send(options.body);
+                } else if (options.requireFormData) {
                     var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {
                         formData.append(key, value);
@@ -4451,13 +4457,14 @@ Scoped.define("module:Upload.FileUploader", [
             constructor: function(options) {
                 inherited.constructor.call(this, options);
                 // idle, uploading, success, error
+                this._uploaded = 0;
                 this._state = "idle";
             },
 
-            _setState: function(state, triggerdata) {
+            _setState: function(state, triggerdata, xmlhttprequest) {
                 this._state = state;
-                this.trigger(state, triggerdata);
-                this.trigger("state", state, triggerdata);
+                this.trigger(state, triggerdata, xmlhttprequest);
+                this.trigger("state", state, triggerdata, xmlhttprequest);
             },
 
             state: function() {
@@ -4479,8 +4486,9 @@ Scoped.define("module:Upload.FileUploader", [
                 if (this.state() === "error") {
                     this._setState("idle");
                     delete this._data;
-                    delete this._uploaded;
+                    this._uploaded = 0;
                     delete this._total;
+                    delete this._request;
                 }
             },
 
@@ -4493,8 +4501,8 @@ Scoped.define("module:Upload.FileUploader", [
             },
 
             __upload: function() {
-                this._options.resilience--;
                 this._upload();
+                this._options.resilience--;
             },
 
             _upload: function() {},
@@ -4511,7 +4519,7 @@ Scoped.define("module:Upload.FileUploader", [
                 if (this.state() !== "uploading")
                     return;
                 this._data = data;
-                this._setState("success", data);
+                this._setState("success", data, this._request);
             },
 
             _errorCallback: function(data) {
@@ -4536,7 +4544,7 @@ Scoped.define("module:Upload.FileUploader", [
                     return;
                 }
                 this._data = data;
-                this._setState("error", data);
+                this._setState("error", data, this._request);
             },
 
             uploadedBytes: function() {
@@ -4630,14 +4638,25 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         _upload: function() {
-            var data = Objs.clone(Types.is_empty(this._options.data) ? {} : this._options.data, 1);
-            data.file = this._options.isBlob ? this._options.source : this._options.source.files[0];
-            return AjaxSupport.execute({
+            var file = this._options.isBlob ? this._options.source : this._options.source.files[0];
+            var params = {
                 method: this._options.method,
                 uri: this._options.url,
-                decodeType: "text",
-                data: data
-            }, this._progressCallback, this).success(this._successCallback, this).error(this._errorCallback, this);
+                decodeType: "text"
+            };
+            if (Types.is_empty(this._options.data)) {
+                Objs.extend(params, {
+                    body: file
+                });
+            } else {
+                var data = Objs.clone(this._options.data, 1);
+                data.file = file;
+                Objs.extend(params, {
+                    data: data
+                });
+            }
+            this._request = AjaxSupport.create();
+            return AjaxSupport.execute(params, this._progressCallback, this, this._request).success(this._successCallback, this).error(this._errorCallback, this);
         }
 
     }, {
@@ -4861,6 +4880,221 @@ Scoped.define("module:Upload.MultiUploader", [
 
         };
     });
+});
+Scoped.define("module:Upload.S3MultipartFileUploader", [
+    "module:Upload.FileUploader",
+    "module:Upload.MultiUploader",
+    "module:Upload.S3MultipartSupport"
+], function(FileUploader, MultiUploader, S3Support, scoped) {
+    return FileUploader.extend({
+        scoped: scoped
+    }, function(inherited) {
+        return {
+            constructor: function(options) {
+                inherited.constructor.call(this, options);
+                this._parts = [];
+                this._multiUploader = new MultiUploader({
+                    uploadLimit: this._options.uploadLimit
+                });
+            },
+
+            destroy: function() {
+                this._multiUploader.destroy();
+                inherited.destroy.call(this);
+            },
+
+            reset: function() {
+                inherited.reset.call(this);
+                this._parts = [];
+                this._multiUploader.destroy();
+                this._multiUploader = new MultiUploader({
+                    uploadLimit: this._options.uploadLimit
+                });
+            },
+
+            getUploadId: function() {
+                return this._options.uploadId;
+            },
+
+            _upload: function() {
+                var file = this._options.isBlob ? this._options.source : this._options.source.files[0];
+                if (!S3Support.validateFileSize(file.size)) {
+                    this._setState("error", "File size is too big");
+                    return;
+                }
+
+                var chunks = S3Support.chunkFile(file, {
+                    numberOfChunks: this._options.parts,
+                    chunkSize: this._options.chunkSize
+                });
+
+                var maximumNumberOfParts = 0;
+                for (var p in this._options.urls) {
+                    if (this._options.urls.hasOwnProperty(p)) {
+                        maximumNumberOfParts++;
+                    }
+                }
+
+                if (chunks.length > maximumNumberOfParts) {
+                    this._setState("error", "Not enough parts to upload file");
+                    return;
+                }
+
+                chunks.forEach(function(chunk, index) {
+                    var partNumber = index + 1;
+                    var chunkUploader = this._multiUploader.auto_destroy(FileUploader.create({
+                        method: "PUT",
+                        url: this._options.urls[partNumber],
+                        source: chunk,
+                        resilience: this._options.resilience
+                    }));
+                    
+                    this._multiUploader.addUploader(chunkUploader);
+                    chunkUploader.on("success", function(_, request) {
+                        this._parts.push({
+                            ETag: request.getResponseHeader("ETag"),
+                            PartNumber: partNumber
+                        });
+                    }, this);
+                }.bind(this));
+
+                this._multiUploader
+                    .on("error", this._errorCallback, this)
+                    .on("progress", this._progressCallback, this)
+                    .on("success", function() {
+                        this._successCallback(S3Support.sortParts(this._parts));
+                    }, this);
+
+                this._multiUploader.upload();
+            }
+        };
+    });
+});
+Scoped.define("module:Upload.S3MultipartSupport", [
+    "base:Maths"
+], function(Maths) {
+    var MIN_CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+    var MAX_CHUNK_SIZE = 5 * 1024 * 1024 * 1024; // 5 GB
+    var MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024 * 1024; // 5 TB
+    var MAX_NUMBER_OF_CHUNKS = 10000;
+    var DEFAULT_CHUNK_SIZE = 50 * 1024 * 1024; // 50 MB
+    var MAX_FILE_SIZE_FOR_DEFAULT_CHUNK_SIZE = DEFAULT_CHUNK_SIZE * MAX_NUMBER_OF_CHUNKS;
+
+    return {
+        /**
+         * Split file into multiple chunks that respect AWS limits for multipart upload.
+         * @param {Blob | File} file
+         * @param {Object} [options]
+         * @param {number} options.numberOfChunks
+         * @param {number} options.chunkSize
+         * @returns {Blob[]} array of chunks
+         */
+        chunkFile: function(file, options) {
+            if (!this.validateFileSize(file.size)) {
+                return [];
+            }
+
+            var chunkSize = file.size > MAX_FILE_SIZE_FOR_DEFAULT_CHUNK_SIZE ? MAX_CHUNK_SIZE : DEFAULT_CHUNK_SIZE;
+            
+            if (options.chunkSize) {
+                chunkSize = this.clampChunkSize(options.chunkSize);
+                var numberOfChunks = this.calculateNumberOfChunks(file.size, chunkSize);
+                if (options.numberOfChunks && numberOfChunks > this.clampNumberOfChunks(options.numberOfChunks)) {
+                    // chunk size is too small for the current number of chunks, we are prioritizing number of chunks over chunk size
+                    chunkSize = this.clampChunkSize(this.calculateChunkSize(file.size, this.clampNumberOfChunks(options.numberOfChunks)));
+                }
+            } else if (options.numberOfChunks) {
+                chunkSize = this.clampChunkSize(this.calculateChunkSize(file.size, this.clampNumberOfChunks(options.numberOfChunks)));
+            }
+
+            var startPointer = 0;
+            var endPointer = file.size;
+            var chunks = [];
+            while (startPointer < endPointer) {
+                chunks.push(file.slice(startPointer, startPointer + chunkSize));
+                startPointer = startPointer + chunkSize;
+            }
+            return chunks;
+        },
+
+        /**
+         * Sort parts by part number, as AWS require them to be sent in order.
+         * @param {Object[]} parts - list of parts
+         * @param {string} parts[].ETag - the part's ETag response header, which is sent after successfull part upload
+         * @param {number} parts[].PartNumber - the part's part number
+         * @returns {Object[]}
+         */
+        sortParts: function(parts) {
+            return parts.sort(function(prevPart, nextPart) {
+                return prevPart.PartNumber < nextPart.PartNumber ? -1 : 1;
+            });
+        },
+
+        /**
+         * Validate whether file size is within AWS limits for multipart upload.
+         * @param {number} fileSize - file size in bytes
+         * @returns {boolean}
+         */
+        validateFileSize: function(fileSize) {
+            return fileSize > 0 && fileSize <= MAX_FILE_SIZE;
+        },
+
+        /**
+         * Validate whether chunk size is within AWS limits for multipart upload.
+         * @param {number} chunkSize - chunk size in bytes
+         * @returns {boolean}
+         */
+        validateChunkSize: function(chunkSize) {
+            return chunkSize >= MIN_CHUNK_SIZE && chunkSize <= MAX_CHUNK_SIZE;
+        },
+
+        /**
+         * Validate whether number of chunks is within AWS limits for multipart upload.
+         * @param {number} numberOfChunks
+         * @returns {boolean}
+         */
+        validateNumberOfChunks: function(numberOfChunks) {
+            return numberOfChunks >= 1 && numberOfChunks <= MAX_NUMBER_OF_CHUNKS;
+        },
+
+        /**
+         * Calculate chunk size, given the file size and number of chunks.
+         * @param {number} fileSize - file size in bytes
+         * @param {number} numberOfChunks
+         * @returns {number} chunk size in bytes
+         */
+        calculateChunkSize: function(fileSize, numberOfChunks) {
+            return Math.ceil(fileSize / numberOfChunks);
+        },
+
+        /**
+         * Calculate number of chunks, given the file size and chunk size.
+         * @param {number} fileSize - file size in bytes
+         * @param {number} chunkSize - chunk size in bytes
+         * @returns {number}
+         */
+        calculateNumberOfChunks: function(fileSize, chunkSize) {
+            return Math.ceil(fileSize / (chunkSize || DEFAULT_CHUNK_SIZE));
+        },
+
+        /**
+         * Clamp chunk size using AWS limits as upper and lower bounds.
+         * @param {number} chunkSize
+         * @returns {number} clamped chunk size
+         */
+        clampChunkSize: function(chunkSize) {
+            return Maths.clamp(chunkSize, MIN_CHUNK_SIZE, MAX_CHUNK_SIZE);
+        },
+
+        /**
+         * Clamp number of chunks using AWS limits as upper and lower bounds.
+         * @param {number} numberOfChunks
+         * @returns {number} clamped number of chunks
+         */
+        clampNumberOfChunks: function(numberOfChunks) {
+            return Maths.clamp(numberOfChunks, 1, MAX_NUMBER_OF_CHUNKS);
+        }
+    };
 });
 Scoped.define("module:Upload.StreamingFileUploader", [
     "module:Upload.FileUploader",
