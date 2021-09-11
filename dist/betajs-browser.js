@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.133 - 2021-09-11
+betajs-browser - v1.0.134 - 2021-09-11
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.133 - 2021-09-11
+betajs-browser - v1.0.134 - 2021-09-11
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.133",
-    "datetime": 1631366940915
+    "version": "1.0.134",
+    "datetime": 1631367283532
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
