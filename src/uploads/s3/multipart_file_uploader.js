@@ -25,7 +25,8 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._parts = [];
                 this._multiUploader.destroy();
                 this._multiUploader = new MultiUploader({
-                    uploadLimit: this._options.uploadLimit
+                    uploadLimit: this._options.uploadLimit,
+                    noFormData: true
                 });
             },
 
