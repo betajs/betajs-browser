@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.135 - 2021-10-02
+betajs-browser - v1.0.136 - 2021-11-10
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.135",
-    "datetime": 1633199447377
+    "version": "1.0.136",
+    "datetime": 1636560635270
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -358,9 +358,9 @@ Scoped.define("module:Ajax.XmlHttpRequestAjax", [
             if (parsed.user || parsed.password)
                 xmlhttp.setRequestHeader('Authorization', 'Basic ' + btoa(parsed.user + ':' + parsed.password));
 
-            if (options.methodSupportsPayload && (options.body || !Types.is_empty(options.data))) {
-                if (options.body) {
-                    xmlhttp.send(options.body);
+            if (options.methodSupportsPayload && !Types.is_empty(options.data)) {
+                if (options.noFormData) {
+                    xmlhttp.send(options.data.file);
                 } else if (options.requireFormData) {
                     var formData = new(window.FormData)();
                     Objs.iter(options.data, function(value, key) {
@@ -3627,25 +3627,16 @@ Scoped.define("module:Upload.FormDataFileUploader", [
     }, {
 
         _upload: function() {
-            var file = this._options.isBlob ? this._options.source : this._options.source.files[0];
-            var params = {
+            var data = Objs.clone(Types.is_empty(this._options.data) ? {} : this._options.data, 1);
+            data.file = this._options.isBlob ? this._options.source : this._options.source.files[0];
+            this._request = AjaxSupport.create();
+            return AjaxSupport.execute({
                 method: this._options.method,
                 uri: this._options.url,
-                decodeType: "text"
-            };
-            if (Types.is_empty(this._options.data)) {
-                Objs.extend(params, {
-                    body: file
-                });
-            } else {
-                var data = Objs.clone(this._options.data, 1);
-                data.file = file;
-                Objs.extend(params, {
-                    data: data
-                });
-            }
-            this._request = AjaxSupport.create();
-            return AjaxSupport.execute(params, this._progressCallback, this, this._request).success(this._successCallback, this).error(this._errorCallback, this);
+                decodeType: "text",
+                data: data,
+                noFormData: this._options.noFormData
+            }, this._progressCallback, this, this._request).success(this._successCallback, this).error(this._errorCallback, this);
         }
 
     }, {
@@ -3897,7 +3888,8 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._parts = [];
                 this._multiUploader.destroy();
                 this._multiUploader = new MultiUploader({
-                    uploadLimit: this._options.uploadLimit
+                    uploadLimit: this._options.uploadLimit,
+                    noFormData: true
                 });
             },
 
