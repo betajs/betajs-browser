@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.136 - 2021-11-10
+betajs-browser - v1.0.137 - 2022-09-30
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -11,8 +11,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.136",
-    "datetime": 1636560635270
+    "version": "1.0.137",
+    "datetime": 1664570115337
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3565,6 +3565,7 @@ Scoped.define("module:Upload.FileUploader", [
                 isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),
                 resilience: 1,
                 resilience_delay: 1000,
+                s3: false,
                 essential: true,
                 data: {}
             }, options);
@@ -3607,12 +3608,14 @@ Scoped.extend("module:Upload.FileUploader", [
     "module:Upload.FormDataFileUploader",
     "module:Upload.FormIframeFileUploader",
     "module:Upload.CordovaFileUploader",
-    "module:Upload.ChunkedFileUploader"
-], function(FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader, ChunkedFileUploader) {
+    "module:Upload.ChunkedFileUploader",
+    "module:Upload.S3MultipartFileUploader"
+], function(FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader, ChunkedFileUploader, S3MultipartFileUploader) {
+    FileUploader.register(S3MultipartFileUploader, 5);
+    FileUploader.register(ChunkedFileUploader, 4);
+    FileUploader.register(CordovaFileUploader, 3);
     FileUploader.register(FormDataFileUploader, 2);
     FileUploader.register(FormIframeFileUploader, 1);
-    FileUploader.register(CordovaFileUploader, 4);
-    FileUploader.register(ChunkedFileUploader, 5);
     return {};
 });
 Scoped.define("module:Upload.FormDataFileUploader", [
@@ -3888,8 +3891,7 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._parts = [];
                 this._multiUploader.destroy();
                 this._multiUploader = new MultiUploader({
-                    uploadLimit: this._options.uploadLimit,
-                    noFormData: true
+                    uploadLimit: this._options.uploadLimit
                 });
             },
 
@@ -3927,7 +3929,8 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                         method: "PUT",
                         url: this._options.urls[partNumber],
                         source: chunk,
-                        resilience: this._options.resilience
+                        resilience: this._options.resilience,
+                        noFormData: true
                     }));
                     
                     this._multiUploader.addUploader(chunkUploader);
@@ -3949,6 +3952,10 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._multiUploader.upload();
             }
         };
+    }, {
+        supported: function(options) {
+            return options.s3 && options.urls;
+        }
     });
 });
 Scoped.define("module:Upload.S3MultipartSupport", [
