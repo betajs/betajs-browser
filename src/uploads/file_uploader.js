@@ -133,6 +133,7 @@ Scoped.define("module:Upload.FileUploader", [
                 isBlob: typeof(window.Blob) !== "undefined" && options.source instanceof(window.Blob),
                 resilience: 1,
                 resilience_delay: 1000,
+                s3: false,
                 essential: true,
                 data: {}
             }, options);
@@ -175,11 +176,13 @@ Scoped.extend("module:Upload.FileUploader", [
     "module:Upload.FormDataFileUploader",
     "module:Upload.FormIframeFileUploader",
     "module:Upload.CordovaFileUploader",
-    "module:Upload.ChunkedFileUploader"
-], function(FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader, ChunkedFileUploader) {
+    "module:Upload.ChunkedFileUploader",
+    "module:Upload.S3MultipartFileUploader"
+], function(FileUploader, FormDataFileUploader, FormIframeFileUploader, CordovaFileUploader, ChunkedFileUploader, S3MultipartFileUploader) {
+    FileUploader.register(S3MultipartFileUploader, 5);
+    FileUploader.register(ChunkedFileUploader, 4);
+    FileUploader.register(CordovaFileUploader, 3);
     FileUploader.register(FormDataFileUploader, 2);
     FileUploader.register(FormIframeFileUploader, 1);
-    FileUploader.register(CordovaFileUploader, 4);
-    FileUploader.register(ChunkedFileUploader, 5);
     return {};
 });

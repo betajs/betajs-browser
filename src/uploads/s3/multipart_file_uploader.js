@@ -86,5 +86,9 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._multiUploader.upload();
             }
         };
+    }, {
+        supported: function(options) {
+            return options.s3 && options.urls;
+        }
     });
 });
