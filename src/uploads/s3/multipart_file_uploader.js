@@ -25,8 +25,7 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                 this._parts = [];
                 this._multiUploader.destroy();
                 this._multiUploader = new MultiUploader({
-                    uploadLimit: this._options.uploadLimit,
-                    noFormData: true
+                    uploadLimit: this._options.uploadLimit
                 });
             },
 
@@ -64,7 +63,8 @@ Scoped.define("module:Upload.S3MultipartFileUploader", [
                         method: "PUT",
                         url: this._options.urls[partNumber],
                         source: chunk,
-                        resilience: this._options.resilience
+                        resilience: this._options.resilience,
+                        noFormData: true
                     }));
                     
                     this._multiUploader.addUploader(chunkUploader);
