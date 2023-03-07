@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.137 - 2022-09-30
+betajs-browser - v1.0.138 - 2023-03-03
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.137 - 2022-09-30
+betajs-browser - v1.0.138 - 2023-03-03
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.137",
-    "datetime": 1664570115337
+    "version": "1.0.138",
+    "datetime": 1677885475806
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -3369,7 +3369,7 @@ Scoped.define("module:Dom", [
         });
     };
 
-    return {
+    var Dom = {
 
         ready: function(callback, context) {
             if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -4048,9 +4048,25 @@ Scoped.define("module:Dom", [
                 return document.execCommand("copy");
             }
             return false;
+        },
+
+        onScrollIntoView: function(element, visibilityFraction, callback, context) {
+            if (this.isElementVisible(element, visibilityFraction)) {
+                callback.call(context);
+                return;
+            }
+            var cb = function() {
+                if (Dom.isElementVisible(element, visibilityFraction)) {
+                    callback.call(context);
+                    document.removeEventListener("scroll", cb);
+                }
+            };
+            document.addEventListener("scroll", cb);
         }
 
     };
+
+    return Dom;
 });
 Scoped.define("module:Geometry", [], function() {
     return {

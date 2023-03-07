@@ -26,7 +26,7 @@ Scoped.define("module:Dom", [
         });
     };
 
-    return {
+    var Dom = {
 
         ready: function(callback, context) {
             if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -705,7 +705,23 @@ Scoped.define("module:Dom", [
                 return document.execCommand("copy");
             }
             return false;
+        },
+
+        onScrollIntoView: function(element, visibilityFraction, callback, context) {
+            if (this.isElementVisible(element, visibilityFraction)) {
+                callback.call(context);
+                return;
+            }
+            var cb = function() {
+                if (Dom.isElementVisible(element, visibilityFraction)) {
+                    callback.call(context);
+                    document.removeEventListener("scroll", cb);
+                }
+            };
+            document.addEventListener("scroll", cb);
         }
 
     };
+
+    return Dom;
 });
