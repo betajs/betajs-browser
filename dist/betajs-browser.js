@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.138 - 2023-03-03
+betajs-browser - v1.0.139 - 2023-08-07
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.138 - 2023-03-03
+betajs-browser - v1.0.139 - 2023-08-07
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.138",
-    "datetime": 1677885475806
+    "version": "1.0.139",
+    "datetime": 1691406845039
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1581,6 +1581,45 @@ Scoped.define("module:Blobs", [
             return promise;
         }
 
+    };
+});
+Scoped.define("module:Canvas", [
+    "base:Maths"
+], function(Maths) {
+    return {
+        isCanvasBlack: function(canvas) {
+            if (!canvas) throw Error("Missing canvas");
+            var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+            var MAX_SAMPLE_SIZE = 10000;
+            var sum = 0;
+            var count = 0;
+            if (canvas.width * canvas.height * 3 / 4 < MAX_SAMPLE_SIZE) { // sample all pixels
+                sum = data.reduce(function(s, v, i) {
+                    if (i && (i + 1) % 4 !== 0) {
+                        s += v;
+                        count++;
+                    }
+                    return s;
+                });
+                return sum / count < 10;
+            } else { // random sampling
+                count = MAX_SAMPLE_SIZE;
+                for (var n = 0; n < MAX_SAMPLE_SIZE; n++) {
+                    var i = Maths.randomInt(0, data.length);
+                    while (i && (i + 1) % 4 === 0) i = Maths.randomInt(0, data.length);
+                    sum += data[i];
+                }
+            }
+            return sum / count < 10;
+        },
+        isImageBlack: function(image) {
+            if (!image) throw Error("Missing image");
+            var canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+            return this.isCanvasBlack(canvas);
+        }
     };
 });
 Scoped.define("module:Cookies", ["base:Net.Cookies"], function(Cookies) {
