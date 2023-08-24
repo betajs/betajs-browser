@@ -5,6 +5,7 @@ Scoped.define("module:Canvas", [
         isCanvasBlack: function(canvas) {
             if (!canvas) throw Error("Missing canvas");
             var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+            if (!data) return;
             var MAX_SAMPLE_SIZE = 10000;
             var sum = 0;
             var count = 0;
