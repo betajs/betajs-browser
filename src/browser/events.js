@@ -50,7 +50,9 @@ Scoped.define("module:Events", [
                                 entries[i] = entries[entries.length - 1];
                                 entries.pop();
                             } else
-                                ++i;
+
+
+                            ++i;
                         }
                     }
                 }, this);

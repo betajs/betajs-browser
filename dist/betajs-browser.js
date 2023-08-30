@@ -1,5 +1,5 @@
 /*!
-betajs-browser - v1.0.139 - 2023-08-07
+betajs-browser - v1.0.140 - 2023-08-30
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1010,7 +1010,7 @@ Public.exports();
 	return Public;
 }).call(this);
 /*!
-betajs-browser - v1.0.139 - 2023-08-07
+betajs-browser - v1.0.140 - 2023-08-30
 Copyright (c) Oliver Friedmann,Rashad Aliyev
 Apache-2.0 Software License.
 */
@@ -1022,8 +1022,8 @@ Scoped.binding('base', 'global:BetaJS');
 Scoped.define("module:", function () {
 	return {
     "guid": "02450b15-9bbf-4be2-b8f6-b483bc015d06",
-    "version": "1.0.139",
-    "datetime": 1691406845039
+    "version": "1.0.140",
+    "datetime": 1693425262199
 };
 });
 Scoped.assumeVersion('base:version', '~1.0.104');
@@ -1590,6 +1590,7 @@ Scoped.define("module:Canvas", [
         isCanvasBlack: function(canvas) {
             if (!canvas) throw Error("Missing canvas");
             var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+            if (!data) return;
             var MAX_SAMPLE_SIZE = 10000;
             var sum = 0;
             var count = 0;
@@ -1710,7 +1711,9 @@ Scoped.define("module:Events", [
                                 entries[i] = entries[entries.length - 1];
                                 entries.pop();
                             } else
-                                ++i;
+
+
+                            ++i;
                         }
                     }
                 }, this);
